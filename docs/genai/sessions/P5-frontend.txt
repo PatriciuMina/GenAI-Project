@@ -1,0 +1,1408 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.319
+           Opus 5.5 · Claude Team
+ ▘▘   ▝▝   ~/projects/GenAI-Project
+
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.
+
+❯ /clear                                                                        
+
+❯ /plan                                                                         
+  ⎿  Enabled plan mode
+
+❯ Read CLAUDE.md and follow it. Create the frontend in /frontend:               
+  - Vite + React + TypeScript (strict), React Router, TanStack Query, axios     
+  with a JWT                                                                    
+    interceptor, MUI, ESLint + Prettier, Vitest + React Testing Library.        
+  - Structure by feature:                                                       
+  src/features/{auth,organizations,events,registrations,organizing},            
+    src/api (single typed API client, base URL from VITE_API_BASE_URL),         
+  src/components,                                                               
+    src/routes.                                                                 
+  - Implement: login page, register page, auth context with protected routes    
+  (redirect to                                                                  
+    login when not logged in or when the token expires / a 401 comes back), app 
+  layout with                                                                   
+    navigation depending on the user's role, Organizations list + details pages 
+  using                                                                         
+    GET /api/v1/organizations and /api/v1/organizations/{id}, and a logout      
+  button.                                                                       
+  - Show backend errors from the existing error JSON in a readable way (for     
+  example                                                                       
+    "Invalid credentials", validation messages per field).                      
+  - A simple MUI theme in src/theme.ts with placeholder colors and a            
+  placeholder logo                                                              
+    (a teammate will design the real ones).                                     
+  - Every other feature gets a placeholder page "Coming soon" with a TODO       
+  comment naming                                                                
+    the workflow (W2–W5).                                                       
+  - Vite dev proxy to the backend on http://localhost:8080 so no CORS setup is  
+  needed in dev.                                                                
+  - Tests: at least one component test (login form) and one test for the auth   
+  context.                                                                      
+  - docs/dev-guide/frontend-guide.md: structure, how to add a page, how to call 
+  an API with                                                                   
+    TanStack Query, how to protect a route, how to run lint and tests. Written  
+  for a teammate                                                                
+    with NO AI tools.                                                           
+                                                                                
+  Before implementing, list the open design decisions (for example where to     
+  store the token,                                                              
+  UI language, how roles map to navigation, Node version) with your             
+  recommendation for each,                                                      
+  and wait for my answers.                                                      
+  npm run lint, npm test and npm run build must pass. Do not commit or push.    
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ User answered Claude's questions:
+  ⎿  · D1 – Where should the frontend store the JWT? (Backend issues a 2 h 
+     access token, no refresh tokens.) → localStorage (Recommended)
+     · D2 – UI language for labels and messages? → English (Recommended)
+     · D3 – How should roles map to navigation? The backend only exposes the 
+     global role (STUDENT/ADMIN) for the current user; there is no endpoint yet 
+     for a user's org roles (PRESIDENT/ORGANIZER/MEMBER). → Global role + TODO 
+     (Recommended)
+     · D4 – Which Node version should the project target? (You have Node 24.22 
+     installed.) → Node 24 LTS (Recommended)
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ User approved Claude's plan
+  ⎿  Plan saved to: 
+     ~/.claude/plans/pasted-content-id-c6ee-read-claude-md-precious-castle.md · 
+     /plan to edit
+     Plan: Frontend scaffold (/frontend)
+
+     Context
+
+     The backend (PRs #1–#4) has JWT auth (POST /api/v1/auth/register|login, GET
+     /api/v1/users/me)
+     and GET /api/v1/organizations[/{id}]. There is no frontend yet. This task
+     creates the React +
+     TypeScript app with auth, role-based navigation, the Organizations
+     list/details pages, placeholders
+     for W2–W5, tests, and a dev guide for teammates without AI tools.
+
+     Backend facts the frontend relies on (verified in code):
+     - LoginResponse { accessToken, tokenType: "Bearer", expiresInSeconds } — no
+       user info, so after
+       login we call GET /users/me → UserResponse { id, email, fullName, role: 
+       STUDENT|ADMIN, createdAt }.
+     - JWT claims: sub (user id), email, role, exp (default 2 h, no refresh
+       tokens).
+     - RegisterRequest { email, password (8–72), fullName (≤150) }, always
+       STUDENT; 409 on duplicate email.
+     - Error body ApiError { timestamp, status, code, message, fieldErrors: 
+       [{field, message}] };
+       login failure = 401 "Invalid credentials"; validation = 400
+       VALIDATION_FAILED with fieldErrors.
+     - OrganizationResponse { id, name, description, contactEmail, createdAt };
+       404 for unknown id.
+     - No endpoint yet exposes the current user's organization memberships/roles
+       (PRESIDENT/ORGANIZER/MEMBER).
+     - Node 24.22 / npm 11 installed locally.
+
+     Design decisions
+
+     Human answered D1–D4: localStorage, English, global role + TODO for
+     Organizing, Node 24 LTS.
+     D5–D10 use the recommendation unless the human objects at plan approval.
+
+     #: D1
+     Decision: Token storage
+     Recommendation: localStorage (survives reload/new tabs; XSS risk accepted
+     for a
+       course project, mitigated by 2 h expiry and no dangerouslySetInnerHTML).
+     Alt:
+        sessionStorage, memory-only.
+     ────────────────────────────────────────
+     #: D2
+     Decision: UI language
+     Recommendation: English (matches code, API messages and docs).
+     ────────────────────────────────────────
+     #: D3
+     Decision: Roles → navigation
+     Recommendation: Global role only (from /users/me). All users:
+     Organizations,
+       Events, My registrations, Organizing. ADMIN additionally: Admin  (Coming 
+       soon). Org-level roles can't be known yet → TODO to gate "Organizing"
+     once a
+       memberships endpoint exists (W5).
+     ────────────────────────────────────────
+     #: D4
+     Decision: Node version
+     Recommendation: Node 24 LTS, .nvmrc = 24, engines.node >= 22.12 (Vite 7
+       minimum).
+     ────────────────────────────────────────
+     #: D5
+     Decision: Expiry handling
+     Recommendation: Decode exp client-side (tiny manual base64 decode, no lib);
+
+       logout on load if expired + timer at exp; axios 401 interceptor → logout.
+
+       Redirect to /login with "Your session expired" and return to the original
+
+       page after login.
+     ────────────────────────────────────────
+     #: D6
+     Decision: After register
+     Recommendation: Auto-login with the same credentials, then go to
+     Organizations.
+     ────────────────────────────────────────
+     #: D7
+     Decision: Versions
+     Recommendation: React 19, Vite 7, MUI 7 (+ Emotion, icons), React Router 7
+       (declarative/library mode, createBrowserRouter), TanStack Query 5, axios
+     1.x,
+        ESLint 9 flat config + typescript-eslint + react-hooks + prettier
+     config,
+       Vitest 3 + RTL + jsdom. Caret ranges + committed package-lock.json.
+     ────────────────────────────────────────
+     #: D8
+     Decision: Env / base URL
+     Recommendation: VITE_API_BASE_URL default /api/v1 (relative → goes through
+     Vite
+       proxy to http://localhost:8080). frontend/.env.example with that
+     placeholder
+       (Vite reads env from frontend/).
+     ────────────────────────────────────────
+     #: D9
+     Decision: Test API mocking
+     Recommendation: vi.mock of the API module (no MSW dependency).
+     ────────────────────────────────────────
+     #: D10
+     Decision: App name / logo
+     Recommendation: "UBB Events", placeholder inline SVG logo component +
+       placeholder palette in theme.ts.
+
+     Implementation (after answers)
+
+     frontend/
+       package.json, .nvmrc, .env.example, index.html, vite.config.ts (proxy 
+     /api → :8080, vitest config)
+       tsconfig*.json (strict), eslint.config.js, .prettierrc, .prettierignore
+       src/
+         main.tsx, App.tsx (ThemeProvider, QueryClientProvider, AuthProvider, 
+     RouterProvider)
+         theme.ts, test/setup.ts
+         api/ client.ts (axios instance, Bearer interceptor, 401 handler hook), 
+     errors.ts (ApiError type,
+              toApiError(), fieldErrorsMap()), types.ts (DTO types), auth.ts, 
+     users.ts, organizations.ts
+         components/ AppLayout.tsx (AppBar + nav by role + logout), Logo.tsx, 
+     ComingSoon.tsx,
+                     ErrorAlert.tsx, LoadingState.tsx
+         routes/ router.tsx, ProtectedRoute.tsx (+ optional role prop), paths.ts
+         features/
+           auth/ AuthContext.tsx, useAuth.ts, token.ts (storage + exp decode), 
+     LoginPage.tsx,
+                 LoginForm.tsx, RegisterPage.tsx, LoginForm.test.tsx, 
+     AuthContext.test.tsx
+           organizations/ OrganizationsListPage.tsx, 
+     OrganizationDetailsPage.tsx, queries.ts
+           events/ EventsPage.tsx (Coming soon, TODO W2/W3)
+           registrations/ MyRegistrationsPage.tsx (TODO W4)
+           organizing/ OrganizingPage.tsx (TODO W5)
+     docs/dev-guide/frontend-guide.md
+     docs/genai/usage-log.md (+ entry)
+     CLAUDE.md "How to run" already lists the frontend commands (no change 
+     needed)
+     Scripts: dev, build (tsc -b && vite build), lint, format, format:check,
+     test (vitest run), test:watch.
+
+     Verification
+
+     - cd frontend && npm install && npm run lint && npm test && npm run build —
+       all pass.
+     - docker compose up -d, cd backend && ./mvnw spring-boot:run, cd frontend 
+       && npm run dev, open
+       http://localhost:5173 → redirected to /login; wrong password shows
+       "Invalid credentials"; register with
+       short password shows per-field message; login as seed user (password
+       password) → Organizations list
+       (2 orgs) → details; /organizations/999 shows "not found"; logout →
+       /login; delete/alter token in
+       localStorage → next request 401 → back to login with "session expired".
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ Newer majors exist, but typescript-eslint doesn't support TS 7 yet, so I'm
+  keeping the approved plan's majors and using the newest release within each.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Meanwhile, config files:
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project/frontend && cat >
+      vite.config.ts <<'EOF'
+      /// <reference types="vitest/config" />…)
+  ⎿  Created frontend/.env.example (+4 -0)
+      1 +# Copy to frontend/.env.local if you need to change it. Never co
+        +mmit real values.                                               
+      2 +# Base URL of the REST API. The default "/api/v1" is relative: i
+        +n dev, Vite proxies /api to                                     
+      3 +# http://localhost:8080 (see vite.config.ts), so no CORS setup i
+        +s needed.                                                       
+      4 +VITE_API_BASE_URL=/api/v1                                       
+  ⎿  Created frontend/.prettierignore (+4 -0)
+      1 +dist                                                            
+      2 +coverage                                                        
+      3 +node_modules                                                    
+      4 +package-lock.json                                               
+  ⎿  Created frontend/.prettierrc.json (+6 -0)
+      1 +{                                                               
+      2 +  "singleQuote": true,                                          
+      3 +  "semi": true,                                                 
+      4 +  "trailingComma": "all",                                       
+      5 +  "printWidth": 100                                             
+      6 +}                                                               
+  ⎿  Created frontend/eslint.config.js (+36 -0)
+       1 +import js from '@eslint/js';                                   
+       2 +import globals from 'globals';                                 
+       3 +import reactHooks from 'eslint-plugin-react-hooks';            
+       4 +import reactRefresh from 'eslint-plugin-react-refresh';        
+       5 +import tseslint from 'typescript-eslint';                      
+       6 +import prettier from 'eslint-config-prettier';                 
+       7 +                                                               
+       8 +export default tseslint.config(                                
+       9 +  { ignores: ['dist', 'coverage'] },                           
+      10 +  {                                                            
+      11 +    files: ['**/*.{ts,tsx}'],                                  
+      12 +    extends: [js.configs.recommended, ...tseslint.configs.recom
+         +mended],                                                       
+      13 +    languageOptions: {                                         
+      14 +      ecmaVersion: 2022,                                       
+      15 +      globals: globals.browser,                                
+      16 +    },                                                         
+      17 +    plugins: {                                                 
+      18 +      'react-hooks': reactHooks,                               
+      19 +      'react-refresh': reactRefresh,                           
+      20 +    },                                                         
+      21 +    rules: {                                                   
+      22 +      ...reactHooks.configs.recommended.rules,                 
+      23 +      'react-refresh/only-export-components': ['warn', { allowC
+         +onstantExport: true }],                                        
+      24 +      // CLAUDE.md: no `any` without justification (use an esli
+         +nt-disable comment with a reason).                             
+      25 +      '@typescript-eslint/no-explicit-any': 'error',           
+      26 +      '@typescript-eslint/no-unused-vars': ['error', { argsIgno
+         +rePattern: '^_' }],                                            
+      27 +    },                                                         
+      28 +  },                                                           
+      29 +  {                                                            
+      30 +    // Tests and test helpers may export non-components.       
+      31 +    files: ['**/*.test.{ts,tsx}', 'src/test/**'],              
+      32 +    rules: { 'react-refresh/only-export-components': 'off' },  
+      33 +  },                                                           
+      34 +  // Must be last: turns off formatting rules that conflict wit
+         +h Prettier.                                                    
+      35 +  prettier,                                                    
+      36 +);                                                             
+  ⎿  Created frontend/index.html (+13 -0)
+       1 +<!doctype html>                                                
+       2 +<html lang="en">                                               
+       3 +  <head>                                                       
+       4 +    <meta charset="UTF-8" />                                   
+       5 +    <link rel="icon" type="image/svg+xml" href="/logo-placehold
+         +er.svg" />                                                     
+       6 +    <meta name="viewport" content="width=device-width, initial-
+         +scale=1.0" />                                                  
+       7 +    <title>UBB Events</title>                                  
+       8 +  </head>                                                      
+       9 +  <body>                                                       
+      10 +    <div id="root"></div>                                      
+      11 +    <script type="module" src="/src/main.tsx"></script>        
+      12 +  </body>                                                      
+      13 +</html>                                                        
+  ⎿  … 5 more files changed
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project/frontend/src && cat >
+      vite-env.d.ts <<'EOF'
+      /// <reference types="vite/client" />…)
+  ⎿  Created frontend/src/api/auth.ts (+12 -0)
+       1 +import { apiClient } from './client';                          
+       2 +import type { LoginRequest, LoginResponse, RegisterRequest, Use
+         +r } from './types';                                            
+       3 +                                                               
+       4 +export async function login(request: LoginRequest): Promise<Log
+         +inResponse> {                                                  
+       5 +  const { data } = await apiClient.post<LoginResponse>('/auth/l
+         +ogin', request);                                               
+       6 +  return data;                                                 
+       7 +}                                                              
+       8 +                                                               
+       9 +export async function register(request: RegisterRequest): Promi
+         +se<User> {                                                     
+      10 +  const { data } = await apiClient.post<User>('/auth/register',
+         + request);                                                     
+      11 +  return data;                                                 
+      12 +}                                                              
+  ⎿  Created frontend/src/api/client.ts (+51 -0)
+       1 +// The single axios instance used for every backend call. Featu
+         +re code never calls axios directly:                            
+       2 +// add a typed function in src/api/<resource>.ts instead (see o
+         +rganizations.ts).                                              
+       3 +import axios from 'axios';                                     
+       4 +import { getStoredToken } from './tokenStorage';               
+       5 +                                                               
+       6 +/** From VITE_API_BASE_URL; defaults to "/api/v1", which the Vi
+         +te dev server proxies to :8080. */                             
+       7 +export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?
+         +? '/api/v1';                                                   
+       8 +                                                               
+       9 +export const apiClient = axios.create({                        
+      10 +  baseURL: API_BASE_URL,                                       
+      11 +  headers: { 'Content-Type': 'application/json' },             
+      12 +});                                                            
+      13 +                                                               
+      14 +// Attach "Authorization: Bearer <token>" to every request when
+         + we have a token.                                              
+      15 +apiClient.interceptors.request.use((config) => {               
+      16 +  const token = getStoredToken();                              
+      17 +  if (token) {                                                 
+      18 +    config.headers.set('Authorization', `Bearer ${token}`);    
+      19 +  }                                                            
+      20 +  return config;                                               
+      21 +});                                                            
+      22 +                                                               
+      23 +type UnauthorizedHandler = () => void;                         
+      24 +let unauthorizedHandler: UnauthorizedHandler | null = null;    
+      25 +                                                               
+      26 +/**                                                            
+      27 + * Registers what to do when an authenticated request comes bac
+         +k with 401 (token expired or                                   
+      28 + * invalid). AuthProvider registers "log out and go to the logi
+         +n page". Returns an unregister fn.                             
+      29 + */                                                            
+      30 +export function setUnauthorizedHandler(handler: UnauthorizedHan
+         +dler): () => void {                                            
+      31 +  unauthorizedHandler = handler;                               
+      32 +  return () => {                                               
+      33 +    if (unauthorizedHandler === handler) unauthorizedHandler = 
+         +null;                                                          
+      34 +  };                                                           
+      35 +}                                                              
+      36 +                                                               
+      37 +apiClient.interceptors.response.use(                           
+      38 +  (response) => response,                                      
+      39 +  (error: unknown) => {                                        
+      40 +    // Only react to 401s of requests that carried a token. A 4
+         +01 from POST /auth/login means                                 
+     … 11 more lines (ctrl+o to expand)
+  ⎿  Created frontend/src/api/errors.ts (+59 -0)
+       1 +// Turns any thrown value (usually an AxiosError carrying the b
+         +ackend ApiError JSON) into something                           
+       2 +// a page can show: one readable message plus per-field message
+         +s for forms.                                                   
+       3 +import axios from 'axios';                                     
+       4 +import type { ApiErrorBody } from './types';                   
+       5 +                                                               
+       6 +export interface ParsedApiError {                              
+       7 +  /** HTTP status, or undefined for network errors. */         
+       8 +  status?: number;                                             
+       9 +  /** Backend error code, e.g. "VALIDATION_FAILED", "NOT_FOUND"
+         +, "CONFLICT". */                                               
+      10 +  code?: string;                                               
+      11 +  /** Human-readable message, safe to show to the user. */     
+      12 +  message: string;                                             
+      13 +  /** Field name -> message(s), e.g. { password: "size must be 
+         +between 8 and 72" }. */                                        
+      14 +  fieldErrors: Record<string, string>;                         
+      15 +}                                                              
+      16 +                                                               
+      17 +function isApiErrorBody(data: unknown): data is ApiErrorBody { 
+      18 +  return (                                                     
+      19 +    typeof data === 'object' &&                                
+      20 +    data !== null &&                                           
+      21 +    typeof (data as { message?: unknown }).message === 'string'
+         + &&                                                            
+      22 +    typeof (data as { status?: unknown }).status === 'number'  
+      23 +  );                                                           
+      24 +}                                                              
+      25 +                                                               
+      26 +export function parseApiError(error: unknown): ParsedApiError {
+      27 +  if (axios.isAxiosError(error)) {                             
+      28 +    if (!error.response) {                                     
+      29 +      return {                                                 
+      30 +        message: 'Cannot reach the server. Check your connectio
+         +n or try again later.',                                        
+      31 +        fieldErrors: {},                                       
+      32 +      };                                                       
+      33 +    }                                                          
+      34 +    const { status, data } = error.response;                   
+      35 +    if (isApiErrorBody(data)) {                                
+      36 +      const fieldErrors: Record<string, string> = {};          
+      37 +      for (const fe of data.fieldErrors ?? []) {               
+      38 +        fieldErrors[fe.field] = fieldErrors[fe.field]          
+      39 +          ? `${fieldErrors[fe.field]}; ${fe.message}`          
+      40 +          : fe.message;                                        
+     … 19 more lines (ctrl+o to expand)
+  ⎿  Created frontend/src/api/organizations.ts (+12 -0)
+       1 +import { apiClient } from './client';                          
+       2 +import type { Organization } from './types';                   
+       3 +                                                               
+       4 +export async function getOrganizations(): Promise<Organization[
+         +]> {                                                           
+       5 +  const { data } = await apiClient.get<Organization[]>('/organi
+         +zations');                                                     
+       6 +  return data;                                                 
+       7 +}                                                              
+       8 +                                                               
+       9 +export async function getOrganization(id: number): Promise<Orga
+         +nization> {                                                    
+      10 +  const { data } = await apiClient.get<Organization>(`/organiza
+         +tions/${id}`);                                                 
+      11 +  return data;                                                 
+      12 +}                                                              
+  ⎿  Created frontend/src/api/queryClient.ts (+19 -0)
+       1 +import { QueryClient } from '@tanstack/react-query';           
+       2 +import { errorStatus } from './errors';                        
+       3 +                                                               
+       4 +export function createQueryClient(): QueryClient {             
+       5 +  return new QueryClient({                                     
+       6 +    defaultOptions: {                                          
+       7 +      queries: {                                               
+       8 +        staleTime: 30_000,                                     
+       9 +        // Retry network/5xx errors once; never retry 4xx (404,
+         + 403, 401 ... will not change).                                
+      10 +        retry: (failureCount, error) => {                      
+      11 +          const status = errorStatus(error);                   
+      12 +          if (status !== undefined && status < 500) return fals
+         +e;                                                             
+      13 +          return failureCount < 1;                             
+      14 +        },                                                     
+      15 +        refetchOnWindowFocus: false,                           
+      16 +      },                                                       
+      17 +    },                                                         
+      18 +  });                                                          
+      19 +}                                                              
+  ⎿  … 6 more files changed
+
+⏺ Background command "Create frontend package.json and install dependencies"
+completed (exit code 0)
+
+⏺ Now auth feature (context, forms, pages):
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project/frontend/src/features/auth
+      && cat > AuthContext.tsx <<'EOF'
+      import { createContext, useCallback, useEffect, useMem…)
+  ⎿  Created frontend/src/features/auth/AuthContext.tsx (+129 -0)
+        1 +import { createContext, useCallback, useEffect, useMemo, useSt
+          +ate, type ReactNode } from 'react';                           
+        2 +import { useQueryClient } from '@tanstack/react-query';       
+        3 +import * as authApi from '../../api/auth';                    
+        4 +import { setUnauthorizedHandler } from '../../api/client';    
+        5 +import { errorStatus } from '../../api/errors';               
+        6 +import {                                                      
+        7 +  clearStoredToken,                                           
+        8 +  getStoredToken,                                             
+        9 +  getTokenExpiry,                                             
+       10 +  isTokenExpired,                                             
+       11 +  storeToken,                                                 
+       12 +} from '../../api/tokenStorage';                              
+       13 +import type { RegisterRequest, User } from '../../api/types'; 
+       14 +import { getCurrentUser } from '../../api/users';             
+       15 +                                                              
+       16 +/** "loading" = a stored token exists and we are fetching /use
+          +rs/me. */                                                     
+       17 +export type AuthStatus = 'loading' | 'authenticated' | 'anonym
+          +ous';                                                         
+       18 +                                                              
+       19 +export interface AuthContextValue {                           
+       20 +  status: AuthStatus;                                         
+       21 +  user: User | null;                                          
+       22 +  /** True after an automatic logout (token expired or a 401).
+          + The login page shows a notice. */                            
+       23 +  sessionExpired: boolean;                                    
+       24 +  login: (email: string, password: string) => Promise<void>;  
+       25 +  /** Creates the account, then logs in with the same credenti
+          +als (decision D6). */                                         
+       26 +  register: (request: RegisterRequest) => Promise<void>;      
+       27 +  logout: () => void;                                         
+       28 +}                                                             
+       29 +                                                              
+       30 +// eslint-disable-next-line react-refresh/only-export-componen
+          +ts -- context object is shared with useAuth                   
+       31 +export const AuthContext = createContext<AuthContextValue | nu
+          +ll>(null);                                                    
+       32 +                                                              
+       33 +// setTimeout breaks for delays above ~24.8 days; tokens live 
+          +2 h, but stay safe.                                           
+       34 +const MAX_TIMEOUT_MS = 2_147_483_647;                         
+       35 +                                                              
+       36 +export function AuthProvider({ children }: { children: ReactNo
+          +de }) {                                                       
+       37 +  const queryClient = useQueryClient();                       
+       38 +  const [token, setToken] = useState<string | null>(() => {   
+       39 +    const stored = getStoredToken();                          
+       40 +    if (stored && isTokenExpired(stored)) {                   
+     … 89 more lines (ctrl+o to expand)
+
+⏺ Fixing a sloppy initializer I just wrote — the expired-on-load flag needs to
+  be computed together with the token:
+
+⏺ Update(frontend/src/features/auth/AuthContext.tsx)
+  ⎿  Added 4 lines, removed 12 lines
+      35  
+      36  export function AuthProvider({ children }: { children: ReactNod
+          e }) {
+      37    const queryClient = useQueryClient();
+      38 -  const [token, setToken] = useState<string | null>(() => {    
+      39 -    const stored = getStoredToken();                           
+      40 -    if (stored && isTokenExpired(stored)) {                    
+      41 -      clearStoredToken();                                      
+      42 -      return null;                                             
+      43 -    }                                                          
+      44 -    return stored;                                             
+      45 -  });                                                          
+      38 +  // Read the stored token once on start-up; an already expired
+         + one counts as "session expired".                              
+      39 +  const [initial] = useState(readInitialToken);                
+      40 +  const [token, setToken] = useState<string | null>(initial.tok
+         +en);                                                           
+      41    const [user, setUser] = useState<User | null>(null);
+      47 -  const [sessionExpired, setSessionExpired] = useState<boolean>
+         -(() => {                                                       
+      48 -    const stored = getStoredToken();                           
+      49 -    return stored === null && token === null ? false : false;  
+      50 -  });                                                          
+      42 +  const [sessionExpired, setSessionExpired] = useState<boolean>
+         +(initial.expired);                                             
+      43  
+      44    const status: AuthStatus = token === null ? 'anonymous' : use
+          r === null ? 'loading' : 'authenticated';
+      45  
+
+⏺ Update(frontend/src/features/auth/AuthContext.tsx)
+  ⎿  Added 9 lines
+      33  // setTimeout breaks for delays above ~24.8 days; tokens live 2
+           h, but stay safe.
+      34  const MAX_TIMEOUT_MS = 2_147_483_647;
+      35  
+      36 +function readInitialToken(): { token: string | null; expired: b
+         +oolean } {                                                     
+      37 +  const stored = getStoredToken();                             
+      38 +  if (stored !== null && isTokenExpired(stored)) {             
+      39 +    clearStoredToken();                                        
+      40 +    return { token: null, expired: true };                     
+      41 +  }                                                            
+      42 +  return { token: stored, expired: false };                    
+      43 +}                                                              
+      44 +                                                               
+      45  export function AuthProvider({ children }: { children: ReactNod
+          e }) {
+      46    const queryClient = useQueryClient();
+      47    // Read the stored token once on start-up; an already expired
+           one counts as "session expired".
+
+⏺ Bash(cat > useAuth.ts <<'EOF'
+      import { useContext } from 'react';…)
+  ⎿  Created frontend/src/features/auth/AuthPageLayout.tsx (+20 -0)
+       1 +import type { ReactNode } from 'react';                        
+       2 +import { Box, Container, Paper, Typography } from '@mui/materia
+         +l';                                                            
+       3 +import { Logo } from '../../components/Logo';                  
+       4 +                                                               
+       5 +/** Centered card used by the login and register pages. */     
+       6 +export function AuthPageLayout({ title, children }: { title: st
+         +ring; children: ReactNode }) {                                 
+       7 +  return (                                                     
+       8 +    <Container maxWidth="xs" sx={{ py: { xs: 4, sm: 8 } }}>    
+       9 +      <Box sx={{ display: 'flex', justifyContent: 'center', mb:
+         + 3 }}>                                                         
+      10 +        <Logo />                                               
+      11 +      </Box>                                                   
+      12 +      <Paper sx={{ p: { xs: 3, sm: 4 } }} variant="outlined">  
+      13 +        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+      14 +          {title}                                              
+      15 +        </Typography>                                          
+      16 +        {children}                                             
+      17 +      </Paper>                                                 
+      18 +    </Container>                                               
+      19 +  );                                                           
+      20 +}                                                              
+  ⎿  Created frontend/src/features/auth/LoginForm.tsx (+83 -0)
+       1 +import { useState, type FormEvent } from 'react';              
+       2 +import { Alert, Box, Button, Stack, TextField } from '@mui/mate
+         +rial';                                                         
+       3 +import { parseApiError } from '../../api/errors';              
+       4 +                                                               
+       5 +export interface LoginFormValues {                             
+       6 +  email: string;                                               
+       7 +  password: string;                                            
+       8 +}                                                              
+       9 +                                                               
+      10 +interface LoginFormProps {                                     
+      11 +  /** Called with the values; a rejected promise is shown as an
+         + error (backend ApiError JSON). */                             
+      12 +  onSubmit: (values: LoginFormValues) => Promise<void>;        
+      13 +}                                                              
+      14 +                                                               
+      15 +type FieldErrors = Partial<Record<keyof LoginFormValues, string
+         +>>;                                                            
+      16 +                                                               
+      17 +function validate(values: LoginFormValues): FieldErrors {      
+      18 +  const errors: FieldErrors = {};                              
+      19 +  if (!values.email.trim()) errors.email = 'Email is required';
+      20 +  if (!values.password) errors.password = 'Password is required
+         +';                                                             
+      21 +  return errors;                                               
+      22 +}                                                              
+      23 +                                                               
+      24 +export function LoginForm({ onSubmit }: LoginFormProps) {      
+      25 +  const [values, setValues] = useState<LoginFormValues>({ email
+         +: '', password: '' });                                         
+      26 +  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({
+         +});                                                            
+      27 +  const [formError, setFormError] = useState<string | null>(nul
+         +l);                                                            
+      28 +  const [submitting, setSubmitting] = useState(false);         
+      29 +                                                               
+      30 +  const handleSubmit = async (event: FormEvent<HTMLFormElement>
+         +) => {                                                         
+      31 +    event.preventDefault();                                    
+      32 +    setFormError(null);                                        
+      33 +    const errors = validate(values);                           
+      34 +    setFieldErrors(errors);                                    
+      35 +    if (Object.keys(errors).length > 0) return;                
+      36 +                                                               
+      37 +    setSubmitting(true);                                       
+      38 +    try {                                                      
+      39 +      await onSubmit({ email: values.email.trim(), password: va
+         +lues.password });                                              
+      40 +    } catch (error) {                                          
+     … 43 more lines (ctrl+o to expand)
+  ⎿  Created frontend/src/features/auth/LoginPage.tsx (+45 -0)
+       1 +import { Alert, Link, Typography } from '@mui/material';       
+       2 +import { Link as RouterLink, Navigate, useLocation, useNavigate
+         + } from 'react-router';                                        
+       3 +import { paths } from '../../routes/paths';                    
+       4 +import { AuthPageLayout } from './AuthPageLayout';             
+       5 +import { LoginForm, type LoginFormValues } from './LoginForm'; 
+       6 +import { useAuth } from './useAuth';                           
+       7 +                                                               
+       8 +/** ProtectedRoute puts the page the user wanted into location.
+         +state.from. */                                                 
+       9 +export interface LoginLocationState {                          
+      10 +  from?: { pathname: string; search?: string };                
+      11 +}                                                              
+      12 +                                                               
+      13 +export function LoginPage() {                                  
+      14 +  const { status, sessionExpired, login } = useAuth();         
+      15 +  const navigate = useNavigate();                              
+      16 +  const location = useLocation();                              
+      17 +  const from = (location.state as LoginLocationState | null)?.f
+         +rom;                                                           
+      18 +  const target = from ? `${from.pathname}${from.search ?? ''}` 
+         +: paths.organizations;                                         
+      19 +                                                               
+      20 +  if (status === 'authenticated') {                            
+      21 +    return <Navigate to={target} replace />;                   
+      22 +  }                                                            
+      23 +                                                               
+      24 +  const handleLogin = async ({ email, password }: LoginFormValu
+         +es) => {                                                       
+      25 +    await login(email, password);                              
+      26 +    navigate(target, { replace: true });                       
+      27 +  };                                                           
+      28 +                                                               
+      29 +  return (                                                     
+      30 +    <AuthPageLayout title="Log in">                            
+      31 +      {sessionExpired && (                                     
+      32 +        <Alert severity="info" sx={{ mb: 2 }}>                 
+      33 +          Your session has expired. Please log in again.       
+      34 +        </Alert>                                               
+      35 +      )}                                                       
+      36 +      <LoginForm onSubmit={handleLogin} />                     
+      37 +      <Typography variant="body2" sx={{ mt: 3, textAlign: 'cent
+         +er' }}>                                                        
+      38 +        No account yet?{' '}                                   
+      39 +        <Link component={RouterLink} to={paths.register}>      
+      40 +          Register                                             
+     … 5 more lines (ctrl+o to expand)
+  ⎿  Created frontend/src/features/auth/RegisterPage.tsx (+106 -0)
+        1 +import { useState, type FormEvent } from 'react';             
+        2 +import { Alert, Box, Button, Link, Stack, TextField, Typograph
+          +y } from '@mui/material';                                     
+        3 +import { Link as RouterLink, Navigate, useNavigate } from 'rea
+          +ct-router';                                                   
+        4 +import { parseApiError } from '../../api/errors';             
+        5 +import type { RegisterRequest } from '../../api/types';       
+        6 +import { paths } from '../../routes/paths';                   
+        7 +import { AuthPageLayout } from './AuthPageLayout';            
+        8 +import { useAuth } from './useAuth';                          
+        9 +                                                              
+       10 +type FieldErrors = Partial<Record<keyof RegisterRequest, strin
+          +g>>;                                                          
+       11 +                                                              
+       12 +// Same limits as the backend RegisterRequest; the backend sti
+          +ll validates everything.                                      
+       13 +function validate(values: RegisterRequest): FieldErrors {     
+       14 +  const errors: FieldErrors = {};                             
+       15 +  if (!values.fullName.trim()) errors.fullName = 'Full name is
+          + required';                                                   
+       16 +  else if (values.fullName.length > 150) errors.fullName = 'At
+          + most 150 characters';                                        
+       17 +  if (!values.email.trim()) errors.email = 'Email is required'
+          +;                                                             
+       18 +  else if (!/^\S+@\S+\.\S+$/.test(values.email.trim())) errors
+          +.email = 'Enter a valid email';                               
+       19 +  if (values.password.length < 8) errors.password = 'At least 
+          +8 characters';                                                
+       20 +  else if (values.password.length > 72) errors.password = 'At 
+          +most 72 characters';                                          
+       21 +  return errors;                                              
+       22 +}                                                             
+       23 +                                                              
+       24 +export function RegisterPage() {                              
+       25 +  const { status, register } = useAuth();                     
+       26 +  const navigate = useNavigate();                             
+       27 +  const [values, setValues] = useState<RegisterRequest>({ full
+          +Name: '', email: '', password: '' });                         
+       28 +  const [fieldErrors, setFieldErrors] = useState<FieldErrors>(
+          +{});                                                          
+       29 +  const [formError, setFormError] = useState<string | null>(nu
+          +ll);                                                          
+       30 +  const [submitting, setSubmitting] = useState(false);        
+       31 +                                                              
+       32 +  if (status === 'authenticated') {                           
+       33 +    return <Navigate to={paths.organizations} replace />;     
+       34 +  }                                                           
+       35 +                                                              
+       36 +  const handleSubmit = async (event: FormEvent<HTMLFormElement
+          +>) => {                                                       
+       37 +    event.preventDefault();                                   
+       38 +    setFormError(null);                                       
+       39 +    const errors = validate(values);                          
+       40 +    setFieldErrors(errors);                                   
+     … 66 more lines (ctrl+o to expand)
+  ⎿  Created frontend/src/features/auth/useAuth.ts (+11 -0)
+       1 +import { useContext } from 'react';                            
+       2 +import { AuthContext, type AuthContextValue } from './AuthConte
+         +xt';                                                           
+       3 +                                                               
+       4 +/** Current user + login/logout. Must be used inside <AuthProvi
+         +der>. */                                                       
+       5 +export function useAuth(): AuthContextValue {                  
+       6 +  const value = useContext(AuthContext);                       
+       7 +  if (value === null) {                                        
+       8 +    throw new Error('useAuth must be used inside <AuthProvider>
+         +');                                                            
+       9 +  }                                                            
+      10 +  return value;                                                
+      11 +}                                                              
+
+⏺ Now routes, shared components, and feature pages:
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project/frontend/src && cat >
+      routes/paths.ts <<'EOF'
+      // All URLs of the app in one place. Use these constants instead of…)
+  ⎿  Created frontend/src/App.tsx (+22 -0)
+       1 +import { useState } from 'react';                              
+       2 +import { CssBaseline, ThemeProvider } from '@mui/material';    
+       3 +import { QueryClientProvider } from '@tanstack/react-query';   
+       4 +import { RouterProvider } from 'react-router';                 
+       5 +import { createQueryClient } from './api/queryClient';         
+       6 +import { AuthProvider } from './features/auth/AuthContext';    
+       7 +import { router } from './routes/router';                      
+       8 +import { theme } from './theme';                               
+       9 +                                                               
+      10 +export function App() {                                        
+      11 +  const [queryClient] = useState(createQueryClient);           
+      12 +  return (                                                     
+      13 +    <ThemeProvider theme={theme}>                              
+      14 +      <CssBaseline />                                          
+      15 +      <QueryClientProvider client={queryClient}>               
+      16 +        <AuthProvider>                                         
+      17 +          <RouterProvider router={router} />                   
+      18 +        </AuthProvider>                                        
+      19 +      </QueryClientProvider>                                   
+      20 +    </ThemeProvider>                                           
+      21 +  );                                                           
+      22 +}                                                              
+  ⎿  Created frontend/src/components/AppLayout.tsx (+125 -0)
+        1 +import { useState } from 'react';                             
+        2 +import {                                                      
+        3 +  AppBar,                                                     
+        4 +  Box,                                                        
+        5 +  Button,                                                     
+        6 +  Container,                                                  
+        7 +  Divider,                                                    
+        8 +  Drawer,                                                     
+        9 +  IconButton,                                                 
+       10 +  List,                                                       
+       11 +  ListItemButton,                                             
+       12 +  ListItemText,                                               
+       13 +  Toolbar,                                                    
+       14 +  Typography,                                                 
+       15 +} from '@mui/material';                                       
+       16 +import MenuIcon from '@mui/icons-material/Menu';              
+       17 +import LogoutIcon from '@mui/icons-material/Logout';          
+       18 +import { NavLink, Outlet, useNavigate } from 'react-router';  
+       19 +import type { GlobalRole } from '../api/types';               
+       20 +import { useAuth } from '../features/auth/useAuth';           
+       21 +import { paths } from '../routes/paths';                      
+       22 +import { Logo } from './Logo';                                
+       23 +                                                              
+       24 +interface NavItem {                                           
+       25 +  label: string;                                              
+       26 +  to: string;                                                 
+       27 +  /** Global roles that see this item; omitted = every logged-
+          +in user. */                                                   
+       28 +  roles?: GlobalRole[];                                       
+       29 +}                                                             
+       30 +                                                              
+       31 +// Navigation by role (decision D3). Only the global role (STU
+          +DENT/ADMIN) is known on the client.                           
+       32 +// TODO(W5): once the backend exposes the current user's organ
+          +ization memberships, show                                     
+       33 +// "Organizing" only to PRESIDENT/ORGANIZER members.          
+       34 +const NAV_ITEMS: NavItem[] = [                                
+       35 +  { label: 'Organizations', to: paths.organizations },        
+       36 +  { label: 'Events', to: paths.events },                      
+       37 +  { label: 'My registrations', to: paths.myRegistrations },   
+       38 +  { label: 'Organizing', to: paths.organizing },              
+       39 +  { label: 'Admin', to: paths.admin, roles: ['ADMIN'] },      
+       40 +];                                                            
+     … 85 more lines (ctrl+o to expand)
+  ⎿  Created frontend/src/components/ComingSoon.tsx (+30 -0)
+       1 +import { Box, Paper, Typography } from '@mui/material';        
+       2 +import ConstructionIcon from '@mui/icons-material/Construction'
+         +;                                                              
+       3 +                                                               
+       4 +interface ComingSoonProps {                                    
+       5 +  title: string;                                               
+       6 +  /** Workflow id from CLAUDE.md, e.g. "W2". */                
+       7 +  workflow?: string;                                           
+       8 +  description?: string;                                        
+       9 +}                                                              
+      10 +                                                               
+      11 +/** Placeholder for pages that are not implemented yet. */     
+      12 +export function ComingSoon({ title, workflow, description }: Co
+         +mingSoonProps) {                                               
+      13 +  return (                                                     
+      14 +    <Box>                                                      
+      15 +      <Typography component="h1" variant="h4" sx={{ mb: 3 }}>  
+      16 +        {title}                                                
+      17 +      </Typography>                                            
+      18 +      <Paper variant="outlined" sx={{ p: 4, textAlign: 'center'
+         + }}>                                                           
+      19 +        <ConstructionIcon color="action" sx={{ fontSize: 48, mb
+         +: 1 }} />                                                      
+      20 +        <Typography variant="h6">Coming soon</Typography>      
+      21 +        {description && <Typography color="text.secondary">{des
+         +cription}</Typography>}                                        
+      22 +        {workflow && (                                         
+      23 +          <Typography variant="caption" color="text.secondary">
+      24 +            Workflow {workflow}                                
+      25 +          </Typography>                                        
+      26 +        )}                                                     
+      27 +      </Paper>                                                 
+      28 +    </Box>                                                     
+      29 +  );                                                           
+      30 +}                                                              
+  ⎿  Created frontend/src/components/ErrorAlert.tsx (+27 -0)
+       1 +import { Alert, Button } from '@mui/material';                 
+       2 +import { parseApiError } from '../api/errors';                 
+       3 +                                                               
+       4 +interface ErrorAlertProps {                                    
+       5 +  error: unknown;                                              
+       6 +  /** Shows a "Try again" button (e.g. pass `refetch` from useQ
+         +uery). */                                                      
+       7 +  onRetry?: () => void;                                        
+       8 +}                                                              
+       9 +                                                               
+      10 +/** Shows the readable message of a backend error (ApiError JSO
+         +N) or a network error. */                                      
+      11 +export function ErrorAlert({ error, onRetry }: ErrorAlertProps)
+         + {                                                             
+      12 +  const { message } = parseApiError(error);                    
+      13 +  return (                                                     
+      14 +    <Alert                                                     
+      15 +      severity="error"                                         
+      16 +      action={                                                 
+      17 +        onRetry && (                                           
+      18 +          <Button color="inherit" size="small" onClick={onRetry
+         +}>                                                             
+      19 +            Try again                                          
+      20 +          </Button>                                            
+      21 +        )                                                      
+      22 +      }                                                        
+      23 +    >                                                          
+      24 +      {message}                                                
+      25 +    </Alert>                                                   
+      26 +  );                                                           
+      27 +}                                                              
+  ⎿  Created frontend/src/components/LoadingState.tsx (+13 -0)
+       1 +import { Box, CircularProgress, Typography } from '@mui/materia
+         +l';                                                            
+       2 +                                                               
+       3 +export function LoadingState({ label = 'Loading…' }: { label?: 
+         +string }) {                                                    
+       4 +  return (                                                     
+       5 +    <Box                                                       
+       6 +      role="status"                                            
+       7 +      sx={{ display: 'flex', flexDirection: 'column', alignItem
+         +s: 'center', gap: 2, py: 6 }}                                  
+       8 +    >                                                          
+       9 +      <CircularProgress />                                     
+      10 +      <Typography color="text.secondary">{label}</Typography>  
+      11 +    </Box>                                                     
+      12 +  );                                                           
+      13 +}                                                              
+  ⎿  … 13 more files changed
+
+⏺ Now the tests:
+
+⏺ Bash(cat > test/utils.tsx <<'EOF'
+      import { QueryClient, QueryClientProvider } from
+      '@tanstack/react-query';…)  ⎿  > ubb-events-frontend@0.1.0 lint
+     > eslint . --max-warnings 0
+  ⎿  Created frontend/src/api/client.test.ts (+45 -0)
+       1 +import { AxiosError, type InternalAxiosRequestConfig } from 'ax
+         +ios';                                                          
+       2 +import { afterEach, describe, expect, it, vi } from 'vitest';  
+       3 +import { apiClient, setUnauthorizedHandler } from './client';  
+       4 +import { storeToken } from './tokenStorage';                   
+       5 +                                                               
+       6 +/** Axios adapter that answers every request with the given sta
+         +tus and records the request. */                                
+       7 +function respondWith(status: number, seen: InternalAxiosRequest
+         +Config[] = []) {                                               
+       8 +  return async (config: InternalAxiosRequestConfig) => {       
+       9 +    seen.push(config);                                         
+      10 +    const response = { status, statusText: '', headers: {}, con
+         +fig, data: {} };                                               
+      11 +    if (status >= 400) {                                       
+      12 +      throw new AxiosError('failed', 'ERR_BAD_REQUEST', config,
+         + null, response);                                              
+      13 +    }                                                          
+      14 +    return response;                                           
+      15 +  };                                                           
+      16 +}                                                              
+      17 +                                                               
+      18 +describe('apiClient', () => {                                  
+      19 +  let unregister: (() => void) | undefined;                    
+      20 +  afterEach(() => unregister?.());                             
+      21 +                                                               
+      22 +  it('sends the stored token as a Bearer header', async () => {
+      23 +    storeToken('abc.def.ghi');                                 
+      24 +    const seen: InternalAxiosRequestConfig[] = [];             
+      25 +    await apiClient.get('/organizations', { adapter: respondWit
+         +h(200, seen) });                                               
+      26 +    expect(seen[0].headers.get('Authorization')).toBe('Bearer a
+         +bc.def.ghi');                                                  
+      27 +  });                                                          
+      28 +                                                               
+      29 +  it('calls the unauthorized handler on a 401 for an authentica
+         +ted request', async () => {                                    
+      30 +    storeToken('abc.def.ghi');                                 
+      31 +    const handler = vi.fn();                                   
+      32 +    unregister = setUnauthorizedHandler(handler);              
+      33 +    await expect(apiClient.get('/organizations', { adapter: res
+         +pondWith(401) })).rejects.toThrow();                           
+      34 +    expect(handler).toHaveBeenCalledTimes(1);                  
+      35 +  });                                                          
+      36 +                                                               
+      37 +  it('does not call the handler for a 401 without a token (wron
+         +g password on login)', async () => {                           
+      38 +    const handler = vi.fn();                                   
+      39 +    unregister = setUnauthorizedHandler(handler);              
+      40 +    await expect(                                              
+     … 5 more lines (ctrl+o to expand)
+  ⎿  Created frontend/src/features/auth/AuthContext.test.tsx (+174 -0)
+        1 +import { act, render, screen, waitFor } from '@testing-library
+          +/react';                                                      
+        2 +import userEvent from '@testing-library/user-event';          
+        3 +import { MemoryRouter, Route, Routes } from 'react-router';   
+        4 +import { beforeEach, describe, expect, it, vi } from 'vitest';
+        5 +import * as authApi from '../../api/auth';                    
+        6 +import { getStoredToken, storeToken } from '../../api/tokenSto
+          +rage';                                                        
+        7 +import type { User } from '../../api/types';                  
+        8 +import * as usersApi from '../../api/users';                  
+        9 +import { ProtectedRoute } from '../../routes/ProtectedRoute'; 
+       10 +import { apiError, fakeJwt, withQueryClient } from '../../test
+          +/utils';                                                      
+       11 +import { AuthProvider } from './AuthContext';                 
+       12 +import { useAuth } from './useAuth';                          
+       13 +                                                              
+       14 +vi.mock('../../api/auth');                                    
+       15 +vi.mock('../../api/users');                                   
+       16 +                                                              
+       17 +const ana: User = {                                           
+       18 +  id: 1,                                                      
+       19 +  email: 'ana@ubb.ro',                                        
+       20 +  fullName: 'Ana Popescu',                                    
+       21 +  role: 'STUDENT',                                            
+       22 +  createdAt: '2026-11-01T10:00:00Z',                          
+       23 +};                                                            
+       24 +                                                              
+       25 +const inOneHour = () => Math.floor(Date.now() / 1000) + 3600; 
+       26 +                                                              
+       27 +/** Shows the auth state and offers login/logout buttons. */  
+       28 +function AuthProbe() {                                        
+       29 +  const { status, user, sessionExpired, login, logout } = useA
+          +uth();                                                        
+       30 +  return (                                                    
+       31 +    <div>                                                     
+       32 +      <p>status: {status}</p>                                 
+       33 +      <p>user: {user?.fullName ?? 'none'}</p>                 
+       34 +      <p>expired: {String(sessionExpired)}</p>                
+       35 +      <button onClick={() => void login('ana@ubb.ro', 'passwor
+          +d')}>login</button>                                           
+       36 +      <button onClick={logout}>logout</button>                
+       37 +    </div>                                                    
+       38 +  );                                                          
+       39 +}                                                             
+       40 +                                                              
+     … 134 more lines (ctrl+o to expand)
+  ⎿  Updated frontend/src/features/auth/AuthContext.tsx (+2 -1)
+      50    const [user, setUser] = useState<User | null>(null);
+      51    const [sessionExpired, setSessionExpired] = useState<boolean>
+          (initial.expired);
+      52  
+      53 -  const status: AuthStatus = token === null ? 'anonymous' : use
+         -r === null ? 'loading' : 'authenticated';                      
+      53 +  const status: AuthStatus =                                   
+      54 +    token === null ? 'anonymous' : user === null ? 'loading' : 
+         +'authenticated';                                               
+      55  
+      56    const endSession = useCallback(
+      57      (expired: boolean) => {
+  ⎿  Created frontend/src/features/auth/LoginForm.test.tsx (+61 -0)
+       1 +import { render, screen } from '@testing-library/react';       
+       2 +import userEvent from '@testing-library/user-event';           
+       3 +import { describe, expect, it, vi } from 'vitest';             
+       4 +import { apiError } from '../../test/utils';                   
+       5 +import { LoginForm } from './LoginForm';                       
+       6 +                                                               
+       7 +describe('LoginForm', () => {                                  
+       8 +  it('submits the trimmed email and the password', async () => 
+         +{                                                              
+       9 +    const onSubmit = vi.fn().mockResolvedValue(undefined);     
+      10 +    render(<LoginForm onSubmit={onSubmit} />);                 
+      11 +                                                               
+      12 +    await userEvent.type(screen.getByLabelText(/email/i), '  an
+         +a@ubb.ro ');                                                   
+      13 +    await userEvent.type(screen.getByLabelText(/password/i), 'p
+         +assword');                                                     
+      14 +    await userEvent.click(screen.getByRole('button', { name: /l
+         +og in/i }));                                                   
+      15 +                                                               
+      16 +    expect(onSubmit).toHaveBeenCalledWith({ email: 'ana@ubb.ro'
+         +, password: 'password' });                                     
+      17 +  });                                                          
+      18 +                                                               
+      19 +  it('shows required-field messages and does not submit an empt
+         +y form', async () => {                                         
+      20 +    const onSubmit = vi.fn();                                  
+      21 +    render(<LoginForm onSubmit={onSubmit} />);                 
+      22 +                                                               
+      23 +    await userEvent.click(screen.getByRole('button', { name: /l
+         +og in/i }));                                                   
+      24 +                                                               
+      25 +    expect(screen.getByText('Email is required')).toBeInTheDocu
+         +ment();                                                        
+      26 +    expect(screen.getByText('Password is required')).toBeInTheD
+         +ocument();                                                     
+      27 +    expect(onSubmit).not.toHaveBeenCalled();                   
+      28 +  });                                                          
+      29 +                                                               
+      30 +  it('shows the backend message on 401 "Invalid credentials"', 
+         +async () => {                                                  
+      31 +    const onSubmit = vi                                        
+      32 +      .fn()                                                    
+      33 +      .mockRejectedValue(apiError(401, 'UNAUTHORIZED', 'Invalid
+         + credentials'));                                               
+      34 +    render(<LoginForm onSubmit={onSubmit} />);                 
+      35 +                                                               
+      36 +    await userEvent.type(screen.getByLabelText(/email/i), 'ana@
+         +ubb.ro');                                                      
+      37 +    await userEvent.type(screen.getByLabelText(/password/i), 'w
+         +rong-password');                                               
+      38 +    await userEvent.click(screen.getByRole('button', { name: /l
+         +og in/i }));                                                   
+      39 +                                                               
+      40 +    expect(await screen.findByRole('alert')).toHaveTextContent(
+         +'Invalid credentials');                                        
+     … 21 more lines (ctrl+o to expand)
+  ⎿  Updated frontend/src/features/events/EventsPage.tsx (+1 -5)
+       4  // TODO(W3): event discovery & search (list, filters, search, e
+          vent details).
+       5  export function EventsPage() {
+       6    return (
+       7 -    <ComingSoon                                                
+       8 -      title="Events"                                           
+       9 -      workflow="W2 / W3"                                       
+      10 -      description="Browse, search and create events."          
+      11 -    />                                                         
+       7 +    <ComingSoon title="Events" workflow="W2 / W3" description="
+         +Browse, search and create events." />                          
+       8    );
+       9  }
+  ⎿  … 2 more files changed
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Lint, tests (15) and build pass. Now an end-to-end check against the real
+  backend:
+
+  Ran 5 shell commands (ctrl+o to expand)
+
+⏺ The proxy works and the error bodies match what the parser expects. One last
+  check: the real JWT carries the exp claim the auto-logout timer reads.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ Background command "Start Vite dev server" failed with exit code 144
+
+⏺ Background command "Start backend in dev profile" failed with exit code 144
+
+⏺ Both servers are stopped. Exit 144 is from my own pkill, not a crash. Now the
+  dev guide and the usage log:
+
+⏺ Write(docs/dev-guide/frontend-guide.md)
+  ⎿  Wrote 274 lines to docs/dev-guide/frontend-guide.md
+       1 # Frontend guide
+       2 
+       3 This guide explains how the React frontend in `/frontend` is bui
+         lt and how to extend it.
+       4 You do not need any AI tool: everything here is plain React + Ty
+         peScript.
+       5 
+       6 Read first: `CLAUDE.md` (rules) and `docs/dev-guide/how-to-add-a
+         -feature.md` (backend side).
+       7 
+     … +267 lines (ctrl+o to expand)
+
+⏺ Bash(cat >> docs/genai/usage-log.md <<'EOF'
+      | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | Frontend
+      scaffold: auth, layout, organizations pages, dev…)
+  ⎿  All matched files use Prettier code style!
+      M docs/genai/usage-log.md
+     ?? docs/dev-guide/frontend-guide.md
+     ?? frontend/
+  ⎿  Updated docs/genai/usage-log.md (+1 -0)
+      10  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Data model (persistence layer only, no services/controllers) | 
+          Design the schema as Flyway migrations + JPA entities + reposit
+          ories for User, Organization, OrganizationMembership, Event, Re
+          gistration, EventTask, Announcement with FKs/uniques/CHECKs/sea
+          rch indexes; list open design decisions first and wait for answ
+          ers; dev-only seed (2 orgs, ~8 users, ~6 events, registrations,
+           password "password"); docs/data-model.md with Mermaid ER diagr
+          am; `./mvnw verify` must pass | `V1__initial_schema.sql`; entit
+          ies + enums + repositories in `user`, `organization`, `event`, 
+          `registration`, `organizing`; dev-only `db/seed-dev/R__dev_seed
+          .sql` + `spring.flyway.locations` in `application-dev.yml`; `Da
+          taModelConstraintsTest` (13 Testcontainers tests); `docs/data-m
+          odel.md` | Human answered the design questions (D1–D12) before 
+          any code was written; `./mvnw verify` BUILD SUCCESS (3 smoke + 
+          13 constraint tests); dev profile applied V1 + R__dev_seed to t
+          he docker-compose Postgres, and psql showed 8 users, 2 orgs, 7 
+          events (one per status), 14 registrations; re-running the seed 
+          SQL left row counts unchanged (idempotent) | Answered design de
+          cisions D1–D12 before implementation (no waitlist for mid-term,
+           location as text, category enum, no hard delete of events with
+           registrations, optional deadline ≤ start; accepted D5–D12 reco
+          mmendations); reviewed V1 migration and data-model.md; re-ran `
+          ./mvnw verify` myself (16 tests passed). Design change from the
+           human: an event with registrations is never hard-deleted (`fk_
+          registrations_event` RESTRICT), cancel instead |
+      11  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          JWT auth, org permissions, example feature, Swagger auth, dev g
+          uide | Implement register/login/`/users/me` with stateless JWT 
+          (secret from .env), BCrypt, real SecurityConfig (public: health
+          , Swagger, register, login); `OrgPermissionService` usable from
+           `@PreAuthorize` with unit tests; example `GET /organizations[/
+          {id}]` with DTO, mapper, service, controller, OpenAPI, Mockito 
+          + MockMvc/Testcontainers tests (401, 404); Swagger "Authorize";
+           `docs/dev-guide/how-to-add-a-feature.md`. List open design dec
+          isions first and wait for answers; `./mvnw verify` must pass; n
+          o commit | `pom.xml` (+oauth2-resource-server); `config` (Secur
+          ityConfig rewrite, JwtProperties, OpenApiConfig bearer scheme);
+           `common` (NotFound/ConflictException, 401/403 handlers); `auth
+          ` (AuthController, AuthService, JwtService, DTOs, Authenticated
+          User); `user` (UserController, UserService, UserResponse); `org
+          anization` (OrgPermissionService, OrganizationController/Servic
+          e/Mapper/Response); tests: AuthServiceTest, OrgPermissionServic
+          eTest, OrganizationServiceTest, AuthControllerIntegrationTest, 
+          OrganizationControllerIntegrationTest, OrgPermissionPreAuthoriz
+          eIntegrationTest, IntegrationTestBase, ApplicationSmokeTest 403
+          →401; `application*.yml`, `.env.example` JWT placeholders; ADR-
+          003 implementation notes; dev guide | Human answered design dec
+          isions (2 h token, no refresh, Spring resource server, anyone r
+          egisters as STUDENT, min 8 chars, orgs require login, single "I
+          nvalid credentials") before code was written; `./mvnw verify` B
+          UILD SUCCESS (47 tests); dev profile against docker-compose Pos
+          tgres with seed: login as ana.popescu → token, orgs 401 without
+           token / 200 with token (2 orgs), `/organizations/999` 404, `/u
+          sers/me` 200, wrong password 401, duplicate email (other case) 
+          409, Swagger UI 200 with bearerAuth scheme | Answered design de
+          cisions before implementation (2h tokens, no refresh tokens, Sp
+          ring built-in JWT, open registration as STUDENT … [+221 chars]
+      12  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Update project conventions in CLAUDE.md | Add `mapper` to the a
+          llowed feature sub-packages; note that test classes must end wi
+          th `Test` (e.g. `*IntegrationTest`) so Maven runs them; no comm
+          it | `CLAUDE.md`: sub-package list + one-line description of `m
+          apper`; test naming rule under Coding conventions | Reviewed `g
+          it diff CLAUDE.md` (two small additions, nothing else changed) 
+          | Human decision: keep the mapper sub-package Claude introduced
+           instead of moving the file, and document the *Test naming rule
+          ; requested this update and reviewed the CLAUDE.md diff |
+      13 +| 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+         +Frontend scaffold: auth, layout, organizations pages, dev guide
+         + | Create /frontend (Vite + React + TS strict, React Router, Ta
+         +nStack Query, axios JWT interceptor, MUI, ESLint + Prettier, Vi
+         +test + RTL) organized by feature; login/register, auth context 
+         ++ protected routes (redirect on missing/expired token or 401), 
+         +role-based nav, logout, Organizations list + details, readable 
+         +backend errors (message + per-field), placeholder theme/logo, "
+         +Coming soon" pages with TODO(W2–W5), Vite dev proxy to :8080, t
+         +ests for login form and auth context, `docs/dev-guide/frontend-
+         +guide.md` for teammates without AI. List open design decisions 
+         +first and wait for answers; lint/test/build must pass; no commi
+         +t | `frontend/` (package.json + lock, .nvmrc 24, .env.example, 
+         +vite/tsconfig/eslint/prettier config, index.html, placeholder S
+         +VG); `src/api` (client with Bearer + 401 handler, tokenStorage 
+         +with JWT exp decode, errors.parseApiError, types, auth/users/or
+         +ganizations, queryClient); `src/features/auth` (AuthContext, us
+         +eAuth, LoginForm, LoginPage, RegisterPage, AuthPageLayout); `sr
+         +c/features/organizations` (queries, list, details); placeholder
+         + pages for events/registrations/organizing/admin; `src/componen
+         +ts` (AppLayout, Logo, ComingSoon, ErrorAlert, LoadingState, Not
+         +FoundPage); `src/routes` (paths, router, ProtectedRoute); `src/
+         +theme.ts`; tests: LoginForm.test (4), AuthContext.test (8 incl.
+         + ProtectedRoute), client.test (3); `docs/dev-guide/frontend-gui
+         +de.md` | Human answered D1–D4 (localStorage, English, global-ro
+         +le nav + TODO for Organizing, Node 24 LTS) before code was writ
+         +ten; `npm run lint` clean, `npm test` 15/15 passed, `npm run bu
+         +ild` OK (bundle >500 kB warning only); with backend (dev profil
+         +e) + `npm run dev`: through the Vite proxy wrong password → 401
+         + "Invalid credentials", invalid register → 400 with 3 fieldErro
+         +rs, login → `/users/me` 200, organizations 200 (2 orgs), `/orga
+         +nizations/999` 404, bad token 401; real JWT pay … [+64 chars]  
+
+⏺ The frontend is built in /frontend. npm run lint is clean, npm test passes all
+  15 tests and npm run build succeeds. Nothing is committed or pushed.
+
+  Your design answers, as built:
+  - Token storage: the JWT is kept in localStorage.
+  - Language: the UI is in English.
+  - Navigation by role: everyone sees Organizations, Events, My registrations
+    and Organizing. Admins also get an Admin page, which is blocked for
+    students. A TODO(W5) marks where to restrict Organizing to presidents and
+    organizers. The backend has no endpoint yet that tells the frontend which
+    organizations a user belongs to.
+  - Node: .nvmrc is 24; anything from 22.12 up works.
+
+  Choices I made without asking (listed in the plan you approved):
+  - Expiry: the app logs you out exactly when the token expires, on a page
+    reload with an expired token, or when any logged-in request gets a 401. It
+    then shows "Your session has expired" and returns you to the page you were
+    on after you log in again.
+  - Register: it logs you in automatically afterwards.
+  - Errors: they come from the backend's error JSON. Wrong passwords show
+    "Invalid credentials" and validation messages appear under the matching
+    field.
+
+  Two things to know:
+  - Older library versions: newer major versions exist (Vite 8, MUI 9, React
+    Router 8, TypeScript 7, ESLint 10, Vitest 5). I used the latest release
+    within the majors from the approved plan. The ESLint TypeScript plugin
+    doesn't support TypeScript 7 yet, so moving everything up wasn't safe.
+  - Bundle-size warning: the build warns that the bundle is over 500 kB.
+    Splitting pages into separate files can fix that later.
+
+  What I checked against the real backend: I started the backend and npm run dev
+  and sent requests through the dev proxy with curl. The error responses and
+  token are what the frontend expects:
+  - a wrong password gives 401 "Invalid credentials";
+  - a bad registration gives 400 with three field errors;
+  - after login, /users/me and the organizations list (2 orgs) both return 200;
+  - organization 999 gives 404 and a bad token gives 401;
+  - the real token includes the expiry time the frontend reads.
+
+  I did not click through the pages in a browser, so please do that part.
+
+  How to verify:
+  1. Automated checks:
+  cd frontend && npm install && npm run lint && npm test && npm run build
+     Expect a clean lint, 15 passing tests in 3 files, and a successful build.
+  2. Run the app:
+  docker compose up -d
+  cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+  cd frontend && npm run dev
+     Then open http://localhost:5173:
+     - You are sent to /login.
+     - A wrong password shows "Invalid credentials".
+     - On Register, a 3-character password shows "At least 8 characters" under
+       that field.
+     - Logging in as ana.popescu@stud.ubbcluj.ro / password shows 2 organization
+       cards. Clicking one opens its details.
+     - http://localhost:5173/organizations/999 shows "Organization not found".
+     - Events, My registrations and Organizing show "Coming soon". There is no
+       Admin item; /admin shows "You do not have access".
+     - Logging in as admin@ubbevents.ro / password adds the Admin item.
+     - In DevTools → Application → Local Storage, change ubb-events.accessToken
+       and reload. You land on login with "Your session has expired".
+     - Log out goes back to /login.
+  3. Read docs/dev-guide/frontend-guide.md.
+
+  I added an entry to docs/genai/usage-log.md; the "Human changes" column is
+  left for you to fill in.
+
+  New files (in frontend/ unless noted):
+  - package.json + package-lock.json, .nvmrc, .env.example, vite.config.ts,
+    eslint.config.js, .prettierrc.json
+  - src/ (api/, components/, routes/, features/, theme.ts) and its three test
+    files
+  - docs/dev-guide/frontend-guide.md (repo root)
+
+✻ Cooked for 10m 13s · done 12:05 AM
+
+❯ cd: no such file or directory: frontend                                       
+  ➜  backend git:(main) ✗ cd frontend && npm run dev                            
+  cd: no such file or directory: frontend                                       
+  ➜  backend git:(main) ✗                                                       
+
+⏺ You're in backend/, and frontend sits next to it, not inside it. That's on me:
+  my steps didn't say each command starts from the repo root.
+
+  Run the backend and the frontend in two terminals, because spring-boot:run
+  keeps running and holds the terminal:
+
+  Terminal 1 (backend):
+  cd ~/projects/GenAI-Project/backend
+  ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+  Terminal 2 (frontend):
+  cd ~/projects/GenAI-Project/frontend
+  npm install        # first time only
+  npm run dev
+
+  Then open http://localhost:5173. Start the database first with docker compose 
+  up -d from ~/projects/GenAI-Project if it isn't running already.
+
+✻ Cooked for 4s · done 12:08 AM
+
+❯ ok working                                                                    
+
+⏺ Good, glad it's running.
+
+  When you've finished clicking through the checks from my earlier message
+  (login, wrong password, Register field errors, details, 404, Admin, session
+  expiry), please fill in the "Human changes" column of the latest row in
+  docs/genai/usage-log.md. Then review the diff and commit on a feature branch
+  (e.g. feature/frontend-scaffold). I won't commit or push unless you ask.
+
+  If something on screen doesn't match what I described, tell me what you see
+  and I'll fix it.
+
+✻ Cogitated for 3s · done 12:10 AM
