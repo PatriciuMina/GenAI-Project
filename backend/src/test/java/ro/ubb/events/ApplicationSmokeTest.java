@@ -17,7 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Starts the whole application against a real PostgreSQL 16 (Testcontainers), which also
- * runs Flyway and the JPA schema validation, then checks the public/denied endpoints.
+ * runs Flyway and the JPA schema validation, then checks the public/protected endpoints.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -47,12 +47,12 @@ class ApplicationSmokeTest {
     }
 
     @Test
-    void everythingElseIsDeniedWithConsistentErrorBody() throws Exception {
+    void everythingElseNeedsATokenWithConsistentErrorBody() throws Exception {
         mockMvc.perform(get("/api/v1/events"))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.status").value(403))
-                .andExpect(jsonPath("$.code").value("FORBIDDEN"))
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.fieldErrors").isArray());
     }
