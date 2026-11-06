@@ -1,0 +1,11 @@
+# Local development against the PostgreSQL from docker-compose.yml.
+# Values come from the root .env (see .env.example) or the environment. No secrets here.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+logging:
+  level:
+    ro.ubb.events: DEBUG
