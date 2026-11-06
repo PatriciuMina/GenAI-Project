@@ -1,0 +1,7 @@
+# Test profile. The datasource is provided by Testcontainers (@ServiceConnection),
+# so no connection settings are needed here.
+logging:
+  level:
+    root: WARN
+    ro.ubb.events: INFO
+    org.testcontainers: INFO

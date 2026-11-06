@@ -1,0 +1,30 @@
+# Shared configuration for all profiles.
+spring:
+  application:
+    name: events-backend
+  config:
+    # Load the root .env (KEY=VALUE) as properties so no manual `export` is needed.
+    # Real OS environment variables still take precedence. Both are optional.
+    import:
+      - optional:file:../.env[.properties]   # running from /backend
+      - optional:file:./.env[.properties]    # running from the repo root
+  autoconfigure:
+    exclude:
+      # No in-memory default user / generated password; real auth comes with JWT (ADR-003).
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
