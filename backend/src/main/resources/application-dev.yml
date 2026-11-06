@@ -5,6 +5,10 @@ spring:
     url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+  flyway:
+    # db/seed-dev holds R__dev_seed.sql (demo data). It is added ONLY in the dev profile,
+    # so tests and production never load it. See docs/data-model.md.
+    locations: classpath:db/migration,classpath:db/seed-dev
 
 logging:
   level:
