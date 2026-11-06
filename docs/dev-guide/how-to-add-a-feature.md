@@ -307,7 +307,7 @@ Demo data for local dev goes in `db/seed-dev/R__dev_seed.sql` (dev profile only)
    ```
 2. Start the database and the API with demo data:
    ```bash
-   docker compose up -d
+   docker compose up -d postgres
    cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
    ```
 3. Open <http://localhost:8080/swagger-ui.html>.

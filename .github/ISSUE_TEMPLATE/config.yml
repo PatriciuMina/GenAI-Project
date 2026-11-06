@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: How we work (CONTRIBUTING.md)
+    url: https://github.com/PatriciuMina/GenAI-Project/blob/main/CONTRIBUTING.md
+    about: Board workflow, branches, commits, Definition of Done, story points.

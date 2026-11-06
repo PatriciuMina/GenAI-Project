@@ -1,0 +1,45 @@
+name: Documentation
+description: Write or update documentation (guides, ADRs, README, reports).
+title: "docs: "
+labels: ["type:docs"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What needs to be documented
+      description: Topic, audience and why it is needed.
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Target file(s)
+      description: Where the result goes (always under /docs, or README/CONTRIBUTING).
+      placeholder: docs/dev-guide/...
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] Delivered as a PR that adds/updates the file(s) above
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: dependencies
+    attributes:
+      label: Depends on
+      description: Issues that must be Done first, e.g. "#12" (or "none").
+      placeholder: none
+    validations:
+      required: true
+  - type: dropdown
+    id: points
+    attributes:
+      label: Story points
+      description: 1 = under 2 h, 2 = ~half a day, 3 = ~a day, 4 = ~2 days or tricky, 5 = several days
+      options: ["1", "2", "3", "4", "5"]
+    validations:
+      required: true

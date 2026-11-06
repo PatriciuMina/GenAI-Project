@@ -1,3 +1,10 @@
+# Local / demo environment for the whole app: PostgreSQL + backend + frontend.
+#
+#   cp .env.example .env        # then set JWT_SECRET (and the DB password) in .env
+#   docker compose up --build   # UI on http://localhost:3000 (FRONTEND_PORT)
+#
+# Only the database (when you run backend/frontend on your machine): docker compose up -d postgres
+# All configuration comes from the root .env (see .env.example).
 services:
   postgres:
     image: postgres:16-alpine
@@ -17,6 +24,43 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  backend:
+    build: ./backend
+    container_name: genai-events-backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Pinned here on purpose: these values override anything in .env.
+      # This is the local/demo environment, so it ALWAYS loads the dev seed users.
+      # The pgdata volume is shared with a backend run on your machine (dev profile). Once
+      # R__dev_seed has been applied, Flyway must always see db/seed-dev, otherwise it
+      # reports the applied migration as missing and the backend refuses to start.
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration,classpath:db/seed-dev
+      # Inside Docker the database host is the "postgres" service, not localhost.
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080" # Swagger UI: http://localhost:8080/swagger-ui.html
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  frontend:
+    build: ./frontend
+    container_name: genai-events-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
   pgdata:
