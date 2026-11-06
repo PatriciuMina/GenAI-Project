@@ -28,3 +28,20 @@ or via `@PreAuthorize`.
 - − Tokens cannot be revoked before expiry without extra work (keep expiry short).
 - − Secret management matters: never commit `JWT_SECRET`, only `.env.example` placeholder.
 - − Token storage on the frontend must be handled carefully (XSS risk).
+
+## Implementation notes (2026-11-06)
+Decided by the team before implementation:
+- **Library:** Spring Security's built-in OAuth2 Resource Server (Nimbus) with an HMAC
+  (HS256) secret; no separate JWT library and no hand-written token filter.
+- **Lifetime:** access token valid 2 hours (`JWT_EXPIRATION_MINUTES=120`). **No refresh
+  tokens** for the mid-term; the client logs in again.
+- **Claims:** `sub` = user id, `email`, `role` (STUDENT/ADMIN → `ROLE_*` authority). Role
+  changes take effect at the next login.
+- **Registration:** anyone, any email, always `STUDENT`; `ADMIN` accounts only from the seed.
+  Password 8–72 characters (72 = BCrypt limit).
+- **Login errors:** the same "Invalid credentials" (401) for unknown email and wrong password.
+- **Organization roles:** `OrgPermissionService` (bean `orgPermissions`) for `@PreAuthorize`;
+  PRESIDENT ⊃ ORGANIZER ⊃ MEMBER; no implicit bypass for global ADMIN.
+- **Startup:** the app refuses to start if `JWT_SECRET` is missing or shorter than 32 characters.
+
+How to use it in a feature: `docs/dev-guide/how-to-add-a-feature.md`.

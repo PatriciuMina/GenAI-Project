@@ -1,0 +1,1876 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.319
+           Opus 5.5 · Claude Team
+ ▘▘   ▝▝   ~/projects/GenAI-Project
+
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.
+
+❯ /clear                                                                        
+
+❯ /plan                                                                         
+  ⎿  Enabled plan mode
+
+❯ Read CLAUDE.md and follow it. Use the existing entities, repositories and dev 
+  seed users.                                                                   
+  1. Auth: POST /api/v1/auth/register, POST /api/v1/auth/login (returns a JWT), 
+     GET /api/v1/users/me. Stateless JWT (signing secret from .env, add a       
+  placeholder to                                                                
+     .env.example), BCrypt, role checks. Replace the temporary deny-all         
+  security config with                                                          
+     the real one: health, Swagger, register and login are public; everything   
+  else needs a                                                                  
+     valid token. Errors (401, 403, 409 duplicate email, 400 validation) use    
+  the existing                                                                  
+     error JSON.                                                                
+  2. Add an OrgPermissionService (isMember / isOrganizer / isPresident(userId,  
+  orgId))                                                                       
+     usable from @PreAuthorize, with unit tests.                                
+  3. Example feature: GET /api/v1/organizations and GET                         
+  /api/v1/organizations/{id}, with                                              
+     DTOs (Java records), a mapper, service, controller, OpenAPI annotations, a 
+  Mockito unit                                                                  
+     test for the service and a MockMvc + Testcontainers integration test for   
+  the controller                                                                
+     (including a 401 without a token and a 404 for an unknown id).             
+  4. Configure Swagger so I can log in, press "Authorize", paste the token and  
+  call                                                                          
+     protected endpoints.                                                       
+  5. docs/dev-guide/how-to-add-a-feature.md: walk through the organizations     
+  example file by                                                               
+     file so a teammate with NO AI tools can build a new endpoint the same way: 
+  where each                                                                    
+     file goes, what it does, how to protect it with roles, how to write and    
+  run the tests,                                                                
+     how to try it in Swagger with a token.                                     
+                                                                                
+  Before implementing, list the open design decisions (for example token        
+  lifetime, refresh                                                             
+  tokens, which JWT library, who may register, whether organizations are        
+  visible without                                                               
+  login) with your recommendation for each, and wait for my answers.            
+  Prefer clear, simple code over clever code. ./mvnw verify must pass.          
+  Do not commit or push.                                                        
+
+  Read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ I've read the codebase and drafted a plan with 16 design decisions. I'm asking
+  you about the four most important ones now, and the remaining twelve have
+  recommendations in the plan file for your review before approval.
+
+⏺ User answered Claude's questions:
+  ⎿  · Which JWT library should the backend use (ADR-003 says stateless HS256 
+     JWT)? → My decisions:
+     1. Token lifetime: 2 hours. No refresh tokens for the mid-term.
+     2. JWT implementation: use Spring Security's built-in support (oauth2 
+     resource server with
+        an HMAC secret) unless you see a strong reason for a separate library.
+     3. Registration: anyone can register with any email, always as STUDENT. 
+     ADMIN accounts
+        exist only from the seed. Password minimum 8 characters.
+     4. Organizations list and details require login (any logged-in user), so 
+     the example
+        shows how authentication works end to end.
+     5. Login error: same message for wrong email and wrong password ("Invalid 
+     credentials").
+     · Access token lifetime and refresh tokens? → My decisions:
+     1. Token lifetime: 2 hours. No refresh tokens for the mid-term.
+     2. JWT implementation: use Spring Security's built-in support (oauth2 
+     resource server with
+        an HMAC secret) unless you see a strong reason for a separate library.
+     3. Registration: anyone can register with any email, always as STUDENT. 
+     ADMIN accounts
+        exist only from the seed. Password minimum 8 characters.
+     4. Organizations list and details require login (any logged-in user), so 
+     the example
+        shows how authentication works end to end.
+     5. Login error: same message for wrong email and wrong password ("Invalid 
+     credentials").
+     · Who may self-register via POST /api/v1/auth/register? → My decisions:
+     1. Token lifetime: 2 hours. No refresh tokens for the mid-term.
+     2. JWT implementation: use Spring Security's built-in support (oauth2 
+     resource server with
+        an HMAC secret) unless you see a strong reason for a separate library.
+     3. Registration: anyone can register with any email, always as STUDENT. 
+     ADMIN accounts
+        exist only from the seed. Password minimum 8 characters.
+     4. Organizations list and details require login (any logged-in user), so 
+     the example
+        shows how authentication works end to end.
+     5. Login error: same message for wrong email and wrong password ("Invalid 
+     credentials").
+     · Should GET /api/v1/organizations be visible without login? → My 
+     decisions:
+     1. Token lifetime: 2 hours. No refresh tokens for the mid-term.
+     2. JWT implementation: use Spring Security's built-in support (oauth2 
+     resource server with
+        an HMAC secret) unless you see a strong reason for a separate library.
+     3. Registration: anyone can register with any email, always as STUDENT. 
+     ADMIN accounts
+        exist only from the seed. Password minimum 8 characters.
+     4. Organizations list and details require login (any logged-in user), so 
+     the example
+        shows how authentication works end to end.
+     5. Login error: same message for wrong email and wrong password ("Invalid 
+     credentials").
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ I've added your five answers to the plan. Nothing is built yet: I'm waiting
+  for you to approve the plan.
+
+  Your decisions:
+  - Token lifetime: 2 hours, with no refresh tokens.
+  - JWT handling: Spring's built-in resource-server support with an HMAC secret.
+    I don't see a reason to add a separate library.
+  - Registration: anyone can register with any email and always gets STUDENT.
+  - Passwords: at least 8 characters. I also cap them at 72, because BCrypt
+    ignores anything past 72 bytes.
+  - Organizations: login is required to see them.
+  - Failed login: the same "Invalid credentials" message for a wrong email or a
+    wrong password.
+
+  My recommendations you haven't answered yet (they stand unless you change them
+  now):
+  - Token contents (D6): the token carries the user id, email and role. A role
+    change takes effect at the next login.
+  - Logged-in user (D7): code gets it as a small AuthenticatedUser object with
+    the user's id, email and role.
+  - Role levels (D8): PRESIDENT includes ORGANIZER, which includes MEMBER.
+  - ADMIN (D9): the permission checks don't let an ADMIN through automatically;
+    an endpoint that should allow admins says so explicitly.
+  - Register response (D10): returns 201 with the user's profile but no token,
+    so the client logs in next. A duplicate email gives 409.
+  - Missing secret (D13): the app refuses to start if JWT_SECRET is missing or
+    shorter than 32 bytes.
+  - Organizations list (D14): a plain list sorted by name, with no paging yet.
+  - Mapper (D15): written by hand, no mapping library.
+  - 401 vs 403 (D16): no token or a bad token gives 401; a valid token without
+    permission gives 403. Both use the existing error JSON.
+
+  Two things you should know before approving:
+  - Permission errors would come back as 500. If the existing error handler
+    isn't changed, a failed @PreAuthorize check falls through to its catch-all.
+    The plan adds handling so it returns a proper 403.
+  - Your local .env needs a real JWT_SECRET. It must be at least 32 bytes
+    (openssl rand -base64 48 makes one), or the dev app won't start. I won't
+    edit .env; I'll only add a placeholder to .env.example.
+
+  The existing smoke test currently expects 403 for protected paths, so I'll
+  change it to expect 401.
+
+⏺ User approved Claude's plan
+  ⎿  Plan saved to: 
+     ~/.claude/plans/pasted-content-id-72a2-read-claude-md-cozy-pine.md · /plan 
+     to edit
+     P4 – JWT auth, org permissions, organizations example, Swagger auth, dev 
+     guide
+
+     Context
+
+     The backend has a data model (V1, entities, repositories, dev seed with 8
+     users / password
+     password) but only a temporary deny-all SecurityConfig. This task adds real
+     stateless JWT
+     auth (ADR-003), a reusable organization-permission check for @PreAuthorize,
+     one fully
+     worked example feature (read-only organizations) and a written guide so
+     teammates without AI
+     tools can copy the pattern. No commit/push.
+
+     Design decisions
+
+     D1–D5, D11, D12 decided by the human; D6–D10, D13–D16 are my
+     recommendations (accepted unless changed at plan review).
+
+     ┌─────┬────────────────┬──────────────────────────────────────────────────┐
+     │  #  │    Decision    │                     Outcome                      │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │ D1  │ Token lifetime │ Human: 2 hours → JWT_EXPIRATION_MINUTES default  │
+     │     │                │ 120                                              │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │ D2  │ Refresh tokens │ Human: none for the mid-term                     │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │                │ Human: Spring Security OAuth2 Resource Server    │
+     │ D3  │ JWT library    │ with HMAC secret (Nimbus, HS256); no separate    │
+     │     │                │ library, no hand-written JWT filter              │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │ D4  │ Who may        │ Human: anyone, any email, always STUDENT; ADMIN  │
+     │     │ register       │ only from the seed                               │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │ Organizations  │                                                  │
+     │ D5  │ visible        │ Human: login required (any logged-in user)       │
+     │     │ without login  │                                                  │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │                │ sub = user id, claims email, role; role read     │
+     │ D6  │ Token contents │ from token (no DB hit per request) → role        │
+     │     │                │ changes apply at next login                      │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │                │ Custom AuthenticatedUser(id, email, role) record │
+     │ D7  │ Principal in   │  built from the JWT; controllers use             │
+     │     │ code           │ @AuthenticationPrincipal AuthenticatedUser me,   │
+     │     │                │ SpEL uses principal.id                           │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │ Org role       │ PRESIDENT ⊃ ORGANIZER ⊃ MEMBER: isMember = any   │
+     │ D8  │ hierarchy      │ membership, isOrganizer = ORGANIZER or           │
+     │     │                │ PRESIDENT, isPresident = PRESIDENT only          │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │                │ No implicit bypass in OrgPermissionService;      │
+     │ D9  │ Global ADMIN   │ write it explicitly: hasRole('ADMIN') or         │
+     │     │ in org checks  │ @orgPermissions.isOrganizer(principal.id,        │
+     │     │                │ #orgId)                                          │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │ D10 │ Register       │ 201 + UserResponse (no token); client then calls │
+     │     │ response       │  login. Duplicate email → 409 EMAIL_ALREADY_USED │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │                │ Human: min 8 chars; I add max 72 only because    │
+     │ D11 │ Password rules │ BCrypt ignores bytes beyond 72. BCrypt strength  │
+     │     │                │ 10 (same as seed hashes)                         │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │                │ Human: same message "Invalid credentials" for    │
+     │ D12 │ Bad login      │ wrong email and wrong password → 401             │
+     │     │                │ INVALID_CREDENTIALS                              │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │ Missing/short  │ Fail fast at startup (must be ≥ 32 bytes). Test  │
+     │ D13 │ JWT_SECRET     │ profile gets a fixed, clearly-fake test secret   │
+     │     │                │ in application-test.yml                          │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │                │ Plain list sorted by name (no paging yet); one   │
+     │ D14 │ Org list shape │ OrganizationResponse(id, name, description,      │
+     │     │                │ contactEmail, createdAt) for list and detail     │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │ D15 │ Mapper         │ Hand-written OrganizationMapper @Component (no   │
+     │     │                │ MapStruct)                                       │
+     ├─────┼────────────────┼──────────────────────────────────────────────────┤
+     │     │                │ No/invalid/expired token → 401 UNAUTHORIZED;     │
+     │ D16 │ 401 vs 403     │ valid token but not allowed → 403 FORBIDDEN,     │
+     │     │                │ both with existing ApiError body                 │
+     └─────┴────────────────┴──────────────────────────────────────────────────┘
+
+     Implementation (after answers)
+
+     Build / config
+
+     - backend/pom.xml: add spring-boot-starter-oauth2-resource-server (D3;
+       version from Boot parent).
+     - application.yml: app.jwt.secret: ${JWT_SECRET},
+       app.jwt.expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}.
+     - application-test.yml: fake test secret.
+     - .env.example: uncomment JWT_SECRET=change-me-... placeholder and
+       JWT_EXPIRATION_MINUTES=120.
+     - Note for the human: your local .env needs a real JWT_SECRET (≥ 32 bytes,
+       e.g. openssl rand -base64 48) or the dev app won't start; I will not
+       touch .env.
+
+     config
+
+     - JwtProperties (@ConfigurationProperties("app.jwt") record, @Validated,
+       secret length check).
+     - SecurityConfig (rewrite): stateless, CSRF off, @EnableMethodSecurity;
+       public = health,
+       Swagger, /v3/api-docs/**, POST /api/v1/auth/register, POST 
+       /api/v1/auth/login, /error;
+       anyRequest().authenticated(); oauth2ResourceServer(jwt) with a converter
+       → AuthenticatedUser
+       - ROLE_<role> authority; JSON 401 entry point / 403 access-denied handler
+         (reuse existing writeError).
+         Beans: PasswordEncoder (BCrypt), JwtEncoder/JwtDecoder (Nimbus, HS256).
+     - OpenApiConfig: add bearerAuth HTTP bearer security scheme + global
+       security requirement → "Authorize" button.
+
+     common
+
+     - GlobalExceptionHandler: add AccessDeniedException → 403 and
+       AuthenticationException → 401
+       (otherwise @PreAuthorize failures fall into the catch-all 500 handler).
+     - exception/NotFoundException, ConflictException extending existing
+       ApiException.
+
+     auth
+
+     - controller/AuthController: POST /register (201), POST /login (200).
+     - service/AuthService: register (normalize email lower-case, 409 on
+       duplicate via UserService), login (BCrypt match, 401 on fail).
+     - service/JwtService: issue token with JwtEncoder.
+     - dto/RegisterRequest, LoginRequest, LoginResponse(accessToken, tokenType, 
+       expiresIn).
+     - AuthenticatedUser record (principal).
+
+     user
+
+     - service/UserService (create, findByEmail, getById),
+       controller/UserController (GET /api/v1/users/me), dto/UserResponse.
+
+     organization
+
+     - service/OrgPermissionService (bean name orgPermissions):
+       isMember/isOrganizer/isPresident(Long userId, Long orgId) using existing
+       OrganizationMembershipRepository.findByUserIdAndOrganizationId;
+       null-safe.
+     - dto/OrganizationResponse, mapper/OrganizationMapper,
+       service/OrganizationService (findAll, getById → 404),
+       controller/OrganizationController with springdoc
+       @Tag/@Operation/@ApiResponse.
+
+     Tests
+
+     - OrgPermissionServiceTest, OrganizationServiceTest, AuthServiceTest
+       (Mockito).
+     - OrganizationControllerIT (@SpringBootTest + MockMvc + Testcontainers):
+       401 no token, 200 list/detail with token (obtained via real login), 404
+       unknown id.
+     - AuthControllerIT: register 201, duplicate 409, invalid body 400, login
+       ok/401, /users/me 200/401, bad token 401.
+     - Update ApplicationSmokeTest: unknown protected path now 401 instead
+       of 403.
+     - Extract a shared Testcontainers base/@TestConfiguration so both ITs reuse
+       one container.
+
+     Docs
+
+     - docs/dev-guide/how-to-add-a-feature.md: file-by-file walk-through of the
+       organizations example, role protection with @PreAuthorize, tests and how
+       to run them, trying it in Swagger with a token.
+     - ADR-003: short "Implementation notes" addendum (library, lifetime, no
+       refresh).
+     - docs/genai/usage-log.md: new row.
+
+     Verification
+
+     - cd backend && ./mvnw verify → BUILD SUCCESS.
+     - Dev run: docker compose up -d, cd backend && ./mvnw spring-boot:run 
+       -Dspring-boot.run.profiles=dev;
+       curl login as ana.popescu@stud.ubbcluj.ro / password → token;
+       /api/v1/organizations without token 401, with token 200 (2 orgs);
+       /organizations/999 404.
+     - Swagger UI http://localhost:8080/swagger-ui.html: login → Authorize →
+       call /users/me.
+
+⏺ Plan approved. Starting with build config and security.
+
+⏺ Bash(python3 - <<'EOF'
+      p='backend/pom.xml'…)
+  ⎿   .env.example                                    | 9 +++++----
+      backend/pom.xml                                 | 5 +++++
+      backend/src/main/resources/application-test.yml | 5 +++++
+     … +4 lines (ctrl+o to expand)
+  ⎿  Updated .env.example (+5 -4)
+       8  
+       9  # Backend: the Spring Boot app reads this root .env automatical
+          ly
+      10  # (spring.config.import in backend/src/main/resources/applicati
+          on.yml).
+      11 -# Backend (future use)                                         
+      12 -# SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/events
+         -db                                                             
+      13 -# JWT_SECRET=change-me-to-a-long-random-string-at-least-32-byte
+         -s                                                              
+      14 -# JWT_EXPIRATION_MINUTES=60                                    
+      11 +# JWT signing secret (HS256). REQUIRED, at least 32 bytes; the 
+         +app refuses to start otherwise.                                
+      12 +# Generate one with: openssl rand -base64 48                   
+      13 +JWT_SECRET=change-me-to-a-long-random-string-at-least-32-bytes 
+      14 +# Access token lifetime in minutes (default 120 = 2 hours). No 
+         +refresh tokens.                                                
+      15 +JWT_EXPIRATION_MINUTES=120                                     
+      16  
+      17  # Frontend (future use)
+      18  # VITE_API_BASE_URL=http://localhost:8080/api/v1
+  ⎿  Updated backend/pom.xml (+5 -0)
+      43              <groupId>org.springframework.boot</groupId>
+      44              <artifactId>spring-boot-starter-security</artifactI
+          d>
+      45          </dependency>
+      46 +        <!-- JWT: Spring's built-in resource server (Nimbus) va
+         +lidates Bearer tokens; HS256 secret (ADR-003) -->              
+      47 +        <dependency>                                           
+      48 +            <groupId>org.springframework.boot</groupId>        
+      49 +            <artifactId>spring-boot-starter-oauth2-resource-ser
+         +ver</artifactId>                                               
+      50 +        </dependency>                                          
+      51  
+      52          <!-- Persistence -->
+      53          <dependency>
+  ⎿  Updated backend/src/main/resources/application-test.yml (+5 -0)
+       5      root: WARN
+       6      ro.ubb.events: INFO
+       7      org.testcontainers: INFO
+       8 +                                                               
+       9 +# Fixed, clearly fake secret used ONLY by automated tests. Not 
+         +a real secret.                                                 
+      10 +app:                                                           
+      11 +  jwt:                                                         
+      12 +    secret: test-only-secret-not-used-anywhere-else-0123456789 
+  ⎿  Updated backend/src/main/resources/application.yml (+6 -0)
+      23  server:
+      24    port: 8080
+      25  
+      26 +# JWT settings (see config/JwtProperties and ADR-003). Values c
+         +ome from the root .env.                                        
+      27 +app:                                                           
+      28 +  jwt:                                                         
+      29 +    secret: ${JWT_SECRET:}                                     
+      30 +    expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}          
+      31 +                                                               
+      32  springdoc:
+      33    swagger-ui:
+      34      path: /swagger-ui.html
+
+⏺ Now the Java code: config, common, auth, user, organization.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Write(backend/src/main/java/ro/ubb/events/config/JwtProperties.java)
+  ⎿  Wrote 23 lines to
+     backend/src/main/java/ro/ubb/events/config/JwtProperties.java
+       1 package ro.ubb.events.config;
+       2 
+       3 import jakarta.validation.constraints.Min;
+       4 import jakarta.validation.constraints.NotBlank;
+       5 import jakarta.validation.constraints.Size;
+       6 import org.springframework.boot.context.properties.Configuration
+         Properties;
+       7 import org.springframework.validation.annotation.Validated;
+       8 
+       9 /**
+     … +14 lines (ctrl+o to expand)
+
+⏺ Write(backend/src/main/java/ro/ubb/events/config/SecurityConfig.java)
+  ⎿  Added 95 lines, removed 7 lines
+       1  package ro.ubb.events.config;
+       2  
+       3  import com.fasterxml.jackson.databind.ObjectMapper;
+       4 +import com.nimbusds.jose.jwk.source.ImmutableSecret;           
+       5  import jakarta.servlet.http.HttpServletResponse;
+       6  import java.io.IOException;
+       7 +import java.nio.charset.StandardCharsets;                      
+       8 +import java.util.List;                                         
+       9 +import javax.crypto.SecretKey;                                 
+      10 +import javax.crypto.spec.SecretKeySpec;                        
+      11 +import org.springframework.boot.context.properties.EnableConfig
+         +urationProperties;                                             
+      12  import org.springframework.context.annotation.Bean;
+      13  import org.springframework.context.annotation.Configuration;
+      14 +import org.springframework.http.HttpMethod;                    
+      15  import org.springframework.http.HttpStatus;
+      16  import org.springframework.http.MediaType;
+      17 +import org.springframework.security.authentication.AbstractAuth
+         +enticationToken;                                               
+      18 +import org.springframework.security.authentication.UsernamePass
+         +wordAuthenticationToken;                                       
+      19 +import org.springframework.security.config.annotation.method.co
+         +nfiguration.EnableMethodSecurity;                              
+      20  import org.springframework.security.config.annotation.web.build
+          ers.HttpSecurity;
+      21  import org.springframework.security.config.annotation.web.confi
+          guration.EnableWebSecurity;
+      22  import org.springframework.security.config.annotation.web.confi
+          gurers.AbstractHttpConfigurer;
+      23  import org.springframework.security.config.http.SessionCreation
+          Policy;
+      24 +import org.springframework.security.core.authority.SimpleGrante
+         +dAuthority;                                                    
+      25 +import org.springframework.security.crypto.bcrypt.BCryptPasswor
+         +dEncoder;                                                      
+      26 +import org.springframework.security.crypto.password.PasswordEnc
+         +oder;                                                          
+      27 +import org.springframework.security.oauth2.jose.jws.MacAlgorith
+         +m;                                                             
+      28 +import org.springframework.security.oauth2.jwt.Jwt;            
+      29 +import org.springframework.security.oauth2.jwt.JwtDecoder;     
+      30 +import org.springframework.security.oauth2.jwt.JwtEncoder;     
+      31 +import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+         +;                                                              
+      32 +import org.springframework.security.oauth2.jwt.NimbusJwtEncoder
+         +;                                                              
+      33 +import org.springframework.security.oauth2.server.resource.Inva
+         +lidBearerTokenException;                                       
+      34 +import org.springframework.security.web.AuthenticationEntryPoin
+         +t;                                                             
+      35  import org.springframework.security.web.SecurityFilterChain;
+      36 +import org.springframework.security.web.access.AccessDeniedHand
+         +ler;                                                           
+      37 +import ro.ubb.events.auth.dto.AuthenticatedUser;               
+      38  import ro.ubb.events.common.dto.ApiError;
+      39 +import ro.ubb.events.user.entity.GlobalRole;                   
+      40  
+      41  /**
+      18 - * TEMPORARY security configuration: only the health endpoint a
+         -nd Swagger/OpenAPI are public,                                 
+      19 - * every other request is denied. Will be replaced by JWT authe
+         -ntication (ADR-003).                                           
+      42 + * Stateless JWT security (ADR-003).                           
+      43 + * <ul>                                                        
+      44 + *   <li>Public: health, Swagger/OpenAPI, {@code POST /api/v1/a
+         +uth/register} and {@code /login}.</li>                         
+      45 + *   <li>Everything else needs a valid {@code Authorization: Be
+         +arer <token>} header.</li>                                     
+      46 + *   <li>Spring's OAuth2 resource server validates the token (H
+         +S256 signature + expiry);                                      
+      47 + *       {@link #toAuthentication(Jwt)} turns it into an {@link
+         + AuthenticatedUser} principal                                  
+      48 + *       with authority {@code ROLE_STUDENT} or {@code ROLE_ADM
+         +IN}.</li>                                                      
+      49 + *   <li>{@code @EnableMethodSecurity} enables {@code @PreAutho
+         +rize} on controllers/services.</li>                            
+      50 + * </ul>                                                       
+      51 + * Errors use the common {@link ApiError} body: 401 for missing
+         +/invalid/expired token,                                        
+      52 + * 403 for an authenticated user without permission.           
+      53   */
+      54  @Configuration
+      55  @EnableWebSecurity
+      56 +@EnableMethodSecurity                                          
+      57 +@EnableConfigurationProperties(JwtProperties.class)            
+      58  public class SecurityConfig {
+      59  
+      60      private static final String[] PUBLIC_PATHS = {
+     ...
+      65              "/error"
+      66      };
+      67  
+      68 +    private static final String[] PUBLIC_POST_PATHS = {        
+      69 +            "/api/v1/auth/register",                           
+      70 +            "/api/v1/auth/login"                               
+      71 +    };                                                         
+      72 +                                                               
+      73      private final ObjectMapper objectMapper;
+      74  
+      75      public SecurityConfig(ObjectMapper objectMapper) {
+     ...
+      78  
+      79      @Bean
+      80      public SecurityFilterChain securityFilterChain(HttpSecurity
+           http) throws Exception {
+      81 +        AuthenticationEntryPoint unauthorized = (req, res, e) -
+         +> {                                                            
+      82 +            res.setHeader("WWW-Authenticate", "Bearer");       
+      83 +            writeError(res, HttpStatus.UNAUTHORIZED, "UNAUTHORI
+         +ZED", "Missing, invalid or expired token");                    
+      84 +        };                                                     
+      85 +        AccessDeniedHandler forbidden = (req, res, e) ->       
+      86 +                writeError(res, HttpStatus.FORBIDDEN, "FORBIDDE
+         +N", "Access denied");                                          
+      87 +                                                               
+      88          return http
+      89                  .csrf(AbstractHttpConfigurer::disable)
+      90                  .httpBasic(AbstractHttpConfigurer::disable)
+     ...
+       93                  .sessionManagement(s -> s.sessionCreationPolic
+           y(SessionCreationPolicy.STATELESS))
+       94                  .authorizeHttpRequests(auth -> auth
+       95                          .requestMatchers(PUBLIC_PATHS).permitA
+           ll()
+       49 -                        .anyRequest().denyAll())              
+       96 +                        .requestMatchers(HttpMethod.POST, PUBL
+          +IC_POST_PATHS).permitAll()                                    
+       97 +                        .anyRequest().authenticated())        
+       98 +                .oauth2ResourceServer(oauth -> oauth          
+       99 +                        .jwt(jwt -> jwt.jwtAuthenticationConve
+          +rter(SecurityConfig::toAuthentication))                       
+      100 +                        .authenticationEntryPoint(unauthorized
+          +)                                                             
+      101 +                        .accessDeniedHandler(forbidden))      
+      102                  .exceptionHandling(ex -> ex
+       51 -                        .authenticationEntryPoint((req, res, e
+          -) ->                                                          
+       52 -                                writeError(res, HttpStatus.FOR
+          -BIDDEN, "FORBIDDEN", "Access denied"))                        
+       53 -                        .accessDeniedHandler((req, res, e) -> 
+       54 -                                writeError(res, HttpStatus.FOR
+          -BIDDEN, "FORBIDDEN", "Access denied")))                       
+      103 +                        .authenticationEntryPoint(unauthorized
+          +)                                                             
+      104 +                        .accessDeniedHandler(forbidden))      
+      105                  .build();
+      106      }
+      107  
+      108 +    /** BCrypt with the default strength 10 (same as the dev s
+          +eed hashes). */                                               
+      109 +    @Bean                                                     
+      110 +    public PasswordEncoder passwordEncoder() {                
+      111 +        return new BCryptPasswordEncoder();                   
+      112 +    }                                                         
+      113 +                                                              
+      114 +    @Bean                                                     
+      115 +    public SecretKey jwtSecretKey(JwtProperties properties) { 
+      116 +        return new SecretKeySpec(properties.secret().getBytes(
+          +StandardCharsets.UTF_8), "HmacSHA256");                       
+      117 +    }                                                         
+      118 +                                                              
+      119 +    /** Signs tokens on login (used by {@code auth.service.Jwt
+          +Service}). */                                                 
+      120 +    @Bean                                                     
+      121 +    public JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {    
+      122 +        return new NimbusJwtEncoder(new ImmutableSecret<>(jwtS
+          +ecretKey));                                                   
+      123 +    }                                                         
+      124 +                                                              
+      125 +    /** Verifies the signature and the {@code exp} claim of in
+          +coming tokens. */                                             
+      126 +    @Bean                                                     
+      127 +    public JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {    
+      128 +        return NimbusJwtDecoder.withSecretKey(jwtSecretKey).ma
+          +cAlgorithm(MacAlgorithm.HS256).build();                       
+      129 +    }                                                         
+      130 +                                                              
+      131 +    /** Builds the principal from the claims written by {@code
+          + JwtService}: sub = user id, email, role. */                  
+      132 +    static AbstractAuthenticationToken toAuthentication(Jwt jw
+          +t) {                                                          
+      133 +        AuthenticatedUser user;                               
+      134 +        try {                                                 
+      135 +            user = new AuthenticatedUser(                     
+      136 +                    Long.valueOf(jwt.getSubject()),           
+      137 +                    jwt.getClaimAsString("email"),            
+      138 +                    GlobalRole.valueOf(jwt.getClaimAsString("r
+          +ole")));                                                      
+      139 +        } catch (IllegalArgumentException | NullPointerExcepti
+          +on e) {                                                       
+      140 +            throw new InvalidBearerTokenException("Token has i
+          +nvalid claims");                                              
+      141 +        }                                                     
+      142 +        List<SimpleGrantedAuthority> authorities = List.of(new
+          + SimpleGrantedAuthority("ROLE_" + user.role().name()));       
+      143 +        return new UsernamePasswordAuthenticationToken(user, j
+          +wt, authorities);                                             
+      144 +    }                                                         
+      145 +                                                              
+      146      private void writeError(HttpServletResponse response, Http
+           Status status, String code, String message)
+      147              throws IOException {
+      148          response.setStatus(status.value());
+
+⏺ Write(backend/src/main/java/ro/ubb/events/config/OpenApiConfig.java)
+  ⎿  Added 21 lines, removed 4 lines
+       1  package ro.ubb.events.config;
+       2  
+       3 +import io.swagger.v3.oas.models.Components;                    
+       4  import io.swagger.v3.oas.models.OpenAPI;
+       5  import io.swagger.v3.oas.models.info.Info;
+       6 +import io.swagger.v3.oas.models.security.SecurityRequirement;  
+       7 +import io.swagger.v3.oas.models.security.SecurityScheme;       
+       8  import org.springframework.context.annotation.Bean;
+       9  import org.springframework.context.annotation.Configuration;
+      10  
+      11 +/**                                                            
+      12 + * OpenAPI / Swagger UI. Declares a "bearerAuth" scheme and req
+         +uires it globally, which adds                                  
+      13 + * the "Authorize" button: paste the {@code accessToken} from {
+         +@code POST /api/v1/auth/login}                                 
+      14 + * (without the "Bearer " prefix). Public endpoints opt out wit
+         +h {@code @SecurityRequirements()}.                             
+      15 + */                                                            
+      16  @Configuration
+      17  public class OpenApiConfig {
+      18  
+      19 +    public static final String BEARER_AUTH = "bearerAuth";     
+      20 +                                                               
+      21      @Bean
+      22      public OpenAPI eventsOpenApi() {
+      13 -        return new OpenAPI().info(new Info()                   
+      14 -                .title("UBB Student Events API")               
+      15 -                .version("v1")                                 
+      16 -                .description("Event management for student orga
+         -nizations at Babeș-Bolyai University"));                       
+      23 +        return new OpenAPI()                                   
+      24 +                .info(new Info()                               
+      25 +                        .title("UBB Student Events API")       
+      26 +                        .version("v1")                         
+      27 +                        .description("Event management for stud
+         +ent organizations at Babeș-Bolyai University. "                
+      28 +                                + "Log in with POST /api/v1/aut
+         +h/login, then press \"Authorize\" and paste the accessToken."))
+      29 +                .components(new Components().addSecuritySchemes
+         +(BEARER_AUTH, new SecurityScheme()                             
+      30 +                        .type(SecurityScheme.Type.HTTP)        
+      31 +                        .scheme("bearer")                      
+      32 +                        .bearerFormat("JWT")))                 
+      33 +                .addSecurityItem(new SecurityRequirement().addL
+         +ist(BEARER_AUTH));                                             
+      34      }
+      35  }
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project/backend/src/main && python3
+      - <<'EOF'
+      p='resources/application.yml'…)
+  ⎿  Created backend/src/main/java/ro/ubb/events/common/exception/ConflictE
+     xception.java (+11 -0)
+       1 +package ro.ubb.events.common.exception;                        
+       2 +                                                               
+       3 +import org.springframework.http.HttpStatus;                    
+       4 +                                                               
+       5 +/** 409 for a request that conflicts with existing data, e.g. a
+         + duplicate email. */                                           
+       6 +public class ConflictException extends ApiException {          
+       7 +                                                               
+       8 +    public ConflictException(String code, String message) {    
+       9 +        super(HttpStatus.CONFLICT, code, message);             
+      10 +    }                                                          
+      11 +}                                                              
+  ⎿  Updated backend/src/main/java/ro/ubb/events/common/exception/GlobalExc
+     eptionHandler.java (+13 -0)
+       7  import org.springframework.http.HttpStatus;
+       8  import org.springframework.http.ResponseEntity;
+       9  import org.springframework.http.converter.HttpMessageNotReadabl
+          eException;
+      10 +import org.springframework.security.access.AccessDeniedExceptio
+         +n;                                                             
+      11 +import org.springframework.security.core.AuthenticationExceptio
+         +n;                                                             
+      12  import org.springframework.web.HttpRequestMethodNotSupportedExc
+          eption;
+      13  import org.springframework.web.bind.MethodArgumentNotValidExcep
+          tion;
+      14  import org.springframework.web.bind.annotation.ExceptionHandler
+          ;
+     ...
+      29          return build(ex.getStatus(), ex.getCode(), ex.getMessag
+          e(), List.of());
+      30      }
+      31  
+      32 +    /** Thrown by {@code @PreAuthorize} when the logged-in user
+         + lacks permission. */                                          
+      33 +    @ExceptionHandler(AccessDeniedException.class)             
+      34 +    public ResponseEntity<ApiError> handleAccessDenied(AccessDe
+         +niedException ex) {                                            
+      35 +        return build(HttpStatus.FORBIDDEN, "FORBIDDEN", "Access
+         + denied", List.of());                                          
+      36 +    }                                                          
+      37 +                                                               
+      38 +    @ExceptionHandler(AuthenticationException.class)           
+      39 +    public ResponseEntity<ApiError> handleAuthentication(Authen
+         +ticationException ex) {                                        
+      40 +        return build(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "
+         +Missing, invalid or expired token", List.of());                
+      41 +    }                                                          
+      42 +                                                               
+      43      @ExceptionHandler(MethodArgumentNotValidException.class)
+      44      public ResponseEntity<ApiError> handleValidation(MethodArgu
+          mentNotValidException ex) {
+      45          List<FieldErrorDto> fields = ex.getBindingResult().getF
+          ieldErrors().stream()
+  ⎿  Created backend/src/main/java/ro/ubb/events/common/exception/NotFoundE
+     xception.java (+11 -0)
+       1 +package ro.ubb.events.common.exception;                        
+       2 +                                                               
+       3 +import org.springframework.http.HttpStatus;                    
+       4 +                                                               
+       5 +/** 404 with code {@code NOT_FOUND}, e.g. {@code new NotFoundEx
+         +ception("Organization 5 not found")}. */                       
+       6 +public class NotFoundException extends ApiException {          
+       7 +                                                               
+       8 +    public NotFoundException(String message) {                 
+       9 +        super(HttpStatus.NOT_FOUND, "NOT_FOUND", message);     
+      10 +    }                                                          
+      11 +}                                                              
+  ⎿  Updated backend/src/main/resources/application.yml (+2 -0)
+      32  springdoc:
+      33    swagger-ui:
+      34      path: /swagger-ui.html
+      35 +    # keep the token entered under "Authorize" after a page rel
+         +oad                                                            
+      36 +    persist-authorization: true                                
+      37    api-docs:
+      38      path: /v3/api-docs
+
+⏺ Now the auth and user packages.
+
+⏺ Bash(B=/Users/patriciumina/projects/GenAI-Project/backend/src/main/java/ro/ubb
+      /events
+      mkdir -p $B/auth/{controller,service,dto}
+      $B/user/{controller,service,dto}…)
+  ⎿  Created backend/src/main/java/ro/ubb/events/auth/controller/AuthContro
+     ller.java (+58 -0)
+       1 +package ro.ubb.events.auth.controller;                         
+       2 +                                                               
+       3 +import io.swagger.v3.oas.annotations.Operation;                
+       4 +import io.swagger.v3.oas.annotations.media.Content;            
+       5 +import io.swagger.v3.oas.annotations.media.Schema;             
+       6 +import io.swagger.v3.oas.annotations.responses.ApiResponse;    
+       7 +import io.swagger.v3.oas.annotations.security.SecurityRequireme
+         +nts;                                                           
+       8 +import io.swagger.v3.oas.annotations.tags.Tag;                 
+       9 +import jakarta.validation.Valid;                               
+      10 +import org.springframework.http.HttpStatus;                    
+      11 +import org.springframework.web.bind.annotation.PostMapping;    
+      12 +import org.springframework.web.bind.annotation.RequestBody;    
+      13 +import org.springframework.web.bind.annotation.RequestMapping; 
+      14 +import org.springframework.web.bind.annotation.ResponseStatus; 
+      15 +import org.springframework.web.bind.annotation.RestController; 
+      16 +import ro.ubb.events.auth.dto.LoginRequest;                    
+      17 +import ro.ubb.events.auth.dto.LoginResponse;                   
+      18 +import ro.ubb.events.auth.dto.RegisterRequest;                 
+      19 +import ro.ubb.events.auth.service.AuthService;                 
+      20 +import ro.ubb.events.common.dto.ApiError;                      
+      21 +import ro.ubb.events.user.dto.UserResponse;                    
+      22 +                                                               
+      23 +@RestController                                                
+      24 +@RequestMapping("/api/v1/auth")                                
+      25 +@Tag(name = "Auth", description = "Register and log in (public)
+         +")                                                             
+      26 +@SecurityRequirements // public: no token needed               
+      27 +public class AuthController {                                  
+      28 +                                                               
+      29 +    private final AuthService authService;                     
+      30 +                                                               
+      31 +    public AuthController(AuthService authService) {           
+      32 +        this.authService = authService;                        
+      33 +    }                                                          
+      34 +                                                               
+      35 +    @PostMapping("/register")                                  
+      36 +    @ResponseStatus(HttpStatus.CREATED)                        
+      37 +    @Operation(summary = "Create a STUDENT account")           
+      38 +    @ApiResponse(responseCode = "201", description = "Account c
+         +reated")                                                       
+      39 +    @ApiResponse(responseCode = "400", description = "Validatio
+         +n failed",                                                     
+      40 +            content = @Content(schema = @Schema(implementation 
+         += ApiError.class)))                                            
+     … 18 more lines (ctrl+o to expand)
+  ⎿  Created
+     backend/src/main/java/ro/ubb/events/auth/dto/AuthenticatedUser.java
+     (+13 -0)
+       1 +package ro.ubb.events.auth.dto;                                
+       2 +                                                               
+       3 +import ro.ubb.events.user.entity.GlobalRole;                   
+       4 +                                                               
+       5 +/**                                                            
+       6 + * The logged-in user, built from the JWT on every request (see
+         + {@code SecurityConfig}).                                      
+       7 + * <ul>                                                        
+       8 + *   <li>In a controller: {@code @AuthenticationPrincipal Authe
+         +nticatedUser me}</li>                                          
+       9 + *   <li>In {@code @PreAuthorize}: {@code principal.id}, {@code
+         + principal.role}</li>                                          
+      10 + * </ul>                                                       
+      11 + */                                                            
+      12 +public record AuthenticatedUser(Long id, String email, GlobalRo
+         +le role) {                                                     
+      13 +}                                                              
+  ⎿  Created backend/src/main/java/ro/ubb/events/auth/dto/LoginRequest.java
+     (+9 -0)
+      1 +package ro.ubb.events.auth.dto;                                 
+      2 +                                                                
+      3 +import jakarta.validation.constraints.NotBlank;                 
+      4 +                                                                
+      5 +/** Body of {@code POST /api/v1/auth/login}. */                 
+      6 +public record LoginRequest(                                     
+      7 +        @NotBlank String email,                                 
+      8 +        @NotBlank String password) {                            
+      9 +}                                                               
+  ⎿  Created
+     backend/src/main/java/ro/ubb/events/auth/dto/LoginResponse.java (+11 
+     -0)
+       1 +package ro.ubb.events.auth.dto;                                
+       2 +                                                               
+       3 +/**                                                            
+       4 + * Result of a successful login. Send {@code accessToken} as {@
+         +code Authorization: Bearer <accessToken>}.                     
+       5 + *                                                             
+       6 + * @param accessToken      signed JWT                          
+       7 + * @param tokenType        always "Bearer"                     
+       8 + * @param expiresInSeconds token lifetime in seconds           
+       9 + */                                                            
+      10 +public record LoginResponse(String accessToken, String tokenTyp
+         +e, long expiresInSeconds) {                                    
+      11 +}                                                              
+  ⎿  Created
+     backend/src/main/java/ro/ubb/events/auth/dto/RegisterRequest.java (+15
+     -0)
+       1 +package ro.ubb.events.auth.dto;                                
+       2 +                                                               
+       3 +import jakarta.validation.constraints.Email;                   
+       4 +import jakarta.validation.constraints.NotBlank;                
+       5 +import jakarta.validation.constraints.Size;                    
+       6 +                                                               
+       7 +/**                                                            
+       8 + * Body of {@code POST /api/v1/auth/register}. There is no role
+         + field: new accounts are always STUDENT.                       
+       9 + * Password max 72 because BCrypt ignores everything after 72 b
+         +ytes.                                                          
+      10 + */                                                            
+      11 +public record RegisterRequest(                                 
+      12 +        @NotBlank @Email @Size(max = 255) String email,        
+      13 +        @NotBlank @Size(min = 8, max = 72) String password,    
+      14 +        @NotBlank @Size(max = 150) String fullName) {          
+      15 +}                                                              
+  ⎿  … 5 more files changed
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project/backend/src/main/java/ro/ub
+      b/events/auth/service && python3 - <<'EOF'
+      p='AuthService.java'…)  ⎿  Updated
+     backend/src/main/java/ro/ubb/events/auth/service/AuthService.java (+0 
+     -1)
+      28      }
+      29  
+      30      /** Creates a STUDENT account. 409 EMAIL_ALREADY_USED if th
+          e email exists (case-insensitive). */
+      31 -    @Transactional                                             
+      31      public UserResponse register(RegisterRequest request) {
+      32          String email = request.email().trim().toLowerCase(Local
+          e.ROOT);
+      33          String passwordHash = passwordEncoder.encode(request.pa
+          ssword());
+
+⏺ Bash(B=/Users/patriciumina/projects/GenAI-Project/backend/src/main/java/ro/ubb
+      /events/organization
+      mkdir -p $B/{controller,service,dto,mapper}…)
+  ⎿  Created backend/src/main/java/ro/ubb/events/organization/controller/Or
+     ganizationController.java (+49 -0)
+       1 +package ro.ubb.events.organization.controller;                 
+       2 +                                                               
+       3 +import io.swagger.v3.oas.annotations.Operation;                
+       4 +import io.swagger.v3.oas.annotations.media.Content;            
+       5 +import io.swagger.v3.oas.annotations.media.Schema;             
+       6 +import io.swagger.v3.oas.annotations.responses.ApiResponse;    
+       7 +import io.swagger.v3.oas.annotations.tags.Tag;                 
+       8 +import java.util.List;                                         
+       9 +import org.springframework.web.bind.annotation.GetMapping;     
+      10 +import org.springframework.web.bind.annotation.PathVariable;   
+      11 +import org.springframework.web.bind.annotation.RequestMapping; 
+      12 +import org.springframework.web.bind.annotation.RestController; 
+      13 +import ro.ubb.events.common.dto.ApiError;                      
+      14 +import ro.ubb.events.organization.dto.OrganizationResponse;    
+      15 +import ro.ubb.events.organization.service.OrganizationService; 
+      16 +                                                               
+      17 +/**                                                            
+      18 + * Organizations (W1). Any logged-in user may read them: Securi
+         +tyConfig requires a valid token                                
+      19 + * for every path that is not explicitly public, so no extra an
+         +notation is needed here.                                       
+      20 + */                                                            
+      21 +@RestController                                                
+      22 +@RequestMapping("/api/v1/organizations")                       
+      23 +@Tag(name = "Organizations", description = "Student organizatio
+         +ns (W1)")                                                      
+      24 +@ApiResponse(responseCode = "401", description = "Missing, inva
+         +lid or expired token",                                         
+      25 +        content = @Content(schema = @Schema(implementation = Ap
+         +iError.class)))                                                
+      26 +public class OrganizationController {                          
+      27 +                                                               
+      28 +    private final OrganizationService organizationService;     
+      29 +                                                               
+      30 +    public OrganizationController(OrganizationService organizat
+         +ionService) {                                                  
+      31 +        this.organizationService = organizationService;        
+      32 +    }                                                          
+      33 +                                                               
+      34 +    @GetMapping                                                
+      35 +    @Operation(summary = "List all organizations (sorted by nam
+         +e)")                                                           
+      36 +    @ApiResponse(responseCode = "200", description = "List of o
+         +rganizations")                                                 
+      37 +    public List<OrganizationResponse> findAll() {              
+      38 +        return organizationService.findAll();                  
+      39 +    }                                                          
+      40 +                                                               
+     … 9 more lines (ctrl+o to expand)
+  ⎿  Created backend/src/main/java/ro/ubb/events/organization/dto/Organizat
+     ionResponse.java (+12 -0)
+       1 +package ro.ubb.events.organization.dto;                        
+       2 +                                                               
+       3 +import java.time.Instant;                                      
+       4 +                                                               
+       5 +/** An organization as returned by the API (list and detail). *
+         +/                                                              
+       6 +public record OrganizationResponse(                            
+       7 +        Long id,                                               
+       8 +        String name,                                           
+       9 +        String description,                                    
+      10 +        String contactEmail,                                   
+      11 +        Instant createdAt) {                                   
+      12 +}                                                              
+  ⎿  Created backend/src/main/java/ro/ubb/events/organization/mapper/Organi
+     zationMapper.java (+19 -0)
+       1 +package ro.ubb.events.organization.mapper;                     
+       2 +                                                               
+       3 +import org.springframework.stereotype.Component;               
+       4 +import ro.ubb.events.organization.dto.OrganizationResponse;    
+       5 +import ro.ubb.events.organization.entity.Organization;         
+       6 +                                                               
+       7 +/** Converts entities to DTOs. Hand-written on purpose: easy to
+         + read, debug and test. */                                      
+       8 +@Component                                                     
+       9 +public class OrganizationMapper {                              
+      10 +                                                               
+      11 +    public OrganizationResponse toResponse(Organization organiz
+         +ation) {                                                       
+      12 +        return new OrganizationResponse(                       
+      13 +                organization.getId(),                          
+      14 +                organization.getName(),                        
+      15 +                organization.getDescription(),                 
+      16 +                organization.getContactEmail(),                
+      17 +                organization.getCreatedAt());                  
+      18 +    }                                                          
+      19 +}                                                              
+  ⎿  Created backend/src/main/java/ro/ubb/events/organization/service/OrgPe
+     rmissionService.java (+58 -0)
+       1 +package ro.ubb.events.organization.service;                    
+       2 +                                                               
+       3 +import java.util.Optional;                                     
+       4 +import org.springframework.stereotype.Service;                 
+       5 +import org.springframework.transaction.annotation.Transactional
+         +;                                                              
+       6 +import ro.ubb.events.organization.entity.OrganizationMembership
+         +;                                                              
+       7 +import ro.ubb.events.organization.entity.OrganizationRole;     
+       8 +import ro.ubb.events.organization.repository.OrganizationMember
+         +shipRepository;                                                
+       9 +                                                               
+      10 +/**                                                            
+      11 + * Organization-level permission checks, registered as bean {@c
+         +ode orgPermissions} so they can be                             
+      12 + * used in {@code @PreAuthorize}, for example:                 
+      13 + * <pre>                                                       
+      14 + * &#64;PreAuthorize("@orgPermissions.isOrganizer(principal.id,
+         + #orgId)")                                                     
+      15 + * &#64;PreAuthorize("hasRole('ADMIN') or @orgPermissions.isPre
+         +sident(principal.id, #orgId)")                                 
+      16 + * </pre>                                                      
+      17 + * Role hierarchy: PRESIDENT ⊃ ORGANIZER ⊃ MEMBER. A global ADM
+         +IN gets no automatic access here;                              
+      18 + * write {@code hasRole('ADMIN') or ...} explicitly where admin
+         +s should be allowed.                                           
+      19 + */                                                            
+      20 +@Service("orgPermissions")                                     
+      21 +public class OrgPermissionService {                            
+      22 +                                                               
+      23 +    private final OrganizationMembershipRepository membershipRe
+         +pository;                                                      
+      24 +                                                               
+      25 +    public OrgPermissionService(OrganizationMembershipRepositor
+         +y membershipRepository) {                                      
+      26 +        this.membershipRepository = membershipRepository;      
+      27 +    }                                                          
+      28 +                                                               
+      29 +    /** Any role in the organization (MEMBER, ORGANIZER or PRES
+         +IDENT). */                                                     
+      30 +    @Transactional(readOnly = true)                            
+      31 +    public boolean isMember(Long userId, Long orgId) {         
+      32 +        return roleOf(userId, orgId).isPresent();              
+      33 +    }                                                          
+      34 +                                                               
+      35 +    /** ORGANIZER or PRESIDENT. */                             
+      36 +    @Transactional(readOnly = true)                            
+      37 +    public boolean isOrganizer(Long userId, Long orgId) {      
+      38 +        return roleOf(userId, orgId)                           
+      39 +                .map(role -> role == OrganizationRole.ORGANIZER
+         + || role == OrganizationRole.PRESIDENT)                        
+      40 +                .orElse(false);                                
+     … 18 more lines (ctrl+o to expand)
+  ⎿  Created backend/src/main/java/ro/ubb/events/organization/service/Organ
+     izationService.java (+39 -0)
+       1 +package ro.ubb.events.organization.service;                    
+       2 +                                                               
+       3 +import java.util.List;                                         
+       4 +import org.springframework.data.domain.Sort;                   
+       5 +import org.springframework.stereotype.Service;                 
+       6 +import org.springframework.transaction.annotation.Transactional
+         +;                                                              
+       7 +import ro.ubb.events.common.exception.NotFoundException;       
+       8 +import ro.ubb.events.organization.dto.OrganizationResponse;    
+       9 +import ro.ubb.events.organization.mapper.OrganizationMapper;   
+      10 +import ro.ubb.events.organization.repository.OrganizationReposi
+         +tory;                                                          
+      11 +                                                               
+      12 +/** Read operations on organizations (W1). Returns DTOs only; e
+         +ntities stay in this layer. */                                 
+      13 +@Service                                                       
+      14 +public class OrganizationService {                             
+      15 +                                                               
+      16 +    private final OrganizationRepository organizationRepository
+         +;                                                              
+      17 +    private final OrganizationMapper organizationMapper;       
+      18 +                                                               
+      19 +    public OrganizationService(OrganizationRepository organizat
+         +ionRepository, OrganizationMapper organizationMapper) {        
+      20 +        this.organizationRepository = organizationRepository;  
+      21 +        this.organizationMapper = organizationMapper;          
+      22 +    }                                                          
+      23 +                                                               
+      24 +    /** All organizations, sorted by name. */                  
+      25 +    @Transactional(readOnly = true)                            
+      26 +    public List<OrganizationResponse> findAll() {              
+      27 +        return organizationRepository.findAll(Sort.by("name")).
+         +stream()                                                       
+      28 +                .map(organizationMapper::toResponse)           
+      29 +                .toList();                                     
+      30 +    }                                                          
+      31 +                                                               
+      32 +    /** One organization, or 404 NOT_FOUND. */                 
+      33 +    @Transactional(readOnly = true)                            
+      34 +    public OrganizationResponse getById(Long id) {             
+      35 +        return organizationRepository.findById(id)             
+      36 +                .map(organizationMapper::toResponse)           
+      37 +                .orElseThrow(() -> new NotFoundException("Organ
+         +ization " + id + " not found"));                               
+      38 +    }                                                          
+      39 +}                                                              
+
+⏺ Main code compiles. Now the tests (named *Test so the existing Surefire setup
+  runs them).
+
+⏺ Bash(T=/Users/patriciumina/projects/GenAI-Project/backend/src/test/java/ro/ubb
+      /events
+      mkdir -p $T/support $T/auth $T/organization…)
+  ⎿  Traceback (most recent call last):
+       File "<stdin>", line 2, in <module>
+     FileNotFoundError: [Errno 2] No such file or directory: 'ro/ubb/events
+     … +61 lines (ctrl+o to expand)
+  ⎿  Created backend/src/test/java/ro/ubb/events/auth/AuthControllerIntegra
+     tionTest.java (+119 -0)
+        1 +package ro.ubb.events.auth;                                   
+        2 +                                                              
+        3 +import static org.hamcrest.Matchers.containsInAnyOrder;       
+        4 +import static org.springframework.test.web.servlet.request.Moc
+          +kMvcRequestBuilders.get;                                      
+        5 +import static org.springframework.test.web.servlet.request.Moc
+          +kMvcRequestBuilders.post;                                     
+        6 +import static org.springframework.test.web.servlet.result.Mock
+          +MvcResultMatchers.jsonPath;                                   
+        7 +import static org.springframework.test.web.servlet.result.Mock
+          +MvcResultMatchers.status;                                     
+        8 +                                                              
+        9 +import java.util.Map;                                         
+       10 +import org.junit.jupiter.api.Test;                            
+       11 +import org.springframework.http.HttpHeaders;                  
+       12 +import org.springframework.http.MediaType;                    
+       13 +import ro.ubb.events.support.IntegrationTestBase;             
+       14 +import ro.ubb.events.user.entity.GlobalRole;                  
+       15 +                                                              
+       16 +/** Register, login and /users/me end to end, including the er
+          +ror bodies. */                                                
+       17 +class AuthControllerIntegrationTest extends IntegrationTestBas
+          +e {                                                           
+       18 +                                                              
+       19 +    @Test                                                     
+       20 +    void registerCreatesStudentEvenIfAdminRoleIsSent() throws 
+          +Exception {                                                   
+       21 +        String email = uniqueEmail("NewUser");                
+       22 +                                                              
+       23 +        mockMvc.perform(post("/api/v1/auth/register").contentT
+          +ype(MediaType.APPLICATION_JSON)                               
+       24 +                        .content(json(Map.of("email", email, "
+          +password", PASSWORD, "fullName", "New User",                  
+       25 +                                "role", "ADMIN"))))           
+       26 +                .andExpect(status().isCreated())              
+       27 +                .andExpect(jsonPath("$.id").isNumber())       
+       28 +                .andExpect(jsonPath("$.email").value(email.toL
+          +owerCase()))                                                  
+       29 +                .andExpect(jsonPath("$.role").value("STUDENT")
+          +)                                                             
+       30 +                .andExpect(jsonPath("$.passwordHash").doesNotE
+          +xist());                                                      
+       31 +    }                                                         
+       32 +                                                              
+       33 +    @Test                                                     
+       34 +    void registerWithExistingEmailInOtherCaseReturns409() thro
+          +ws Exception {                                                
+       35 +        String email = uniqueEmail("dup");                    
+       36 +        createUser(email, GlobalRole.STUDENT);                
+       37 +                                                              
+       38 +        mockMvc.perform(post("/api/v1/auth/register").contentT
+          +ype(MediaType.APPLICATION_JSON)                               
+       39 +                        .content(json(Map.of("email", email.to
+          +UpperCase(), "password", PASSWORD, "fullName", "Dup"))))      
+       40 +                .andExpect(status().isConflict())             
+     … 79 more lines (ctrl+o to expand)
+  ⎿  Created backend/src/test/java/ro/ubb/events/auth/AuthServiceTest.java
+     (+85 -0)
+       1 +package ro.ubb.events.auth;                                    
+       2 +                                                               
+       3 +import static org.assertj.core.api.Assertions.assertThat;      
+       4 +import static org.assertj.core.api.Assertions.assertThatThrownB
+         +y;                                                             
+       5 +import static org.mockito.ArgumentMatchers.any;                
+       6 +import static org.mockito.Mockito.never;                       
+       7 +import static org.mockito.Mockito.verify;                      
+       8 +import static org.mockito.Mockito.when;                        
+       9 +                                                               
+      10 +import java.util.Optional;                                     
+      11 +import org.junit.jupiter.api.Test;                             
+      12 +import org.junit.jupiter.api.extension.ExtendWith;             
+      13 +import org.mockito.InjectMocks;                                
+      14 +import org.mockito.Mock;                                       
+      15 +import org.mockito.junit.jupiter.MockitoExtension;             
+      16 +import org.springframework.http.HttpStatus;                    
+      17 +import org.springframework.security.crypto.password.PasswordEnc
+         +oder;                                                          
+      18 +import ro.ubb.events.auth.dto.LoginRequest;                    
+      19 +import ro.ubb.events.auth.dto.LoginResponse;                   
+      20 +import ro.ubb.events.auth.dto.RegisterRequest;                 
+      21 +import ro.ubb.events.auth.service.AuthService;                 
+      22 +import ro.ubb.events.auth.service.JwtService;                  
+      23 +import ro.ubb.events.common.exception.ApiException;            
+      24 +import ro.ubb.events.user.entity.GlobalRole;                   
+      25 +import ro.ubb.events.user.entity.User;                         
+      26 +import ro.ubb.events.user.service.UserService;                 
+      27 +                                                               
+      28 +@ExtendWith(MockitoExtension.class)                            
+      29 +class AuthServiceTest {                                        
+      30 +                                                               
+      31 +    @Mock private UserService userService;                     
+      32 +    @Mock private PasswordEncoder passwordEncoder;             
+      33 +    @Mock private JwtService jwtService;                       
+      34 +                                                               
+      35 +    @InjectMocks                                               
+      36 +    private AuthService authService;                           
+      37 +                                                               
+      38 +    private final User ana = new User("ana@test.ro", "hashed", 
+         +"Ana", GlobalRole.STUDENT);                                    
+      39 +                                                               
+      40 +    @Test                                                      
+     … 45 more lines (ctrl+o to expand)
+  ⎿  Created backend/src/test/java/ro/ubb/events/organization/OrgPermission
+     PreAuthorizeIntegrationTest.java (+102 -0)
+        1 +package ro.ubb.events.organization;                           
+        2 +                                                              
+        3 +import static org.springframework.test.web.servlet.request.Moc
+          +kMvcRequestBuilders.get;                                      
+        4 +import static org.springframework.test.web.servlet.result.Mock
+          +MvcResultMatchers.jsonPath;                                   
+        5 +import static org.springframework.test.web.servlet.result.Mock
+          +MvcResultMatchers.status;                                     
+        6 +                                                              
+        7 +import java.util.UUID;                                        
+        8 +import org.junit.jupiter.api.BeforeEach;                      
+        9 +import org.junit.jupiter.api.Test;                            
+       10 +import org.springframework.beans.factory.annotation.Autowired;
+       11 +import org.springframework.context.annotation.Import;         
+       12 +import org.springframework.http.HttpHeaders;                  
+       13 +import org.springframework.security.access.prepost.PreAuthoriz
+          +e;                                                            
+       14 +import org.springframework.web.bind.annotation.GetMapping;    
+       15 +import org.springframework.web.bind.annotation.PathVariable;  
+       16 +import org.springframework.web.bind.annotation.RestController;
+       17 +import ro.ubb.events.organization.entity.Organization;        
+       18 +import ro.ubb.events.organization.entity.OrganizationMembershi
+          +p;                                                            
+       19 +import ro.ubb.events.organization.entity.OrganizationRole;    
+       20 +import ro.ubb.events.organization.repository.OrganizationMembe
+          +rshipRepository;                                              
+       21 +import ro.ubb.events.organization.repository.OrganizationRepos
+          +itory;                                                        
+       22 +import ro.ubb.events.support.IntegrationTestBase;             
+       23 +import ro.ubb.events.user.entity.GlobalRole;                  
+       24 +import ro.ubb.events.user.entity.User;                        
+       25 +                                                              
+       26 +/**                                                           
+       27 + * Proves that {@code @orgPermissions} works inside {@code @Pr
+          +eAuthorize} with the real JWT                                 
+       28 + * principal, and that a denied check returns 403 with the com
+          +mon error body.                                               
+       29 + * Uses a small controller that exists only in this test.     
+       30 + */                                                           
+       31 +@Import(OrgPermissionPreAuthorizeIntegrationTest.ProbeControll
+          +er.class)                                                     
+       32 +class OrgPermissionPreAuthorizeIntegrationTest extends Integra
+          +tionTestBase {                                                
+       33 +                                                              
+       34 +    @RestController                                           
+       35 +    static class ProbeController {                            
+       36 +                                                              
+       37 +        @GetMapping("/test-only/orgs/{orgId}/organizer-area") 
+       38 +        @PreAuthorize("@orgPermissions.isOrganizer(principal.i
+          +d, #orgId)")                                                  
+       39 +        public String organizerArea(@PathVariable Long orgId) 
+          +{                                                             
+       40 +            return "ok";                                      
+     … 62 more lines (ctrl+o to expand)
+  ⎿  Created backend/src/test/java/ro/ubb/events/organization/OrgPermission
+     ServiceTest.java (+76 -0)
+       1 +package ro.ubb.events.organization;                            
+       2 +                                                               
+       3 +import static org.assertj.core.api.Assertions.assertThat;      
+       4 +import static org.mockito.Mockito.mock;                        
+       5 +import static org.mockito.Mockito.verifyNoInteractions;        
+       6 +import static org.mockito.Mockito.when;                        
+       7 +                                                               
+       8 +import java.util.Optional;                                     
+       9 +import org.junit.jupiter.api.Test;                             
+      10 +import org.junit.jupiter.api.extension.ExtendWith;             
+      11 +import org.mockito.InjectMocks;                                
+      12 +import org.mockito.Mock;                                       
+      13 +import org.mockito.junit.jupiter.MockitoExtension;             
+      14 +import ro.ubb.events.organization.entity.OrganizationMembership
+         +;                                                              
+      15 +import ro.ubb.events.organization.entity.OrganizationRole;     
+      16 +import ro.ubb.events.organization.repository.OrganizationMember
+         +shipRepository;                                                
+      17 +import ro.ubb.events.organization.service.OrgPermissionService;
+      18 +                                                               
+      19 +@ExtendWith(MockitoExtension.class)                            
+      20 +class OrgPermissionServiceTest {                               
+      21 +                                                               
+      22 +    private static final Long USER_ID = 1L;                    
+      23 +    private static final Long ORG_ID = 10L;                    
+      24 +                                                               
+      25 +    @Mock                                                      
+      26 +    private OrganizationMembershipRepository membershipReposito
+         +ry;                                                            
+      27 +                                                               
+      28 +    @InjectMocks                                               
+      29 +    private OrgPermissionService permissions;                  
+      30 +                                                               
+      31 +    private void givenRole(OrganizationRole role) {            
+      32 +        OrganizationMembership membership = mock(OrganizationMe
+         +mbership.class);                                               
+      33 +        when(membership.getOrgRole()).thenReturn(role);        
+      34 +        when(membershipRepository.findByUserIdAndOrganizationId
+         +(USER_ID, ORG_ID)).thenReturn(Optional.of(membership));        
+      35 +    }                                                          
+      36 +                                                               
+      37 +    @Test                                                      
+      38 +    void presidentHasAllRoles() {                              
+      39 +        givenRole(OrganizationRole.PRESIDENT);                 
+      40 +        assertThat(permissions.isMember(USER_ID, ORG_ID)).isTru
+         +e();                                                           
+     … 36 more lines (ctrl+o to expand)
+  ⎿  Created backend/src/test/java/ro/ubb/events/organization/OrganizationC
+     ontrollerIntegrationTest.java (+82 -0)
+       1 +package ro.ubb.events.organization;                            
+       2 +                                                               
+       3 +import static org.springframework.test.web.servlet.request.Mock
+         +MvcRequestBuilders.get;                                        
+       4 +import static org.springframework.test.web.servlet.result.MockM
+         +vcResultMatchers.jsonPath;                                     
+       5 +import static org.springframework.test.web.servlet.result.MockM
+         +vcResultMatchers.status;                                       
+       6 +                                                               
+       7 +import java.util.UUID;                                         
+       8 +import org.junit.jupiter.api.BeforeEach;                       
+       9 +import org.junit.jupiter.api.Test;                             
+      10 +import org.springframework.beans.factory.annotation.Autowired; 
+      11 +import org.springframework.http.HttpHeaders;                   
+      12 +import ro.ubb.events.organization.entity.Organization;         
+      13 +import ro.ubb.events.organization.repository.OrganizationReposi
+         +tory;                                                          
+      14 +import ro.ubb.events.support.IntegrationTestBase;              
+      15 +                                                               
+      16 +/** GET /api/v1/organizations[/{id}] end to end: security, JSON
+         + shape, 404. */                                                
+      17 +class OrganizationControllerIntegrationTest extends Integration
+         +TestBase {                                                     
+      18 +                                                               
+      19 +    @Autowired                                                 
+      20 +    private OrganizationRepository organizationRepository;     
+      21 +                                                               
+      22 +    private Organization organization;                         
+      23 +    private String token;                                      
+      24 +                                                               
+      25 +    @BeforeEach                                                
+      26 +    void setUp() throws Exception {                            
+      27 +        organization = organizationRepository.save(            
+      28 +                new Organization("Org " + UUID.randomUUID(), "A
+         + test organization", "org@test.ro"));                          
+      29 +        token = tokenForNewStudent();                          
+      30 +    }                                                          
+      31 +                                                               
+      32 +    @Test                                                      
+      33 +    void listWithoutTokenReturns401() throws Exception {       
+      34 +        mockMvc.perform(get("/api/v1/organizations"))          
+      35 +                .andExpect(status().isUnauthorized())          
+      36 +                .andExpect(jsonPath("$.status").value(401))    
+      37 +                .andExpect(jsonPath("$.code").value("UNAUTHORIZ
+         +ED"))                                                          
+      38 +                .andExpect(jsonPath("$.fieldErrors").isArray())
+         +;                                                              
+      39 +    }                                                          
+      40 +                                                               
+     … 42 more lines (ctrl+o to expand)
+  ⎿  … 2 more files changed
+  ⎿  (timeout 10m)
+
+⏺ The only failure is expected: my smoke-test edit hit a wrong path. Fixing it
+  and re-running.
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project/backend/src/test/java &&
+      python3 - <<'EOF'
+      p='ro/ubb/events/ApplicationSmokeTest.java'…)
+  ⎿  [INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed:
+      13.02 s -- in ro.ubb.events.organization.OrgPermissionPreAuthorizeInt
+     egrationTest
+     … +14 lines (ctrl+o to expand)
+  ⎿  Updated backend/src/test/java/ro/ubb/events/ApplicationSmokeTest.java
+     (+5 -5)
+      17  
+      18  /**
+      19   * Starts the whole application against a real PostgreSQL 16 (T
+          estcontainers), which also
+      20 - * runs Flyway and the JPA schema validation, then checks the p
+         -ublic/denied endpoints.                                        
+      20 + * runs Flyway and the JPA schema validation, then checks the p
+         +ublic/protected endpoints.                                     
+      21   */
+      22  @SpringBootTest
+      23  @AutoConfigureMockMvc
+     ...
+      47      }
+      48  
+      49      @Test
+      50 -    void everythingElseIsDeniedWithConsistentErrorBody() throws
+         - Exception {                                                   
+      50 +    void everythingElseNeedsATokenWithConsistentErrorBody() thr
+         +ows Exception {                                                
+      51          mockMvc.perform(get("/api/v1/events"))
+      52 -                .andExpect(status().isForbidden())             
+      52 +                .andExpect(status().isUnauthorized())          
+      53                  .andExpect(jsonPath("$.timestamp").exists())
+      54 -                .andExpect(jsonPath("$.status").value(403))    
+      55 -                .andExpect(jsonPath("$.code").value("FORBIDDEN"
+         -))                                                             
+      54 +                .andExpect(jsonPath("$.status").value(401))    
+      55 +                .andExpect(jsonPath("$.code").value("UNAUTHORIZ
+         +ED"))                                                          
+      56                  .andExpect(jsonPath("$.message").exists())
+      57                  .andExpect(jsonPath("$.fieldErrors").isArray())
+          ;
+      58      }
+  ⎿  (timeout 10m)
+
+⏺ ./mvnw verify passes with 47 tests. Next I'll start the dev app against the
+  docker Postgres. I'll pass a throwaway JWT_SECRET on the command line, since
+  your .env still has it commented out.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ Meanwhile, writing the dev guide.
+
+⏺ Write(docs/dev-guide/how-to-add-a-feature.md)
+  ⎿  Wrote 345 lines to docs/dev-guide/how-to-add-a-feature.md
+       1 # How to add a feature (backend)
+       2 
+       3 This guide walks through the **organizations** example (`GET /ap
+         i/v1/organizations` and
+       4 `GET /api/v1/organizations/{id}`) file by file. Copy the same st
+         ructure for your own
+       5 endpoint. You do not need any AI tool: everything here is plain 
+         Spring Boot.
+       6 
+       7 Read first: `CLAUDE.md` (rules), `docs/data-model.md` (tables), 
+     … +339 lines (~14 KB) (ctrl+o to expand)
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+⏺ Everything works against the dev database. I'll stop the app, then confirm it
+  fails fast when there is no secret (your current .env has none).
+
+⏺ Stop Task
+  ⎿  cd /Users/patriciumina/projects/GenAI-Project/backend &&
+     JWT_SECRET="$(openssl rand -base64 48)" ./mvnw -q spring-boot:run
+     -Dspring-boot.run.profiles=dev > /pri… · stopped
+
+  Searched for 1 pattern, ran 2 shell commands (ctrl+o to expand)
+
+⏺ timeout isn't available on macOS, so I'll run it in the background instead. It
+  should exit on its own.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Meanwhile: ADR-003 addendum and usage log.
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project && cat >>
+      docs/architecture/ADR-003-jwt-auth-spring-security.md <<'EOF'…)
+  ⎿  st docker-compose Postgres with seed: login as ana.popescu → token, or
+     gs 401 without token / 200 with token (2 orgs), `/organizations/999` 4
+     04, `/users/me` 200, wrong password 401, duplicate email (other case)
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated docs/architecture/ADR-003-jwt-auth-spring-security.md (+17 -0)
+      28  - − Tokens cannot be revoked before expiry without extra work (
+          keep expiry short).
+      29  - − Secret management matters: never commit `JWT_SECRET`, only 
+          `.env.example` placeholder.
+      30  - − Token storage on the frontend must be handled carefully (XS
+          S risk).
+      31 +                                                               
+      32 +## Implementation notes (2026-11-06)                           
+      33 +Decided by the team before implementation:                     
+      34 +- **Library:** Spring Security's built-in OAuth2 Resource Serve
+         +r (Nimbus) with an HMAC                                        
+      35 +  (HS256) secret; no separate JWT library and no hand-written t
+         +oken filter.                                                   
+      36 +- **Lifetime:** access token valid 2 hours (`JWT_EXPIRATION_MIN
+         +UTES=120`). **No refresh                                       
+      37 +  tokens** for the mid-term; the client logs in again.         
+      38 +- **Claims:** `sub` = user id, `email`, `role` (STUDENT/ADMIN →
+         + `ROLE_*` authority). Role                                     
+      39 +  changes take effect at the next login.                       
+      40 +- **Registration:** anyone, any email, always `STUDENT`; `ADMIN
+         +` accounts only from the seed.                                 
+      41 +  Password 8–72 characters (72 = BCrypt limit).                
+      42 +- **Login errors:** the same "Invalid credentials" (401) for un
+         +known email and wrong password.                                
+      43 +- **Organization roles:** `OrgPermissionService` (bean `orgPerm
+         +issions`) for `@PreAuthorize`;                                 
+      44 +  PRESIDENT ⊃ ORGANIZER ⊃ MEMBER; no implicit bypass for global
+         + ADMIN.                                                        
+      45 +- **Startup:** the app refuses to start if `JWT_SECRET` is miss
+         +ing or shorter than 32 characters.                             
+      46 +                                                               
+      47 +How to use it in a feature: `docs/dev-guide/how-to-add-a-featur
+         +e.md`.                                                         
+  ⎿  Updated docs/genai/usage-log.md (+1 -0)
+       8  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Project setup / foundations (no app code) | Add safety rules + 
+          project context to CLAUDE.md; create .gitignore, ADR-001..005, 
+          usage log, docker-compose (PostgreSQL 16) and .env.example | `C
+          LAUDE.md`, `.gitignore` (merged), `docs/architecture/ADR-001..A
+          DR-005`, `docs/genai/usage-log.md`, `docs/genai/{evidence,sessi
+          ons}/.gitkeep`, `docker-compose.yml`, `.env.example` | Reviewed
+           plan before approval; read CLAUDE.md and ADRs; `docker compose
+           config -q` valid; Postgres 16 container healthy and answered `
+          select version()`; confirmed `.env` is git-ignored | Approved p
+          lan; after review accepted base package `ro.ubb.events` and `/a
+          pi/v1` API prefix; set local DB password in `.env` |
+       9  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Backend skeleton (no business features) | Create Spring Boot ba
+          ckend in /backend: Java 21, Maven wrapper, `ro.ubb.events`, lat
+          est Boot 3.x (justify version), web/validation/JPA/security/Pos
+          tgreSQL/Flyway/springdoc, dev/test profiles reading root `.env`
+          , global error handler, feature package-info files, public heal
+          th + Swagger, temporary deny-all security, Testcontainers smoke
+           test | `backend/pom.xml` (Boot 3.5.16, springdoc 2.10.0), `mvn
+          w`/`mvnw.cmd`/`.mvn/wrapper` (Maven 3.9.16, wrapper 3.3.4 only-
+          script), `EventsApplication`, 8 `package-info.java`, `common` (
+          ApiError, FieldErrorDto, HealthResponse, ApiException, GlobalEx
+          ceptionHandler, HealthController), `config` (SecurityConfig, Op
+          enApiConfig), `application{,-dev,-test}.yml`, `ApplicationSmoke
+          Test`; comment in `.env.example` | Plan with version rationale 
+          approved before implementation; `./mvnw verify` BUILD SUCCESS (
+          3 tests vs Testcontainers postgres:16-alpine); dev profile star
+          ted against docker-compose Postgres with no exported vars; `/ap
+          i/v1/health` 200, `/swagger-ui.html` 200, `/api/v1/events` 403 
+          JSON error body | Approved Spring Boot 3.5.16 after reviewing t
+          he version rationale; re-ran the dev-profile curl checks myself
+           (health 200, events 403 JSON) and opened Swagger UI; no code c
+          hanges; committed and merged via PR #1 |
+      10  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Data model (persistence layer only, no services/controllers) | 
+          Design the schema as Flyway migrations + JPA entities + reposit
+          ories for User, Organization, OrganizationMembership, Event, Re
+          gistration, EventTask, Announcement with FKs/uniques/CHECKs/sea
+          rch indexes; list open design decisions first and wait for answ
+          ers; dev-only seed (2 orgs, ~8 users, ~6 events, registrations,
+           password "password"); docs/data-model.md with Mermaid ER diagr
+          am; `./mvnw verify` must pass | `V1__initial_schema.sql`; entit
+          ies + enums + repositories in `user`, `organization`, `event`, 
+          `registration`, `organizing`; dev-only `db/seed-dev/R__dev_seed
+          .sql` + `spring.flyway.locations` in `application-dev.yml`; `Da
+          taModelConstraintsTest` (13 Testcontainers tests); `docs/data-m
+          odel.md` | Human answered the design questions (D1–D12) before 
+          any code was written; `./mvnw verify` BUILD SUCCESS (3 smoke + 
+          13 constraint tests); dev profile applied V1 + R__dev_seed to t
+          he docker-compose Postgres, and psql showed 8 users, 2 orgs, 7 
+          events (one per status), 14 registrations; re-running the seed 
+          SQL left row counts unchanged (idempotent) | Answered design de
+          cisions D1–D12 before implementation (no waitlist for mid-term,
+           location as text, category enum, no hard delete of events with
+           registrations, optional deadline ≤ start; accepted D5–D12 reco
+          mmendations); reviewed V1 migration and data-model.md; re-ran `
+          ./mvnw verify` myself (16 tests passed). Design change from the
+           human: an event with registrations is never hard-deleted (`fk_
+          registrations_event` RESTRICT), cancel instead |
+      11 +| 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+         +JWT auth, org permissions, example feature, Swagger auth, dev g
+         +uide | Implement register/login/`/users/me` with stateless JWT 
+         +(secret from .env), BCrypt, real SecurityConfig (public: health
+         +, Swagger, register, login); `OrgPermissionService` usable from
+         + `@PreAuthorize` with unit tests; example `GET /organizations[/
+         +{id}]` with DTO, mapper, service, controller, OpenAPI, Mockito 
+         ++ MockMvc/Testcontainers tests (401, 404); Swagger "Authorize";
+         + `docs/dev-guide/how-to-add-a-feature.md`. List open design dec
+         +isions first and wait for answers; `./mvnw verify` must pass; n
+         +o commit | `pom.xml` (+oauth2-resource-server); `config` (Secur
+         +ityConfig rewrite, JwtProperties, OpenApiConfig bearer scheme);
+         + `common` (NotFound/ConflictException, 401/403 handlers); `auth
+         +` (AuthController, AuthService, JwtService, DTOs, Authenticated
+         +User); `user` (UserController, UserService, UserResponse); `org
+         +anization` (OrgPermissionService, OrganizationController/Servic
+         +e/Mapper/Response); tests: AuthServiceTest, OrgPermissionServic
+         +eTest, OrganizationServiceTest, AuthControllerIntegrationTest, 
+         +OrganizationControllerIntegrationTest, OrgPermissionPreAuthoriz
+         +eIntegrationTest, IntegrationTestBase, ApplicationSmokeTest 403
+         +→401; `application*.yml`, `.env.example` JWT placeholders; ADR-
+         +003 implementation notes; dev guide | Human answered design dec
+         +isions (2 h token, no refresh, Spring resource server, anyone r
+         +egisters as STUDENT, min 8 chars, orgs require login, single "I
+         +nvalid credentials") before code was written; `./mvnw verify` B
+         +UILD SUCCESS (47 tests); dev profile against docker-compose Pos
+         +tgres with seed: login as ana.popescu → token, orgs 401 without
+         + token / 200 with token (2 orgs), `/organizations/999` 404, `/u
+         +sers/me` 200, wrong password 401, duplicate email (other case) 
+         +409, Swagger UI 200 with bearerAuth scheme | _to be filled by t
+         +he human after review_ |                                       
+
+⏺ Background command "Start dev app without secret, expect failure" completed
+(exit code 0)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ All five parts are built, and ./mvnw verify passes with 47 tests. Nothing is
+  committed or pushed.
+
+  Before you run the app: your local .env has JWT_SECRET commented out, so the
+  dev app won't start yet. I checked this: it stops with "JWT_SECRET must be set
+  (see .env.example)". Run openssl rand -base64 48 and add the output as
+  JWT_SECRET=... in .env. I didn't edit .env.
+
+  What was built
+  1. Login and accounts: register, login and /users/me work.
+     - Tokens last 2 hours, with no refresh tokens, using Spring's built-in JWT
+       support.
+     - New accounts are always STUDENT; passwords are 8–72 characters and stored
+       with BCrypt.
+     - Health, Swagger, register and login are public; everything else needs a
+       token.
+     - Errors use the existing JSON body: 401 for a missing or bad token, 403
+       for no permission, 409 for a duplicate email (any letter case), 400 for
+       invalid input, and a 401 with "Invalid credentials" for any failed login.
+     - The temporary deny-all security config is gone.
+  2. OrgPermissionService: use it in @PreAuthorize like
+     @orgPermissions.isOrganizer(principal.id, #orgId). PRESIDENT includes
+     ORGANIZER, which includes MEMBER. Besides the unit tests, I added a test
+     that uses it from a real @PreAuthorize with a real token, to confirm
+     members get 200 and non-members get 403. Without the fix in the error
+     handler, a failed check would have come back as 500.
+  3. Organizations example: GET /api/v1/organizations and /{id}, with a
+     hand-written mapper and Swagger docs. Its tests cover the service with
+     Mockito, plus integration tests against a real Postgres for 401 without a
+     token, 401 with a bad token, the normal 200s, and 404.
+  4. Swagger: there is an "Authorize" button, and the token is kept after a page
+     reload. Register and login are marked as public.
+  5. Guide: docs/dev-guide/how-to-add-a-feature.md walks through the example
+     file by file. It covers where each file goes, how to protect an endpoint at
+     each level, the tests and how to run them, trying it in Swagger, and a
+     checklist for PRs.
+
+  Other changes:
+  - The existing smoke test now expects 401 instead of 403.
+  - ADR-003 has a short section recording these decisions.
+  - .env.example now has the JWT placeholders.
+
+  Places where I went past or around the plan:
+  - I put the mapper in a mapper sub-package. CLAUDE.md lists only controller,
+    service, repository, dto and entity, so add mapper to that list or move the
+    file.
+  - I named the integration tests *IntegrationTest. The current Maven setup only
+    runs classes whose names end in Test, so *IT would have been skipped
+    silently.
+
+  How to check it
+  1. cd backend && ./mvnw verify should end with BUILD SUCCESS and "Tests run:
+     47, Failures: 0". Docker must be running.
+  2. Run docker compose up -d, then cd backend && ./mvnw spring-boot:run 
+     -Dspring-boot.run.profiles=dev.
+  3. Open http://localhost:8080/swagger-ui.html.
+     - Log in through POST /api/v1/auth/login with
+       {"email":"ana.popescu@stud.ubbcluj.ro","password":"password"} and copy
+       accessToken.
+     - Press Authorize, paste the token without "Bearer ", and confirm.
+     - GET /api/v1/organizations should return 200 with the two seed
+       organizations.
+     - /organizations/999 should return 404 with "code":"NOT_FOUND".
+     - GET /api/v1/users/me should return Ana's profile.
+     - Press Logout in the Authorize dialog and call again; you should get 401.
+
+  I ran these same checks with curl against the dev database (using a temporary
+  secret) and got the expected results.
+
+  For you to do: fill in the "Human changes" column of the new row in
+  docs/genai/usage-log.md, then review and commit on a feature/ branch.
+
+✻ Crunched for 9m 10s · done 11:44 PM
+
+❯ Add "mapper" to the list of allowed sub-packages in CLAUDE.md (controller,    
+  service, repository, dto, entity, mapper). Also note in CLAUDE.md that        
+  integration test classes must end with "Test" (e.g. *IntegrationTest) so      
+  Maven runs them. Do not commit.                                               
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ Bash(python3 - <<'EOF'
+      p='CLAUDE.md'…)
+  ⎿  diff --git a/CLAUDE.md b/CLAUDE.md
+     index 447ddf2..53a54cf 100644
+     --- a/CLAUDE.md
+     … +21 lines (ctrl+o to expand)
+  ⎿  Updated CLAUDE.md (+4 -1)
+      78  ```
+      79  
+      80  Each feature package contains the sub-packages
+      81 -`controller`, `service`, `repository`, `dto`, `entity` (only th
+         -ose it needs).                                                 
+      81 +`controller`, `service`, `repository`, `dto`, `entity`, `mapper
+         +` (only those it needs).                                       
+      82 +`mapper` holds hand-written entity ↔ DTO converters used only b
+         +y the service layer.                                           
+      83  
+      84  Layering rules:
+      85  - `controller` → `service` → `repository`. Controllers never ca
+          ll repositories directly.
+     ...
+       96  - Schema changes only via Flyway migrations: `backend/src/main
+           /resources/db/migration/V{n}__short_description.sql`.
+       97    Never edit an applied migration; add a new one. JPA `ddl-aut
+           o` = `validate`.
+       98  - Tests: JUnit 5 + Mockito for services; `@SpringBootTest`/`@W
+           ebMvcTest` for controllers.
+       99 +  Test class names must end with `Test` (e.g. `OrganizationCon
+          +trollerIntegrationTest`),                                     
+      100 +  otherwise Maven Surefire does not run them. Do not use the `
+          +*IT` suffix.                                                  
+      101  
+      102  **REST API**
+      103  - Base path `/api/v1/...`, plural nouns (`/api/v1/events/{id}/
+           registrations`).
+
+⏺ CLAUDE.md requires a usage-log entry for every task, so I'll add a short one.
+
+⏺ Bash(cat >> docs/genai/usage-log.md <<'EOF'
+      | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | Update
+      project conventions in CLAUDE.md | Add `mapper` to…)
+  ⎿   M CLAUDE.md
+      M docs/genai/usage-log.md
+  ⎿  Updated docs/genai/usage-log.md (+1 -0)
+       9  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Backend skeleton (no business features) | Create Spring Boot ba
+          ckend in /backend: Java 21, Maven wrapper, `ro.ubb.events`, lat
+          est Boot 3.x (justify version), web/validation/JPA/security/Pos
+          tgreSQL/Flyway/springdoc, dev/test profiles reading root `.env`
+          , global error handler, feature package-info files, public heal
+          th + Swagger, temporary deny-all security, Testcontainers smoke
+           test | `backend/pom.xml` (Boot 3.5.16, springdoc 2.10.0), `mvn
+          w`/`mvnw.cmd`/`.mvn/wrapper` (Maven 3.9.16, wrapper 3.3.4 only-
+          script), `EventsApplication`, 8 `package-info.java`, `common` (
+          ApiError, FieldErrorDto, HealthResponse, ApiException, GlobalEx
+          ceptionHandler, HealthController), `config` (SecurityConfig, Op
+          enApiConfig), `application{,-dev,-test}.yml`, `ApplicationSmoke
+          Test`; comment in `.env.example` | Plan with version rationale 
+          approved before implementation; `./mvnw verify` BUILD SUCCESS (
+          3 tests vs Testcontainers postgres:16-alpine); dev profile star
+          ted against docker-compose Postgres with no exported vars; `/ap
+          i/v1/health` 200, `/swagger-ui.html` 200, `/api/v1/events` 403 
+          JSON error body | Approved Spring Boot 3.5.16 after reviewing t
+          he version rationale; re-ran the dev-profile curl checks myself
+           (health 200, events 403 JSON) and opened Swagger UI; no code c
+          hanges; committed and merged via PR #1 |
+      10  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Data model (persistence layer only, no services/controllers) | 
+          Design the schema as Flyway migrations + JPA entities + reposit
+          ories for User, Organization, OrganizationMembership, Event, Re
+          gistration, EventTask, Announcement with FKs/uniques/CHECKs/sea
+          rch indexes; list open design decisions first and wait for answ
+          ers; dev-only seed (2 orgs, ~8 users, ~6 events, registrations,
+           password "password"); docs/data-model.md with Mermaid ER diagr
+          am; `./mvnw verify` must pass | `V1__initial_schema.sql`; entit
+          ies + enums + repositories in `user`, `organization`, `event`, 
+          `registration`, `organizing`; dev-only `db/seed-dev/R__dev_seed
+          .sql` + `spring.flyway.locations` in `application-dev.yml`; `Da
+          taModelConstraintsTest` (13 Testcontainers tests); `docs/data-m
+          odel.md` | Human answered the design questions (D1–D12) before 
+          any code was written; `./mvnw verify` BUILD SUCCESS (3 smoke + 
+          13 constraint tests); dev profile applied V1 + R__dev_seed to t
+          he docker-compose Postgres, and psql showed 8 users, 2 orgs, 7 
+          events (one per status), 14 registrations; re-running the seed 
+          SQL left row counts unchanged (idempotent) | Answered design de
+          cisions D1–D12 before implementation (no waitlist for mid-term,
+           location as text, category enum, no hard delete of events with
+           registrations, optional deadline ≤ start; accepted D5–D12 reco
+          mmendations); reviewed V1 migration and data-model.md; re-ran `
+          ./mvnw verify` myself (16 tests passed). Design change from the
+           human: an event with registrations is never hard-deleted (`fk_
+          registrations_event` RESTRICT), cancel instead |
+      11  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          JWT auth, org permissions, example feature, Swagger auth, dev g
+          uide | Implement register/login/`/users/me` with stateless JWT 
+          (secret from .env), BCrypt, real SecurityConfig (public: health
+          , Swagger, register, login); `OrgPermissionService` usable from
+           `@PreAuthorize` with unit tests; example `GET /organizations[/
+          {id}]` with DTO, mapper, service, controller, OpenAPI, Mockito 
+          + MockMvc/Testcontainers tests (401, 404); Swagger "Authorize";
+           `docs/dev-guide/how-to-add-a-feature.md`. List open design dec
+          isions first and wait for answers; `./mvnw verify` must pass; n
+          o commit | `pom.xml` (+oauth2-resource-server); `config` (Secur
+          ityConfig rewrite, JwtProperties, OpenApiConfig bearer scheme);
+           `common` (NotFound/ConflictException, 401/403 handlers); `auth
+          ` (AuthController, AuthService, JwtService, DTOs, Authenticated
+          User); `user` (UserController, UserService, UserResponse); `org
+          anization` (OrgPermissionService, OrganizationController/Servic
+          e/Mapper/Response); tests: AuthServiceTest, OrgPermissionServic
+          eTest, OrganizationServiceTest, AuthControllerIntegrationTest, 
+          OrganizationControllerIntegrationTest, OrgPermissionPreAuthoriz
+          eIntegrationTest, IntegrationTestBase, ApplicationSmokeTest 403
+          →401; `application*.yml`, `.env.example` JWT placeholders; ADR-
+          003 implementation notes; dev guide | Human answered design dec
+          isions (2 h token, no refresh, Spring resource server, anyone r
+          egisters as STUDENT, min 8 chars, orgs require login, single "I
+          nvalid credentials") before code was written; `./mvnw verify` B
+          UILD SUCCESS (47 tests); dev profile against docker-compose Pos
+          tgres with seed: login as ana.popescu → token, orgs 401 without
+           token / 200 with token (2 orgs), `/organizations/999` 404, `/u
+          sers/me` 200, wrong password 401, duplicate email (other case) 
+          409, Swagger UI 200 with bearerAuth scheme | _to be filled by t
+          he human after review_ |
+      12 +| 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+         +Update project conventions in CLAUDE.md | Add `mapper` to the a
+         +llowed feature sub-packages; note that test classes must end wi
+         +th `Test` (e.g. `*IntegrationTest`) so Maven runs them; no comm
+         +it | `CLAUDE.md`: sub-package list + one-line description of `m
+         +apper`; test naming rule under Coding conventions | Reviewed `g
+         +it diff CLAUDE.md` (two small additions, nothing else changed) 
+         +| _to be filled by the human after review_ |                   
+
+⏺ I updated CLAUDE.md with both changes. Nothing is committed.
+
+  - mapper sub-package: the list now reads controller, service, repository, dto,
+    entity, mapper. I added one line explaining it: mapper holds hand-written
+    converters between entities and DTOs, and only the service layer uses them.
+  - Test naming: under Coding conventions → Tests, it now says test class names
+    must end with Test (for example OrganizationControllerIntegrationTest),
+    because otherwise Maven doesn't run them. It also says not to use the *IT
+    suffix.
+
+  I also added a row to docs/genai/usage-log.md, because CLAUDE.md requires one
+  for every task. Its "Human changes" column is left for you to fill in.
+
+  To check: run git diff CLAUDE.md. You should see only these two additions,
+  about 80 and 97 lines into the file. To confirm the naming rule matches what
+  Maven does, run cd backend && ./mvnw verify. The output should list
+  OrganizationControllerIntegrationTest, AuthControllerIntegrationTest and
+  OrgPermissionPreAuthorizeIntegrationTest among the classes that ran, and the
+  total should still be 47 tests. I didn't re-run the build, because only
+  Markdown files changed.
+
+✻ Sautéed for 15s · done 11:45 PM
+
+❯ Add "mapper" to the list of allowed sub-packages in CLAUDE.md (controller,    
+  service, repository, dto, entity, mapper). Also note in CLAUDE.md that        
+  integration test classes must end with "Test" (e.g. *IntegrationTest) so      
+  Maven runs them. Do not commit.                                               
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ CLAUDE.md already has both changes from your previous message, so I didn't
+  edit it again or add another usage-log row:
+
+  - Line 81: the sub-package list now reads controller, service, repository,
+    dto, entity, mapper. Line 82 adds a short description of mapper.
+  - Lines 99–100: test class names must end with Test (for example
+    OrganizationControllerIntegrationTest) or Maven won't run them, so don't use
+    the *IT suffix.
+
+  Nothing is committed. To check, run git diff CLAUDE.md. You should see only
+  those two additions.
+✻ Cogitated for 4s · done 11:47 PM
+
+※ recap: You're adding JWT login, organization permissions, an organizations example and a dev guide to the backend; it's all built, `./mvnw verify` passes with 47 tests, and CLAUDE.md is updated. Next, add a real `JWT_SECRET` to `.env`, then review and commit on a feature branch.

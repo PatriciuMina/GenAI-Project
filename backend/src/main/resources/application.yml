@@ -23,8 +23,16 @@ spring:
 server:
   port: 8080
 
+# JWT settings (see config/JwtProperties and ADR-003). Values come from the root .env.
+app:
+  jwt:
+    secret: ${JWT_SECRET:}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    # keep the token entered under "Authorize" after a page reload
+    persist-authorization: true
   api-docs:
     path: /v3/api-docs

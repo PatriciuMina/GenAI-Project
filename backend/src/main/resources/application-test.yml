@@ -5,3 +5,8 @@ logging:
     root: WARN
     ro.ubb.events: INFO
     org.testcontainers: INFO
+
+# Fixed, clearly fake secret used ONLY by automated tests. Not a real secret.
+app:
+  jwt:
+    secret: test-only-secret-not-used-anywhere-else-0123456789

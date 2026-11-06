@@ -78,7 +78,8 @@ ro.ubb.events
 ```
 
 Each feature package contains the sub-packages
-`controller`, `service`, `repository`, `dto`, `entity` (only those it needs).
+`controller`, `service`, `repository`, `dto`, `entity`, `mapper` (only those it needs).
+`mapper` holds hand-written entity ↔ DTO converters used only by the service layer.
 
 Layering rules:
 - `controller` → `service` → `repository`. Controllers never call repositories directly.
@@ -95,6 +96,8 @@ Layering rules:
 - Schema changes only via Flyway migrations: `backend/src/main/resources/db/migration/V{n}__short_description.sql`.
   Never edit an applied migration; add a new one. JPA `ddl-auto` = `validate`.
 - Tests: JUnit 5 + Mockito for services; `@SpringBootTest`/`@WebMvcTest` for controllers.
+  Test class names must end with `Test` (e.g. `OrganizationControllerIntegrationTest`),
+  otherwise Maven Surefire does not run them. Do not use the `*IT` suffix.
 
 **REST API**
 - Base path `/api/v1/...`, plural nouns (`/api/v1/events/{id}/registrations`).
