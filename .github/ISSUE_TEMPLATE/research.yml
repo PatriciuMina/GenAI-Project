@@ -1,0 +1,43 @@
+name: Research
+description: Investigate a question (library, approach, requirement) and write down the findings.
+title: "research: "
+labels: ["type:research"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question to answer
+      description: What do we need to find out, and which decision depends on it?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope / options to compare
+      description: Options, sources or constraints to look at (optional).
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] Findings and recommendation written in docs/research/<topic>.md (delivered as a PR)
+        - [ ] Sources listed
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: dependencies
+    attributes:
+      label: Depends on
+      description: Issues that must be Done first, e.g. "#12" (or "none").
+      placeholder: none
+    validations:
+      required: true
+  - type: dropdown
+    id: points
+    attributes:
+      label: Story points
+      description: 1 = under 2 h, 2 = ~half a day, 3 = ~a day, 4 = ~2 days or tricky, 5 = several days
+      options: ["1", "2", "3", "4", "5"]
+    validations:
+      required: true

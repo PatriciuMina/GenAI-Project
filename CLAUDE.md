@@ -110,19 +110,22 @@ Layering rules:
 - Single typed API client module; base URL from `VITE_API_BASE_URL`.
 
 **Git**
-- Feature branches (`feature/<short-name>`), Conventional Commits (`feat:`, `fix:`, `docs:` ...).
-- Every change merged via PR reviewed by at least one human teammate.
+- Feature branches (`feature/<issue-number>-short-name`), Conventional Commits (`feat:`, `fix:`, `docs:` ...).
+- Every change merged via PR reviewed by at least one human teammate (see `CONTRIBUTING.md`).
+- CI (`.github/workflows/ci.yml`) runs backend `./mvnw verify` and frontend lint/test/build on every PR.
 
 ## How to run
 
 ```bash
-cp .env.example .env              # then edit values locally
-docker compose up -d              # PostgreSQL 16 on localhost:${POSTGRES_PORT}
-docker compose ps                 # postgres should be "healthy"
+cp .env.example .env              # then edit values locally (JWT_SECRET!)
 
-# once scaffolded:
-cd backend && ./mvnw spring-boot:run      # API on http://localhost:8080
-cd frontend && npm install && npm run dev # UI on http://localhost:5173
+# Whole app in Docker (local/demo, with dev seed users):
+docker compose up --build         # UI http://localhost:3000, API/Swagger http://localhost:8080
+
+# Or for development: only the DB in Docker, backend/frontend on your machine
+docker compose up -d postgres
+cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev   # http://localhost:8080
+cd frontend && npm install && npm run dev                              # http://localhost:5173
 ```
 
 ## Architecture decisions

@@ -1,0 +1,47 @@
+name: Design
+description: Diagrams, UI mockups, wireframes, architecture or data-model designs.
+title: "design: "
+labels: ["type:design"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What should be designed
+      description: Screens, flows or diagrams needed, and what decisions they support.
+    validations:
+      required: true
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Deliverables
+      description: Files to add. Images go under docs/assets/, explanations in a .md under docs/.
+      value: |
+        - [ ] docs/assets/<name>.png (or .svg / exported diagram source)
+        - [ ] docs/<topic>.md describing the design
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] Reviewed by at least one teammate in the PR
+        - [ ]
+    validations:
+      required: true
+  - type: input
+    id: dependencies
+    attributes:
+      label: Depends on
+      description: Issues that must be Done first, e.g. "#12" (or "none").
+      placeholder: none
+    validations:
+      required: true
+  - type: dropdown
+    id: points
+    attributes:
+      label: Story points
+      description: 1 = under 2 h, 2 = ~half a day, 3 = ~a day, 4 = ~2 days or tricky, 5 = several days
+      options: ["1", "2", "3", "4", "5"]
+    validations:
+      required: true

@@ -12,8 +12,8 @@ Read first: `CLAUDE.md` (rules) and `docs/dev-guide/how-to-add-a-feature.md` (ba
 Requirements: **Node 24 LTS** (`frontend/.nvmrc`; Node 22.12+ also works) and the backend running.
 
 ```bash
-docker compose up -d                                  # PostgreSQL
-cd backend && ./mvnw spring-boot:run                  # API on http://localhost:8080
+docker compose up -d postgres                         # only PostgreSQL
+cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev   # API on :8080 + seed
 cd frontend && npm install && npm run dev             # UI on http://localhost:5173
 ```
 

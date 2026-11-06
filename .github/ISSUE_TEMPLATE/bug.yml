@@ -1,0 +1,51 @@
+name: Bug
+description: Something does not work as expected.
+title: "fix: "
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Include error messages, HTTP status codes or screenshots.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Backend
+        - Frontend
+        - Database / migrations
+        - Docker / CI
+        - Docs
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: How you ran it (docker compose, local dev, CI) + browser / OS if relevant.
+  - type: dropdown
+    id: points
+    attributes:
+      label: Story points (estimate, if known)
+      description: 1 = under 2 h, 2 = ~half a day, 3 = ~a day, 4 = ~2 days or tricky, 5 = several days
+      options: ["1", "2", "3", "4", "5"]

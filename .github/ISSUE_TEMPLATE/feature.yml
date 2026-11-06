@@ -1,0 +1,57 @@
+name: Feature
+description: New functionality (backend, frontend or both).
+title: "feat: "
+labels: ["type:feature"]
+body:
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow
+      options:
+        - W1 Organizations & membership
+        - W2 Event creation & lifecycle
+        - W3 Event discovery & search
+        - W4 Participant registration
+        - W5 Event organization (tasks, check-in, announcements)
+        - Cross-cutting / infrastructure
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What should be built, and for whom (user story is fine).
+      placeholder: As an organizer, I want to ... so that ...
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checkable conditions. Include endpoints / status codes / UI behavior.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical notes
+      description: Feature package, endpoints, migrations, pages ... (optional)
+  - type: input
+    id: dependencies
+    attributes:
+      label: Depends on
+      description: Issues that must be Done first, e.g. "#12, #15" (or "none").
+      placeholder: none
+    validations:
+      required: true
+  - type: dropdown
+    id: points
+    attributes:
+      label: Story points
+      description: 1 = under 2 h, 2 = ~half a day, 3 = ~a day, 4 = ~2 days or tricky, 5 = several days
+      options: ["1", "2", "3", "4", "5"]
+    validations:
+      required: true

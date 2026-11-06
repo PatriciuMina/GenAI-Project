@@ -204,9 +204,12 @@ The rules below span several rows or tables. CHECK constraints can't express the
   (`ON CONFLICT DO NOTHING` / `NOT EXISTS`), and rows are found by natural keys such as email,
   organization name and event title.
 - Event dates are relative to `now()` at the time the seed is applied, so each status looks realistic.
-  To refresh them, reset the dev database: `docker compose down -v && docker compose up -d`.
+  To refresh them, reset the dev database: `docker compose down -v && docker compose up -d postgres`
+  (or `docker compose up --build` for the whole Dockerized stack).
 - Note: once the seed has been applied, the dev database must always be started with the `dev` profile.
   Otherwise Flyway validation reports the applied `R__dev_seed` migration as missing.
+  The backend container in `docker-compose.yml` pins the `dev` profile and the seed location for
+  exactly this reason (they cannot be overridden from `.env`).
 
 All seeded accounts have the password **`password`**:
 
