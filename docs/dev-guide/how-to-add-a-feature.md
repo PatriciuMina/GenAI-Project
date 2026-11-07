@@ -342,4 +342,4 @@ curl -s localhost:8080/api/v1/organizations -H "Authorization: Bearer $TOKEN"
 - [ ] Service unit test + controller integration test (401 / 403 / 404 / 400 as relevant).
 - [ ] `./mvnw verify` → BUILD SUCCESS.
 - [ ] Usage log entry in `docs/genai/usage-log.md` if GenAI was used.
-- [ ] Branch `feature/<short-name>`, Conventional Commit message, PR reviewed by a teammate.
+- [ ] Branch `feature/<issue-number>-short-name`, Conventional Commit message, PR with green CI (ask a teammate to look at it: this is a feature, see `CONTRIBUTING.md` §2).

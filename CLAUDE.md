@@ -111,7 +111,10 @@ Layering rules:
 
 **Git**
 - Feature branches (`feature/<issue-number>-short-name`), Conventional Commits (`feat:`, `fix:`, `docs:` ...).
-- Every change merged via PR reviewed by at least one human teammate (see `CONTRIBUTING.md`).
+- Every change goes through a PR into `main`. The author may merge (squash) as soon as CI is
+  green (Backend and Frontend checks) and then deletes the branch; no approval is required.
+  Reviews are optional but encouraged (ask a teammate for feature tickets and larger changes).
+  No single maintainer, everyone has the same rights (see `CONTRIBUTING.md` §2).
 - CI (`.github/workflows/ci.yml`) runs backend `./mvnw verify` and frontend lint/test/build on every PR.
 
 ## How to run
