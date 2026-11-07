@@ -1,0 +1,719 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.319
+           Opus 5.5 · Claude Team
+ ▘▘   ▝▝   ~/projects/GenAI-Project
+
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.
+
+❯ /clear                                                                        
+
+❯ /plan                                                                         
+  ⎿  Already in plan mode. No plan written yet.
+
+❯ Read CLAUDE.md and follow it. Read the whole repository (code,                
+  docs/data-model.md,                                                           
+  ADRs, dev guides, README, CONTRIBUTING) so the instructions point to the      
+  right sources.                                                                
+                                                                                
+  Create LIGHT drafts of the mid-term documentation in /docs/midterm/           
+  (Markdown, English).                                                          
+  Teammates will write the content themselves, so do NOT write the actual       
+  content of the                                                                
+  sections. Instead, for every section:                                         
+  - a heading;                                                                  
+  - a short "What to write" explanation (3–6 lines) in plain language;          
+  - "Where to find the information" (exact files in the repo: code packages,    
+  ADRs,                                                                         
+    data-model.md, the course requirements R1–R16, interview notes);            
+  - "Format" (table, list, Mermaid diagram, length guideline);                  
+  - ONE short example of the expected format (e.g. one example functional       
+  requirement,                                                                  
+    one example use case, one example permission-matrix row), clearly marked as 
+  an example                                                                    
+    to replace;                                                                 
+  - a "Done when" checklist (2–4 checkboxes) so the writer and the reviewer     
+  know when the                                                                 
+    section is complete;                                                        
+  - a marker "> TODO (team):" where the content goes.                           
+    Size each section so one person can complete it in a few hours (it will     
+  become a ticket).                                                             
+                                                                                
+  Files:                                                                        
+  1. 01-problem-statement.md: problem, stakeholders, scope, out of scope.       
+  2. 02-requirements.md: high-level requirements R1–R16 (copy the list from the 
+  course                                                                        
+     statement as given), functional requirements per workflow W1–W5 (ID scheme 
+  FR-W1-01),                                                                    
+     non-functional requirements (NFR-01). Include a column "Status:            
+  implemented/planned".                                                         
+  3. 03-actors-roles.md: actors and permission matrix (actor × action); point   
+  to                                                                            
+     SecurityConfig and OrgPermissionService as the source of truth.            
+  4. 04-use-cases.md: use case template (actor, preconditions, main flow,       
+  alternative                                                                   
+     flows, postconditions, linked FR IDs), ID scheme UC-01, and a list of the  
+  use cases                                                                     
+     to write per workflow (titles only), plus a Mermaid overview placeholder.  
+  5. 05-workflows.md: one section per workflow W1–W5 with instructions for a    
+  step-by-step                                                                  
+     description and a Mermaid diagram; the event status state machine section  
+  points to                                                                     
+     EventStatus and data-model.md.                                             
+  6. 06-ux-research.md: interview guide (10–12 open questions for students and  
+  10–12 for                                                                     
+     event organizers — you may write these questions), consent note, interview 
+  log table,                                                                    
+     findings table, "assumptions we changed" table, "main product flows"       
+  section.                                                                      
+     No invented results.                                                       
+  7. 07-genai-report.md: sections required by the course (tools/models, purpose 
+  of each,                                                                      
+     artifacts generated or modified, how we verified, human decisions that     
+  materially                                                                    
+     changed the AI output), with instructions to build it from                 
+  docs/genai/usage-log.md,                                                      
+     docs/genai/sessions and docs/genai/evidence.                               
+  8. 08-individual-contributions.md: one empty section per team member (Mina    
+  Patriciu,                                                                     
+     Andrei Gota, Jakab Gergo, Portik Márk-Krisztián, Vlad-Stefan Uleia) with   
+  the fields                                                                    
+     from the course (owned artifacts, workflow, implemented functionality,     
+  documentation,                                                                
+     tests, design decisions, GenAI work).                                      
+  9. docs/midterm/README.md: index of the mid-term deliverable (A–E), pointing  
+  to each                                                                       
+     file, plus a short "How to work on a section" guide (pick the ticket,      
+  write in the                                                                  
+     file, open a PR, a reviewer checks the "Done when" list).                  
+                                                                                
+  Before writing, list the open decisions (for example ID schemes, level of     
+  detail of the                                                                 
+  instructions, which current design choices to list as assumptions to validate 
+  in                                                                            
+  interviews) with your recommendation for each, and wait for my answers.       
+  Do not commit or push.                                                        
+
+  Searched for 3 patterns, read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+⏺ Repo read. Key gaps: the course requirements R1–R16, the deliverable A–E
+  definitions, and interview notes aren't anywhere in the repo. I'm writing the
+  plan with the open decisions now.
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ User answered Claude's questions:
+  ⎿  · The course requirements R1–R16, the deliverable A–E definitions and the 
+     course's individual-contribution fields are not in the repo. How should I 
+     handle them? → Read docs/course/course-requirements.md (I just added it): 
+     use R1–R16 and the A–E mapping from there, and list it as a source in the 
+     instructions.
+     · Which values should the requirements 'Status' column allow, and where do 
+     register/login and admin requirements go? → 3 values + AUTH/ADM groups 
+     (Recommended)
+     · Which design choices should 06-ux-research.md list as 'assumptions to 
+     validate' in interviews? → Use the full list, but remove "2h login/no 
+     refresh" (technical, users can't judge it) and add: "English-only UI", 
+     "only organizers/presidents can create events (not regular members)", and 
+     "students currently find events mainly through social media/word of mouth".
+     Keep it as a table with a column for the interview evidence.
+     · Where should raw interview notes live, and how are use-case IDs 
+     allocated? → interviews/ folder + UC blocks (Recommended)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ User approved Claude's plan
+  ⎿  Plan saved to: ~/.claude/plans/lovely-honking-brook.md · /plan to edit
+     Plan: light mid-term documentation drafts in /docs/midterm/
+
+     Context
+
+     The team must deliver the mid-term documentation (deliverables A–E).
+     Teammates will write
+     the content themselves; this task creates skeleton files only: per section
+     a heading,
+     "What to write", "Where to find the information", "Format", one marked
+     example,
+     a "Done when" checklist and a > TODO (team): marker. Each section ≈ one
+     ticket
+     (a few hours). No content invented, no commit/push.
+
+     Findings from reading the repo (what the drafts will point to)
+
+     - Not in the repo: course requirements R1–R16, the A–E deliverable
+       definitions, the
+       course's list of individual-contribution fields, any interview notes. →
+       see D1, D7.
+     - Source-of-truth files to reference:
+       - Permissions: backend/.../config/SecurityConfig.java (public paths;
+         everything else
+         authenticated; ROLE_STUDENT/ROLE_ADMIN),
+         organization/service/OrgPermissionService.java
+         (PRESIDENT ⊃ ORGANIZER ⊃ MEMBER; ADMIN not implied), enums GlobalRole,
+         OrganizationRole.
+       - Lifecycle/state: event/entity/EventStatus.java, docs/data-model.md
+         ("Status lifecycle",
+         "Rules enforced in the service layer", design decisions D1–D6, D11),
+         RegistrationStatus, TaskStatus.
+       - Implemented today: register/login//users/me (auth, user), GET 
+         /organizations[/{id}];
+         entities+repositories only for event/registration/organizing; frontend
+         placeholder pages
+         in frontend/src/routes/paths.ts + features/* (ComingSoon).
+       - ADR-001…005, docs/dev-guide/*, README.md, CONTRIBUTING.md (§2 non-code
+         tickets,
+         §4 Definition of Done, §6 GenAI),
+         .github/ISSUE_TEMPLATE/docs.yml|research.yml.
+       - GenAI: docs/genai/usage-log.md (7 entries),
+         docs/genai/sessions/P1…P6-*.txt,
+         docs/genai/evidence/ (empty).
+       - Seed data (good for examples): docs/data-model.md#dev-seed-data.
+
+     Open decisions (recommendation first)
+
+     #: D1
+     Decision: R1–R16 / A–E / contribution fields not in repo
+     Recommendation: Paste them and I copy verbatim; otherwise placeholder table
+
+       with TODO: copy from course statement
+     ────────────────────────────────────────
+     #: D2
+     Decision: Status column values
+     Recommendation: implemented / partial / planned (orgs exist read-only, so
+       "partial" is honest)
+     ────────────────────────────────────────
+     #: D3
+     Decision: Requirements outside W1–W5 (register/login, admin)
+     Recommendation: Separate groups FR-AUTH-01, FR-ADM-01 (not forced into W1)
+     ────────────────────────────────────────
+     #: D4
+     Decision: Use-case IDs
+     Recommendation: Global UC-01… (as asked) with a "Workflow" column; numbers
+       reserved in blocks per workflow (W1: UC-01–09, W2: 10–19 …) so writers
+     don't
+       collide
+     ────────────────────────────────────────
+     #: D5
+     Decision: Use-case title list
+     Recommendation: ~3–5 titles per workflow + auth/admin (≈22 total), derived
+     from
+       entities/rules, marked "proposed – adjust"
+     ────────────────────────────────────────
+     #: D6
+     Decision: Assumptions to validate in interviews (pre-filled in 06,
+     "Validated?"
+       column empty)
+     Recommendation: No waitlist (data-model D1); fixed category list (D3);
+     location
+       free text (D2); anyone can self-register with any email; 2h login, no
+     refresh
+        tokens (ADR-003); registration deadline optional = until start; cancel
+     then
+       re-register allowed; only organizers check in, at the event;
+     announcements
+       in-app only (no email/push); tasks assigned to one org member; 3 org
+     roles
+       PRESIDENT/ORGANIZER/MEMBER
+     ────────────────────────────────────────
+     #: D7
+     Decision: Interview raw notes
+     Recommendation: Anonymised notes in docs/midterm/interviews/I-01.md…
+     (folder
+       created with a short README template); log table in 06 links them.
+     Consent
+       note says no names/emails stored
+     ────────────────────────────────────────
+     #: D8
+     Decision: Instruction detail
+     Recommendation: 3–6 lines "What to write", 1 example, 2–4 "Done when"
+     boxes;
+       each section tagged with a suggested ticket title + story points (1–3)
+     ────────────────────────────────────────
+     #: D9
+     Decision: Examples
+     Recommendation: Use real seed data (e.g. "Intro to Spring Boot Workshop",
+       capacity 30) and mark each with > Example – replace:
+     ────────────────────────────────────────
+     #: D10
+     Decision: Deliverable A–E mapping (if not pasted)
+     Recommendation: A = 01+02, B = 03+04, C = 05, D = 06, E = 07+08 — confirm
+
+     Answers from the human (final)
+
+     - D1/D10: source is docs/course/course-requirements.md (added by the
+       human). Copy the
+       R1–R16 table verbatim into 02 (keeping its note that it is a summary of
+       the official
+       statement) and use its A–E mapping in README: A = Code (repo), B = 01–05,
+       C = 06,
+       D = 07, E = 08 (E fields incl. "others"). Every file lists it under
+       "Where to find".
+       02 also adds a traceability hint (R15): FR rows carry an "R" column (e.g.
+       R1, R4).
+     - D2/D3: Status = implemented / partial / planned; groups FR-AUTH-xx,
+       FR-ADM-xx, FR-W1-xx…FR-W5-xx, NFR-xx.
+     - D6: assumptions table in 06 with columns # | Assumption (current design) 
+       | Source in repo | Interview evidence | Keep / change | Change made.
+       Rows:
+       no waitlist; fixed category list; free-text location; any email can
+       self-register;
+       optional registration deadline (= until start); cancel then re-register
+       allowed;
+       only organizers check in; announcements in-app only; one assignee per
+       task;
+       3 org roles PRESIDENT/ORGANIZER/MEMBER; English-only UI; only
+       organizers/presidents
+       create events (not members); students currently find events mainly via
+       social media /
+       word of mouth. (2h login removed.)
+     - D7/D4: docs/midterm/interviews/ with README (template + anonymisation
+       rule);
+       global UC IDs in blocks: AUTH/ADM UC-01–09, W1 UC-10–19, W2 UC-20–29, W3
+       UC-30–39,
+       W4 UC-40–49, W5 UC-50–59.
+     - D5, D8, D9 accepted as recommended.
+
+     Files to create (all new, under docs/midterm/)
+
+     README.md, 01-problem-statement.md … 08-individual-contributions.md as
+     specified in
+     the request, plus interviews/README.md (if D7 accepted). 02 contains the
+     R1–R16 table,
+     FR tables per W1–W5 (+AUTH/ADM) and NFR table, each with Status column. 05
+     has one section
+     per workflow with a Mermaid placeholder; the W2 state-machine section
+     points to
+     EventStatus + data-model.md lifecycle. 06 includes the 10–12 + 10–12
+     interview questions
+     (written by me), consent note, log/findings/assumptions tables — empty
+     rows, no results.
+     08 has one empty section per member (Mina Patriciu, Andrei Gota, Jakab
+     Gergo,
+     Portik Márk-Krisztián, Vlad-Stefan Uleia).
+     Also append a row to docs/genai/usage-log.md (verification/human-changes
+     left for the human).
+
+     Verification (hand-off)
+
+     - ls docs/midterm → 9 files (+ interviews/).
+     - grep -c "> TODO (team):" docs/midterm/*.md → ≥1 per file; grep -n "Done 
+       when" in every section.
+     - Open the files in GitHub/VS Code preview: Mermaid placeholders render,
+       tables render.
+     - git status shows only new files under docs/midterm + modified
+       usage-log.md; nothing committed.
+
+⏺ Writing the files now.
+
+⏺ Write(docs/midterm/README.md)
+  ⎿  Wrote 63 lines to docs/midterm/README.md
+       1 # Mid-term deliverable
+       2 
+       3 This folder holds the mid-term documentation. The files are **dr
+         afts with instructions**:
+       4 each section says what to write, where to find the information, 
+         which format to use, and
+       5 when the section is done. The team writes the content.
+       6 
+       7 Course source: [`docs/course/course-requirements.md`](../course/
+         course-requirements.md)
+     … +56 lines (ctrl+o to expand)
+
+⏺ Write(docs/midterm/01-problem-statement.md)
+  ⎿  Wrote 135 lines to docs/midterm/01-problem-statement.md
+      1 # 1. Problem statement and project scope
+      2 
+      3 Part **B.1** of the mid-term deliverable. Index: [README](README.
+        md).
+      4 
+      5 ---
+      6 
+      7 ## 1.1 Problem
+      8 
+      9 **Ticket:** `docs: write problem statement` · **Points:** 2
+     … +126 lines (ctrl+o to expand)
+
+⏺ Write(docs/midterm/02-requirements.md)
+  ⎿  Wrote 295 lines to docs/midterm/02-requirements.md
+       1 # 2. Requirements
+       2 
+       3 Part **B.2** of the mid-term deliverable. Index: [README](README
+         .md).
+       4 
+       5 **Status values** used in every table below:
+       6 - `implemented`: works end-to-end on `main` (backend + frontend 
+         where relevant) and is tested;
+       7 - `partial`: some layers exist (e.g. entity/repository or read-o
+         nly endpoint), not the whole requirement;
+     … +288 lines (ctrl+o to expand)
+
+⏺ Write(docs/midterm/03-actors-roles.md)
+  ⎿  Wrote 86 lines to docs/midterm/03-actors-roles.md
+       1 # 3. Actors and roles
+       2 
+       3 Part **B.3** of the mid-term deliverable. Index: [README](README
+         .md).
+       4 
+       5 **Source of truth.** Permissions are decided in code, not in thi
+         s document. When the doc
+       6 and the code disagree, the code wins and the doc must be fixed (
+         or an issue opened).
+       7 - `backend/src/main/java/ro/ubb/events/config/SecurityConfig.jav
+     … +80 lines (~4 KB) (ctrl+o to expand)
+
+⏺ Write(docs/midterm/04-use-cases.md)
+  ⎿  Wrote 233 lines to docs/midterm/04-use-cases.md
+       1 # 4. Use cases
+       2 
+       3 Part **B.4** of the mid-term deliverable. Index: [README](README
+         .md).
+       4 
+       5 **ID blocks** (so writers do not collide): AUTH/ADM `UC-01–09`, 
+         W1 `UC-10–19`,
+       6 W2 `UC-20–29`, W3 `UC-30–39`, W4 `UC-40–49`, W5 `UC-50–59`. Neve
+         r renumber; mark dropped
+       7 use cases as `dropped` in the list.
+     … +226 lines (ctrl+o to expand)
+
+⏺ Write(docs/midterm/05-workflows.md)
+  ⎿  Wrote 180 lines to docs/midterm/05-workflows.md
+       1 # 5. Main application workflows
+       2 
+       3 Part **B.5** of the mid-term deliverable. Index: [README](README
+         .md).
+       4 
+       5 A *workflow* is the end-to-end path through the system for one g
+         oal, across UI, API and
+       6 database. Use cases (`04-use-cases.md`) describe single interact
+         ions; here you connect them.
+       7 
+     … +173 lines (ctrl+o to expand)
+
+⏺ Write(docs/midterm/06-ux-research.md)
+  ⎿  Wrote 217 lines to docs/midterm/06-ux-research.md
+       1 # 6. UX / user research
+       2 
+       3 Part **C** of the mid-term deliverable. Index: [README](README.m
+         d).
+       4 
+       5 Course link: R10 ("important workflows validated with users") an
+         d R5 ("justified by
+       6 identified user needs"), see `docs/course/course-requirements.md
+         `.
+       7 
+     … +210 lines (ctrl+o to expand)
+
+⏺ Write(docs/midterm/interviews/README.md)
+  ⎿  Wrote 36 lines to docs/midterm/interviews/README.md
+       1 # Interview notes
+       2 
+       3 Anonymised notes of user interviews for [`../06-ux-research.md`]
+         (../06-ux-research.md).
+       4 
+       5 **Rules**
+       6 - One file per interview: `I-01.md`, `I-02.md`, … (same ID as in
+          the interview log, 6.3).
+       7 - **No personal data:** no names, emails, phone numbers, student
+          IDs, photos, or details that
+     … +29 lines (ctrl+o to expand)
+
+⏺ Write(docs/midterm/07-genai-report.md)
+  ⎿  Wrote 145 lines to docs/midterm/07-genai-report.md
+       1 # 7. GenAI declaration
+       2 
+       3 Part **D** of the mid-term deliverable. Index: [README](README.m
+         d).
+       4 
+       5 Course link: R13 (GenAI-assisted development) and R14 (human ove
+         rsight), see
+       6 `docs/course/course-requirements.md`.
+       7 
+       8 **Build this report from the evidence, not from memory:**
+     … +137 lines (ctrl+o to expand)
+
+⏺ Write(docs/midterm/08-individual-contributions.md)
+  ⎿  Wrote 129 lines to docs/midterm/08-individual-contributions.md
+       1 # 8. Individual contribution declaration
+       2 
+       3 Part **E** of the mid-term deliverable. Index: [README](README.m
+         d).
+       4 
+       5 Course link: R16 ("each student owns specific artifacts and at l
+         east one cross-layer
+       6 workflow"), see `docs/course/course-requirements.md`.
+       7 
+       8 **What to write (each student fills only their own section)**
+     … +121 lines (ctrl+o to expand)
+⏺ Checking a few code facts I referenced in examples.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Bash(cd /Users/patriciumina/projects/GenAI-Project && sed -i ''
+      's/`EventTask.assigneeMembership`/`EventTask.assignee` (column
+      `assignee_membership_id`)/' docs/midte…)
+  ⎿  docs/midterm/08-individual-contributions.md:28:> | Tests written | `Or
+     ganizationServiceTest` (3 tests), PR #4 |
+     docs/midterm/06-ux-research.md:181:| A-09 | Each organizer task has at
+     … +10 lines (ctrl+o to expand)
+  ⎿  Updated docs/midterm/06-ux-research.md (+1 -1)
+      178  | A-06 | A student may cancel and later register again for the
+            same event | data-model.md `ux_registrations_confirmed_once` 
+           | | | |
+      179  | A-07 | Only organizers of the organization check participant
+           s in | data-model.md service rule 5 | | | |
+      180  | A-08 | Announcements are shown only in the app (no email or 
+           push notifications) | `Announcement` entity, data-model.md | |
+            | |
+      181 -| A-09 | Each organizer task has at most one assignee | `Event
+          -Task.assigneeMembership`, data-model.md | | | |               
+      181 +| A-09 | Each organizer task has at most one assignee | `Event
+          +Task.assignee` (column `assignee_membership_id`), data-model.m
+          +d | | | |                                                     
+      182  | A-10 | Three organization roles (PRESIDENT, ORGANIZER, MEMBE
+           R) are enough | `OrganizationRole`, `OrgPermissionService` | |
+            | |
+      183  | A-11 | An English-only user interface is acceptable | `front
+           end/src` (all texts in English) | | | |
+      184  | A-12 | Only organizers and presidents create events; regular
+            members cannot | `OrgPermissionService` (`isOrganizer`), `03-
+           actors-roles.md` | | | |
+  ⎿  Updated docs/midterm/08-individual-contributions.md (+1 -1)
+      25  >
+      26  > | Field | Contribution |
+      27  > |-------|--------------|
+      28 -> | Tests written | `OrganizationServiceTest` (4 tests), PR #4 
+         -|                                                              
+      28 +> | Tests written | `OrganizationServiceTest` (3 tests), PR #4 
+         +|                                                              
+      29  
+      30  **Done when** (per student)
+      31  - [ ] Every field is filled (or "none yet").
+
+⏺ Now the usage-log entry.
+
+⏺ Bash(cat >> docs/genai/usage-log.md <<'EOF'
+      | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | Mid-term
+      documentation drafts (instructions only, no conte…)
+  ⎿  01-problem-statement.md
+     02-requirements.md
+     03-actors-roles.md
+     … +32 lines (ctrl+o to expand)
+  ⎿  Updated docs/genai/usage-log.md (+1 -0)
+      12  | 2026-11-06 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Update project conventions in CLAUDE.md | Add `mapper` to the a
+          llowed feature sub-packages; note that test classes must end wi
+          th `Test` (e.g. `*IntegrationTest`) so Maven runs them; no comm
+          it | `CLAUDE.md`: sub-package list + one-line description of `m
+          apper`; test naming rule under Coding conventions | Reviewed `g
+          it diff CLAUDE.md` (two small additions, nothing else changed) 
+          | Human decision: keep the mapper sub-package Claude introduced
+           instead of moving the file, and document the *Test naming rule
+          ; requested this update and reviewed the CLAUDE.md diff |
+      13  | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Frontend scaffold: auth, layout, organizations pages, dev guide
+           | Create /frontend (Vite + React + TS strict, React Router, Ta
+          nStack Query, axios JWT interceptor, MUI, ESLint + Prettier, Vi
+          test + RTL) organized by feature; login/register, auth context 
+          + protected routes (redirect on missing/expired token or 401), 
+          role-based nav, logout, Organizations list + details, readable 
+          backend errors (message + per-field), placeholder theme/logo, "
+          Coming soon" pages with TODO(W2–W5), Vite dev proxy to :8080, t
+          ests for login form and auth context, `docs/dev-guide/frontend-
+          guide.md` for teammates without AI. List open design decisions 
+          first and wait for answers; lint/test/build must pass; no commi
+          t | `frontend/` (package.json + lock, .nvmrc 24, .env.example, 
+          vite/tsconfig/eslint/prettier config, index.html, placeholder S
+          VG); `src/api` (client with Bearer + 401 handler, tokenStorage 
+          with JWT exp decode, errors.parseApiError, types, auth/users/or
+          ganizations, queryClient); `src/features/auth` (AuthContext, us
+          eAuth, LoginForm, LoginPage, RegisterPage, AuthPageLayout); `sr
+          c/features/organizations` (queries, list, details); placeholder
+           pages for events/registrations/organizing/admin; `src/componen
+          ts` (AppLayout, Logo, ComingSoon, ErrorAlert, LoadingState, Not
+          FoundPage); `src/routes` (paths, router, ProtectedRoute); `src/
+          theme.ts`; tests: LoginForm.test (4), AuthContext.test (8 incl.
+           ProtectedRoute), client.test (3); `docs/dev-guide/frontend-gui
+          de.md` | Human answered D1–D4 (localStorage, English, global-ro
+          le nav + TODO for Organizing, Node 24 LTS) before code was writ
+          ten; `npm run lint` clean, `npm test` 15/15 passed, `npm run bu
+          ild` OK (bundle >500 kB warning only); with backend (dev profil
+          e) + `npm run dev`: through the Vite proxy wrong password → 401
+           "Invalid credentials", invalid register → 400 with 3 fieldErro
+          rs, login → `/users/me` 200, organizations 200 (2 orgs), `/orga
+          nizations/999` 404, bad token 401; real JWT pay … [+521 chars]
+      14  | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Dockerized full stack, CI, README, CONTRIBUTING, issue/PR templ
+          ates | Extend docker-compose so `docker compose up --build` run
+          s postgres + backend + frontend (multi-stage Dockerfiles, nginx
+           serving the build and proxying /api, all config from root .env
+          , dev seed users, must not hit the seeded-DB-without-seed Flywa
+          y problem); GitHub Actions CI (backend `./mvnw verify` on Java 
+          21 with Testcontainers, frontend npm ci/lint/test/build on Node
+           24, ubuntu-latest only, Maven/npm caching); README for non-exp
+          ert teammates; CONTRIBUTING (board workflow, branches, Conventi
+          onal Commits, DoD, non-code tickets as PRs under /docs, story p
+          oints, GenAI usage-log rule); issue templates (feature, docs, d
+          esign, research, bug) and PR template. List design decisions fi
+          rst and wait for answers; no commit | `docker-compose.yml` (bac
+          kend + frontend services, `dev` profile + seed-dev Flyway locat
+          ion pinned in `environment:`, datasource → `postgres:5432`, hea
+          lthchecks, depends_on service_healthy), `backend/Dockerfile` (t
+          emurin 21 jdk → 21-jre-alpine, non-root, `--strict-checksums`),
+           `backend/.dockerignore`, `frontend/Dockerfile` (node:24-alpine
+           → nginx:1.29-alpine), `frontend/nginx.conf` (/api proxy, SPA f
+          allback, asset caching), `frontend/.dockerignore`, `.env.exampl
+          e` (BACKEND_PORT, FRONTEND_PORT, comments), `.github/workflows/
+          ci.yml`, `.github/ISSUE_TEMPLATE/{feature,docs,design,research,
+          bug,config}.yml` (labels `type:*`, not created yet), `.github/p
+          ull_request_template.md`, `README.md`, `CONTRIBUTING.md`; run-c
+          ommand updates in `CLAUDE.md`, `docs/dev-guide/frontend-guide.m
+          d`, `docs/dev-guide/how-to-add-a-feature.md`, `docs/data-model.
+          md` (`docker compose up -d postgres` + dev profile) | Human ans
+          wered design decisions D1–D7 before implementation; `docker com
+          pose config -q` OK; actionlint 1.7.7 clean on ci.yml; issue-tem
+          plate YAML parses; `./mvnw verify` 47 tests 0 failures; fronten
+          d `npm ci`, lint, 15/15 tests, build OK on Node … [+1106 chars]
+      15 +| 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+         +Mid-term documentation drafts (instructions only, no content) |
+         + Read the repo and create light drafts in docs/midterm/ (README
+         + index A–E + 01–08): per section a heading, "What to write", ex
+         +act sources in the repo, format, one marked example, "Done when
+         +" checklist and a `> TODO (team):` marker, sized as tickets; R1
+         +–R16 copied as given; interview questions may be written, no in
+         +vented results; list open decisions first and wait for answers;
+         + no commit | `docs/midterm/README.md`, `01-problem-statement.md
+         +` … `08-individual-contributions.md`, `docs/midterm/interviews/
+         +README.md` (anonymised notes template); R1–R16 table copied fro
+         +m `docs/course/course-requirements.md`; 12 student + 12 organiz
+         +er interview questions; 13 pre-filled assumptions to validate (
+         +no results) | _to fill by the human_ | Answered open decisions 
+         +before writing: added `docs/course/course-requirements.md` as t
+         +he source for R1–R16 and A–E; status values implemented/partial
+         +/planned with separate FR-AUTH/FR-ADM groups; assumption list c
+         +hanged (removed "2h login/no refresh" as too technical for user
+         +s; added English-only UI, only organizers/presidents create eve
+         +nts, students find events via social media/word of mouth; table
+         + with an interview-evidence column); interview notes in `docs/m
+         +idterm/interviews/`, UC IDs in blocks per workflow. _Further ch
+         +anges: to fill by the human_ |                                 
+
+⏺ I've created the mid-term drafts in docs/midterm/: 9 files plus
+  interviews/README.md, which is a template for anonymised interview notes. They
+  contain instructions only, no section content and no interview results. I
+  also added an entry to docs/genai/usage-log.md. Nothing is committed or
+  pushed. I haven't previewed the files in GitHub or VS Code, so the tables and
+  Mermaid examples haven't been checked for rendering yet.
+
+  How I applied your decisions
+  - R1–R16 and A–E: copied word for word from
+    docs/course/course-requirements.md, and that file is listed as a source
+    throughout. In 02-requirements.md I added two empty columns to the R1–R16
+    table, "Covered by" and "Status", for tracing each course requirement to the
+    team's own requirements.
+  - Requirement groups: FR-AUTH, FR-ADM, FR-W1…FR-W5 and NFR, with Status =
+    implemented / partial / planned.
+  - Use case IDs: numbered in blocks so writers don't collide: AUTH/ADM
+    UC-01–09, W1 10–19, … W5 50–59. There's a proposed list of 25 titles, marked
+    "proposed – adjust".
+  - Assumptions table (06-ux-research.md): 13 rows with an empty "Interview
+    evidence" column. I removed the 2h login one and added your three:
+    English-only UI, only organizers and presidents create events, and students
+    find events through social media or word of mouth.
+  - Interview guide: 12 questions for students and 12 for organizers, plus a
+    consent note. Every interview table is empty.
+  - Ticket size: each section has a suggested ticket title and points (1–3).
+  - Examples: all are labelled "Example – replace". The ones that describe the
+    current code use real names and seed data, and I checked them against the
+    code.
+
+  docs/course/ is still untracked, so add it in the same PR. These docs depend
+  on it.
+
+  How to verify
+  ls -R docs/midterm                                   # README + 01–08 + 
+  interviews/README.md
+  grep -c "> TODO (team):" docs/midterm/0*.md          # ≥2 in every file
+  grep -c "Done when" docs/midterm/*.md                # ≥1 in every file
+  git status --short                                   # M 
+  docs/genai/usage-log.md, ?? docs/course/, ?? docs/midterm/
+  git diff docs/genai/usage-log.md                     # one new row
+  - Open docs/midterm/README.md in the VS Code or GitHub Markdown preview. The
+    A–E index links should all open the right files.
+  - In the preview, check that the Mermaid examples in 04-use-cases.md and
+    05-workflows.md render, and that the tables in 02 and 06 render.
+
+  Still for you to do
+  - In the new usage-log.md row, fill in "How it was verified" and finish "Human
+    changes". I've marked both cells "to fill by the human".
+
+✻ Worked for 5m 31s · done 9:36 AM
+
+❯ ➜  GenAI-Project git:(main) ✗ ls -R docs/midterm                              
+       # README + 01–08 + interviews/README.md                                  
+  grep -c "> TODO (team):" docs/midterm/0*.md          # ≥2 in every file       
+  grep -c "Done when" docs/midterm/*.md                # ≥1 in every file       
+  git status --short                                   # M                      
+  docs/genai/usage-log.md, ?? docs/course/, ?? docs/midterm/                    
+  git diff docs/genai/usage-log.md                                              
+  01-problem-statement.md        03-actors-roles.md             05-workflows.md 
+                 07-genai-report.md             README.md                       
+  02-requirements.md             04-use-cases.md                                
+  06-ux-research.md              08-individual-contributions.md interviews      
+                                                                                
+  docs/midterm/interviews:                                                      
+  README.md                                                                     
+  docs/midterm/01-problem-statement.md:4                                        
+  docs/midterm/02-requirements.md:8                                             
+  docs/midterm/03-actors-roles.md:2                                             
+  docs/midterm/04-use-cases.md:7                                                
+  docs/midterm/05-workflows.md:5                                                
+  docs/midterm/06-ux-research.md:5                                              
+  docs/midterm/07-genai-report.md:4                                             
+  docs/midterm/08-individual-contributions.md:5                                 
+  docs/midterm/01-problem-statement.md:4                                        
+  docs/midterm/02-requirements.md:8                                             
+  docs/midterm/03-actors-roles.md:2                                             
+  docs/midterm/04-use-cases.md:7                                                
+  docs/midterm/05-workflows.md:5                                                
+  docs/midterm/06-ux-research.md:6                                              
+  docs/midterm/07-genai-report.md:4                                             
+  docs/midterm/08-individual-contributions.md:1                                 
+  docs/midterm/README.md:2                                                      
+   M docs/genai/usage-log.md                                                    
+  ?? docs/course/                                                               
+  ?? docs/midterm/                                                              
+  ➜  GenAI-Project git:(main) ✗                                                 
+  ➜  GenAI-Project git:(main) ✗                                                 
+
+⏺ Your checks match what I expected:
+
+  - Files: all 9 are there, plus interviews/README.md.
+  - > TODO (team): markers: at least 2 in every numbered file (2–8 per file).
+  - "Done when" checklists: at least 1 in every file. 08 has 1 because one
+    shared checklist covers all five student sections. README.md has 2 because
+    it only mentions the phrase in its instructions.
+  - git status: only docs/genai/usage-log.md modified, with docs/course/ and
+    docs/midterm/ untracked. Nothing else changed.
+
+  The git diff printed nothing because git showed it in its pager, and the pager
+  clears the screen when it closes. To see the new usage-log row, run:
+
+  git --no-pager diff docs/genai/usage-log.md
+
+  You should see one added line starting with | 2026-11-07 | Patriciu Mina | 
+  Claude Code (Claude Opus 5.5) | Mid-term documentation drafts.
+
+  What's left:
+  1. Open docs/midterm/README.md in the Markdown preview. Check that the index
+     links work, and that the Mermaid examples in 04 and 05 and the tables in 02
+     and 06 render.
+  2. Fill in "How it was verified" and finish "Human changes" in that usage-log
+     row.
+  3. Commit docs/course/, docs/midterm/ and usage-log.md together on a feature
+     branch and open a PR.
+
+✻ Baked for 6s · done 9:39 AM
+
+※ recap: You're getting the mid-term documentation drafts ready for the team, and the files in docs/midterm are created and pass the checks. Next, preview them in Markdown, fill in the usage-log row, then commit everything on a feature branch and open a PR.
