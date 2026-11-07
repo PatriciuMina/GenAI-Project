@@ -28,7 +28,7 @@ days). Nothing is bigger than 3 points.
 | `type:feature` · `type:test` · `type:design` · `type:diagram` · `type:research` · `type:docs` · `type:report` · `type:qa` | Kind of work (exactly one per ticket) |
 | `area:backend` · `area:frontend` · `area:docs` | Part of the repository touched |
 | `workflow:W1` … `workflow:W5` | Workflow from `CLAUDE.md` (W1 organizations, W2 event lifecycle, W3 discovery, W4 registration, W5 organizing) |
-| `good-first-ticket` | 1–2 points, self-contained, a good way to start |
+| `good-first-ticket` | 1–2 points **and** `Depends on: none`: can be started right away, a good way to start |
 | `no-genai` | Must be done **without GenAI tools**. There are exactly 5 (one per team member): small features with real business logic. The author must be able to explain every rule and line in the PR review and in the individual contribution statement. |
 
 ## Shared conventions for all code tickets
@@ -152,7 +152,7 @@ Add an endpoint that returns the logged-in user's memberships with the organizat
 
 ## T-02: feat: show "Organizing" in the menu only to organizers and presidents
 - Points: 1
-- Labels: type:feature, area:frontend, workflow:W1, workflow:W5, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W1, workflow:W5
 - Depends on: T-01
 
 **Context**
@@ -222,7 +222,7 @@ Return the members of one organization, visible to its members and to ADMIN.
 
 ## T-04: feat: POST /organizations/{id}/members (president adds a member by email)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W1, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W1
 - Depends on: T-03
 
 **Context**
@@ -260,7 +260,7 @@ Errors: `400 VALIDATION_FAILED` (blank/invalid email, missing role) · `403` · 
 
 ## T-05: feat: DELETE /organizations/{id}/members/{membershipId} (remove a member)
 - Points: 1
-- Labels: type:feature, area:backend, workflow:W1, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W1
 - Depends on: T-03
 
 **Context**
@@ -292,7 +292,7 @@ Errors: `403` · `404` (membership not found **or** belongs to another organizat
 
 ## T-06: feat: members list on the organization details page
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W1, good-first-ticket, no-genai
+- Labels: type:feature, area:frontend, workflow:W1, no-genai
 - Depends on: T-01, T-03
 
 **Context**
@@ -323,7 +323,7 @@ or is ADMIN; otherwise show nothing (do not call the endpoint, it would return 4
 
 ## T-07: feat: add and remove members (president UI)
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W1, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W1
 - Depends on: T-04, T-05, T-06
 
 **What to do**
@@ -389,7 +389,7 @@ Errors: `400 VALIDATION_FAILED` (blank name or longer than 150 characters, inval
 
 ## T-09: feat: Admin page – create organization form
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W1, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W1
 - Depends on: T-08
 
 **Context**
@@ -473,7 +473,7 @@ Errors: `400 VALIDATION_FAILED` · `403` (not organizer of `orgId`) · `404` (or
 
 ## T-11: feat: PUT /events/{id} (edit an event)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W2, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W2
 - Depends on: T-10
 
 **What to do**
@@ -585,7 +585,7 @@ Lint/test/build; as `elena.marin`, create an event and edit it.
 
 ## T-14: feat: Organizing page – events of my organizations
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W2, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W2
 - Depends on: T-01, T-17
 
 **Context**
@@ -614,7 +614,7 @@ Lint/test/build; browser as `elena.marin` and `andrei.toma`.
 
 ## T-15: feat: organizer event page with status actions
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W2, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W2
 - Depends on: T-12, T-14, T-18
 
 **What to do**
@@ -694,7 +694,7 @@ A paged search over visible events, plus a reusable `PageResponse` DTO in `commo
 
 ## T-17: feat: GET /organizations/{id}/events (events of one organization)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W3, good-first-ticket, no-genai
+- Labels: type:feature, area:backend, workflow:W3, no-genai
 - Depends on: T-10
 
 **Context**
@@ -727,7 +727,7 @@ yourself and be ready to explain the visibility rule.
 
 ## T-18: feat: GET /events/{id} (event details with free places)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W3, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W3
 - Depends on: T-10
 
 **What to do**
@@ -788,7 +788,7 @@ Lint/test/build; browser as any student.
 
 ## T-20: feat: event details page
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W3, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W3
 - Depends on: T-18
 
 **What to do**
@@ -864,7 +864,7 @@ Errors: `404` (event not found or DRAFT) · `409 REGISTRATION_CLOSED` · `409 EV
 
 ## T-22: feat: DELETE /events/{id}/registrations/me (cancel my registration)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W4, good-first-ticket, no-genai
+- Labels: type:feature, area:backend, workflow:W4, no-genai
 - Depends on: T-21
 
 **Context**
@@ -899,7 +899,7 @@ Errors: `404 NOT_REGISTERED` (no CONFIRMED registration of the caller) · `409 C
 
 ## T-23: feat: GET /users/me/registrations (my registrations)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W4, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W4
 - Depends on: T-18
 
 **API contract**
@@ -929,7 +929,7 @@ Errors: `404 NOT_REGISTERED` (no CONFIRMED registration of the caller) · `409 C
 
 ## T-24: feat: Register / Cancel button on the event details page
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W4, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W4
 - Depends on: T-20, T-21, T-22, T-23
 
 **What to do**
@@ -955,7 +955,7 @@ Lint/test/build; as `elena.marin` register and cancel for "Improv Night".
 
 ## T-25: feat: My registrations page
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W4, good-first-ticket, no-genai
+- Labels: type:feature, area:frontend, workflow:W4, no-genai
 - Depends on: T-22, T-23
 
 **Context**
@@ -986,7 +986,7 @@ Lint/test/build; browser as `andrei.toma`.
 
 ## T-26: feat: GET/POST /events/{id}/tasks (list and create organizer tasks)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W5, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W5
 - Depends on: T-03, T-18
 
 **Context**
@@ -1029,7 +1029,7 @@ assignee is an organization **membership**, not a user (`assignee_membership_id`
 
 ## T-27: feat: PATCH /events/{id}/tasks/{taskId} (assign and change status)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W5, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W5
 - Depends on: T-26
 
 **What to do**
@@ -1066,7 +1066,7 @@ Errors: `400` (unknown status, `ASSIGNEE_NOT_IN_ORGANIZATION`) · `403` · `404`
 
 ## T-28: feat: GET /events/{id}/registrations (participant list for organizers)
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W5, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W5
 - Depends on: T-21
 
 **API contract**
@@ -1096,7 +1096,7 @@ Optional `?status=CONFIRMED` filter. Errors: `403` · `404`.
 
 ## T-29: feat: POST /events/{id}/registrations/{registrationId}/check-in
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W5, good-first-ticket, no-genai
+- Labels: type:feature, area:backend, workflow:W5, no-genai
 - Depends on: T-28
 
 **Context**
@@ -1133,7 +1133,7 @@ Errors: `403` · `404` (registration not found or belongs to another event) ·
 
 ## T-30: feat: GET/POST /events/{id}/announcements
 - Points: 2
-- Labels: type:feature, area:backend, workflow:W5, good-first-ticket
+- Labels: type:feature, area:backend, workflow:W5
 - Depends on: T-18
 
 **Context**
@@ -1194,7 +1194,7 @@ Lint/test/build; browser as `elena.marin`.
 
 ## T-32: feat: participants and check-in panel
 - Points: 2
-- Labels: type:feature, area:frontend, workflow:W5, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W5
 - Depends on: T-15, T-28, T-29
 
 **What to do**
@@ -1218,7 +1218,7 @@ Lint/test/build; browser.
 
 ## T-33: feat: post an announcement (organizer)
 - Points: 1
-- Labels: type:feature, area:frontend, workflow:W5, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W5
 - Depends on: T-15, T-30
 
 **What to do**
@@ -1240,7 +1240,7 @@ Lint/test/build; browser.
 
 ## T-34: feat: show announcements on the event details page
 - Points: 1
-- Labels: type:feature, area:frontend, workflow:W5, good-first-ticket
+- Labels: type:feature, area:frontend, workflow:W5
 - Depends on: T-20, T-30
 
 **What to do**
@@ -1297,7 +1297,7 @@ its own transaction (call the service or the HTTP endpoint, not a single test tr
 
 ## T-36: test: registration window, duplicates and cancel/re-register
 - Points: 2
-- Labels: type:test, area:backend, workflow:W4, good-first-ticket
+- Labels: type:test, area:backend, workflow:W4
 - Depends on: T-21, T-22
 
 **What to do**
@@ -1322,7 +1322,7 @@ register again → new CONFIRMED row and the old one stays CANCELLED; cancel aft
 
 ## T-37: test: event status transition matrix
 - Points: 2
-- Labels: type:test, area:backend, workflow:W2, good-first-ticket
+- Labels: type:test, area:backend, workflow:W2
 - Depends on: T-12
 
 **What to do**
@@ -1492,7 +1492,7 @@ GitHub preview renders the images.
 
 ## T-44: design: UI polish – empty states and loading
 - Points: 2
-- Labels: type:design, area:frontend, good-first-ticket
+- Labels: type:design, area:frontend
 - Depends on: T-06, T-14, T-19, T-25
 
 **What to do**
@@ -1516,7 +1516,7 @@ Lint/test/build; browse as a user with no data (`andrei.toma` for organizing) an
 
 ## T-45: design: UI polish – friendly error messages
 - Points: 2
-- Labels: type:design, area:frontend, good-first-ticket
+- Labels: type:design, area:frontend
 - Depends on: T-15, T-24
 
 **What to do**
@@ -1541,7 +1541,7 @@ Lint/test/build; trigger `EVENT_FULL` and `INVALID_STATUS_TRANSITION` in the bro
 
 ## T-46: docs: use case overview diagram
 - Points: 1
-- Labels: type:diagram, area:docs, good-first-ticket
+- Labels: type:diagram, area:docs
 - Depends on: T-76
 
 **Context**
@@ -1610,7 +1610,7 @@ GitHub preview.
 
 ## T-49: docs: review the event state machine against the code
 - Points: 1
-- Labels: type:diagram, area:docs, workflow:W2, good-first-ticket
+- Labels: type:diagram, area:docs, workflow:W2
 - Depends on: T-12, T-84
 
 **What to do**
@@ -1633,7 +1633,7 @@ Reviewer checks the PR list against `EventStatus` / the lifecycle class.
 
 ## T-50: docs: review the ER diagram against migrations and entities
 - Points: 1
-- Labels: type:diagram, area:docs, good-first-ticket
+- Labels: type:diagram, area:docs
 - Depends on: T-30
 
 **What to do**
@@ -1685,7 +1685,7 @@ Each A-NN appears next to at least one question.
 
 ## T-52: research: Conduct 2 user interviews (#1)
 - Points: 2
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-51
 
 **Context**
@@ -1719,7 +1719,7 @@ Reviewer reads the notes and checks for personal data; links in §6.3 open the f
 
 ## T-53: research: Conduct 2 user interviews (#2)
 - Points: 2
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-51
 
 **Context**
@@ -1753,7 +1753,7 @@ Reviewer reads the notes and checks for personal data; links in §6.3 open the f
 
 ## T-54: research: Conduct 2 user interviews (#3)
 - Points: 2
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-51
 
 **Context**
@@ -1787,7 +1787,7 @@ Reviewer reads the notes and checks for personal data; links in §6.3 open the f
 
 ## T-55: research: Conduct 2 user interviews (#4)
 - Points: 2
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-51
 
 **Context**
@@ -1821,7 +1821,7 @@ Reviewer reads the notes and checks for personal data; links in §6.3 open the f
 
 ## T-56: research: Conduct 2 user interviews (#5)
 - Points: 2
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-51
 
 **Context**
@@ -1855,7 +1855,7 @@ Reviewer reads the notes and checks for personal data; links in §6.3 open the f
 
 ## T-57: docs: research method + consent
 - Points: 1
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-52, T-53, T-54, T-55, T-56
 
 **What to do**
@@ -1876,7 +1876,7 @@ Numbers match the interview log in §6.3.
 
 ## T-58: docs: synthesise interview findings
 - Points: 2
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-52, T-53, T-54, T-55, T-56
 
 **What to do**
@@ -1900,7 +1900,7 @@ Every quote can be found in a notes file.
 
 ## T-59: docs: assumptions we changed
 - Points: 2
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-58
 
 **What to do**
@@ -1923,7 +1923,7 @@ Every `change` row has a link that exists.
 
 ## T-60: research: personas
 - Points: 2
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-58
 
 **What to do**
@@ -1948,7 +1948,7 @@ Reviewer checks every persona trait against a finding.
 
 ## T-61: docs: main product flows from research
 - Points: 1
-- Labels: type:research, area:docs, good-first-ticket
+- Labels: type:research, area:docs
 - Depends on: T-58
 
 **What to do**
@@ -2069,7 +2069,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-65: docs: define out of scope
 - Points: 1
-- Labels: type:docs, area:docs, good-first-ticket
+- Labels: type:docs, area:docs
 - Depends on: T-64
 
 **Context**
@@ -2099,7 +2099,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-66: docs: map course requirements R1–R16
 - Points: 2
-- Labels: type:docs, area:docs, good-first-ticket
+- Labels: type:docs, area:docs
 - Depends on: T-67, T-68, T-69, T-70, T-71, T-72, T-73
 
 **Context**
@@ -2344,7 +2344,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-74: docs: describe actors
 - Points: 1
-- Labels: type:docs, area:docs, good-first-ticket
+- Labels: type:docs, area:docs
 - Depends on: T-63
 
 **Context**
@@ -2375,7 +2375,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-75: docs: permission matrix
 - Points: 2
-- Labels: type:docs, area:docs, good-first-ticket
+- Labels: type:docs, area:docs
 - Depends on: T-67, T-68, T-69, T-70, T-71, T-72, T-74
 
 **Context**
@@ -2408,7 +2408,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-76: docs: agree use case list
 - Points: 1
-- Labels: type:docs, area:docs, good-first-ticket
+- Labels: type:docs, area:docs
 - Depends on: T-75
 
 **Context**
@@ -2436,7 +2436,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-77: docs: use cases AUTH/ADM
 - Points: 1
-- Labels: type:docs, area:docs, good-first-ticket
+- Labels: type:docs, area:docs
 - Depends on: T-76
 
 **Context**
@@ -2465,7 +2465,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-78: docs: use cases W1
 - Points: 2
-- Labels: type:docs, area:docs, workflow:W1, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W1
 - Depends on: T-76
 
 **Context**
@@ -2495,7 +2495,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-79: docs: use cases W2
 - Points: 2
-- Labels: type:docs, area:docs, workflow:W2, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W2
 - Depends on: T-76
 
 **Context**
@@ -2525,7 +2525,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-80: docs: use cases W3
 - Points: 1
-- Labels: type:docs, area:docs, workflow:W3, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W3
 - Depends on: T-76
 
 **Context**
@@ -2555,7 +2555,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-81: docs: use cases W4
 - Points: 2
-- Labels: type:docs, area:docs, workflow:W4, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W4
 - Depends on: T-76
 
 **Context**
@@ -2583,7 +2583,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-82: docs: use cases W5
 - Points: 2
-- Labels: type:docs, area:docs, workflow:W5, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W5
 - Depends on: T-76
 
 **Context**
@@ -2612,7 +2612,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-83: docs: workflow W1
 - Points: 2
-- Labels: type:docs, area:docs, workflow:W1, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W1
 - Depends on: T-78
 
 **Context**
@@ -2672,7 +2672,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-85: docs: workflow W3
 - Points: 1
-- Labels: type:docs, area:docs, workflow:W3, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W3
 - Depends on: T-80
 
 **Context**
@@ -2702,7 +2702,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-86: docs: workflow W4
 - Points: 2
-- Labels: type:docs, area:docs, workflow:W4, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W4
 - Depends on: T-81, T-48
 
 **Context**
@@ -2731,7 +2731,7 @@ The reviewer ticks the section's *Done when* boxes in the PR review (`docs/midte
 
 ## T-87: docs: workflow W5
 - Points: 2
-- Labels: type:docs, area:docs, workflow:W5, good-first-ticket
+- Labels: type:docs, area:docs, workflow:W5
 - Depends on: T-82, T-58
 
 **Context**
@@ -2795,7 +2795,7 @@ Run the grep above; click every link in the GitHub preview of `docs/midterm/READ
 
 ## T-89: docs: assemble the mid-term document and export it to PDF
 - Points: 2
-- Labels: type:docs, area:docs, good-first-ticket
+- Labels: type:docs, area:docs
 - Depends on: T-88, T-94, T-95, T-96, T-97, T-98
 
 **What to do**
@@ -3163,71 +3163,71 @@ create them for the final delivery.
 | ID | Title | Points | Labels | Depends on |
 |----|-------|--------|--------|------------|
 | T-01 | feat: GET /users/me/memberships (my organizations and roles) | 2 | type:feature, area:backend, workflow:W1, good-first-ticket | none |
-| T-02 | feat: show "Organizing" in the menu only to organizers and presidents | 1 | type:feature, area:frontend, workflow:W1, workflow:W5, good-first-ticket | T-01 |
+| T-02 | feat: show "Organizing" in the menu only to organizers and presidents | 1 | type:feature, area:frontend, workflow:W1, workflow:W5 | T-01 |
 | T-03 | feat: GET /organizations/{id}/members (members list) | 2 | type:feature, area:backend, workflow:W1, good-first-ticket | none |
-| T-04 | feat: POST /organizations/{id}/members (president adds a member by email) | 2 | type:feature, area:backend, workflow:W1, good-first-ticket | T-03 |
-| T-05 | feat: DELETE /organizations/{id}/members/{membershipId} (remove a member) | 1 | type:feature, area:backend, workflow:W1, good-first-ticket | T-03 |
-| T-06 | feat: members list on the organization details page | 2 | type:feature, area:frontend, workflow:W1, good-first-ticket, no-genai | T-01, T-03 |
-| T-07 | feat: add and remove members (president UI) | 2 | type:feature, area:frontend, workflow:W1, good-first-ticket | T-04, T-05, T-06 |
+| T-04 | feat: POST /organizations/{id}/members (president adds a member by email) | 2 | type:feature, area:backend, workflow:W1 | T-03 |
+| T-05 | feat: DELETE /organizations/{id}/members/{membershipId} (remove a member) | 1 | type:feature, area:backend, workflow:W1 | T-03 |
+| T-06 | feat: members list on the organization details page | 2 | type:feature, area:frontend, workflow:W1, no-genai | T-01, T-03 |
+| T-07 | feat: add and remove members (president UI) | 2 | type:feature, area:frontend, workflow:W1 | T-04, T-05, T-06 |
 | T-08 | feat: POST /organizations (admin creates an organization and its president) | 3 | type:feature, area:backend, workflow:W1 | none |
-| T-09 | feat: Admin page – create organization form | 2 | type:feature, area:frontend, workflow:W1, good-first-ticket | T-08 |
+| T-09 | feat: Admin page – create organization form | 2 | type:feature, area:frontend, workflow:W1 | T-08 |
 | T-10 | feat: POST /organizations/{orgId}/events (create a draft event) | 3 | type:feature, area:backend, workflow:W2 | none |
-| T-11 | feat: PUT /events/{id} (edit an event) | 2 | type:feature, area:backend, workflow:W2, good-first-ticket | T-10 |
+| T-11 | feat: PUT /events/{id} (edit an event) | 2 | type:feature, area:backend, workflow:W2 | T-10 |
 | T-12 | feat: POST /events/{id}/status (lifecycle transitions and cancel) | 3 | type:feature, area:backend, workflow:W2 | T-10 |
 | T-13 | feat: create/edit event form | 3 | type:feature, area:frontend, workflow:W2 | T-10, T-11, T-18 |
-| T-14 | feat: Organizing page – events of my organizations | 2 | type:feature, area:frontend, workflow:W2, good-first-ticket | T-01, T-17 |
-| T-15 | feat: organizer event page with status actions | 2 | type:feature, area:frontend, workflow:W2, good-first-ticket | T-12, T-14, T-18 |
+| T-14 | feat: Organizing page – events of my organizations | 2 | type:feature, area:frontend, workflow:W2 | T-01, T-17 |
+| T-15 | feat: organizer event page with status actions | 2 | type:feature, area:frontend, workflow:W2 | T-12, T-14, T-18 |
 | T-16 | feat: GET /events (search with filters and paging) | 3 | type:feature, area:backend, workflow:W3 | T-10 |
-| T-17 | feat: GET /organizations/{id}/events (events of one organization) | 2 | type:feature, area:backend, workflow:W3, good-first-ticket, no-genai | T-10 |
-| T-18 | feat: GET /events/{id} (event details with free places) | 2 | type:feature, area:backend, workflow:W3, good-first-ticket | T-10 |
+| T-17 | feat: GET /organizations/{id}/events (events of one organization) | 2 | type:feature, area:backend, workflow:W3, no-genai | T-10 |
+| T-18 | feat: GET /events/{id} (event details with free places) | 2 | type:feature, area:backend, workflow:W3 | T-10 |
 | T-19 | feat: events list with filters | 3 | type:feature, area:frontend, workflow:W3 | T-16 |
-| T-20 | feat: event details page | 2 | type:feature, area:frontend, workflow:W3, good-first-ticket | T-18 |
+| T-20 | feat: event details page | 2 | type:feature, area:frontend, workflow:W3 | T-18 |
 | T-21 | feat: POST /events/{id}/registrations (register with capacity limit) | 3 | type:feature, area:backend, workflow:W4 | T-18 |
-| T-22 | feat: DELETE /events/{id}/registrations/me (cancel my registration) | 2 | type:feature, area:backend, workflow:W4, good-first-ticket, no-genai | T-21 |
-| T-23 | feat: GET /users/me/registrations (my registrations) | 2 | type:feature, area:backend, workflow:W4, good-first-ticket | T-18 |
-| T-24 | feat: Register / Cancel button on the event details page | 2 | type:feature, area:frontend, workflow:W4, good-first-ticket | T-20, T-21, T-22, T-23 |
-| T-25 | feat: My registrations page | 2 | type:feature, area:frontend, workflow:W4, good-first-ticket, no-genai | T-22, T-23 |
-| T-26 | feat: GET/POST /events/{id}/tasks (list and create organizer tasks) | 2 | type:feature, area:backend, workflow:W5, good-first-ticket | T-03, T-18 |
-| T-27 | feat: PATCH /events/{id}/tasks/{taskId} (assign and change status) | 2 | type:feature, area:backend, workflow:W5, good-first-ticket | T-26 |
-| T-28 | feat: GET /events/{id}/registrations (participant list for organizers) | 2 | type:feature, area:backend, workflow:W5, good-first-ticket | T-21 |
-| T-29 | feat: POST /events/{id}/registrations/{registrationId}/check-in | 2 | type:feature, area:backend, workflow:W5, good-first-ticket, no-genai | T-28 |
-| T-30 | feat: GET/POST /events/{id}/announcements | 2 | type:feature, area:backend, workflow:W5, good-first-ticket | T-18 |
+| T-22 | feat: DELETE /events/{id}/registrations/me (cancel my registration) | 2 | type:feature, area:backend, workflow:W4, no-genai | T-21 |
+| T-23 | feat: GET /users/me/registrations (my registrations) | 2 | type:feature, area:backend, workflow:W4 | T-18 |
+| T-24 | feat: Register / Cancel button on the event details page | 2 | type:feature, area:frontend, workflow:W4 | T-20, T-21, T-22, T-23 |
+| T-25 | feat: My registrations page | 2 | type:feature, area:frontend, workflow:W4, no-genai | T-22, T-23 |
+| T-26 | feat: GET/POST /events/{id}/tasks (list and create organizer tasks) | 2 | type:feature, area:backend, workflow:W5 | T-03, T-18 |
+| T-27 | feat: PATCH /events/{id}/tasks/{taskId} (assign and change status) | 2 | type:feature, area:backend, workflow:W5 | T-26 |
+| T-28 | feat: GET /events/{id}/registrations (participant list for organizers) | 2 | type:feature, area:backend, workflow:W5 | T-21 |
+| T-29 | feat: POST /events/{id}/registrations/{registrationId}/check-in | 2 | type:feature, area:backend, workflow:W5, no-genai | T-28 |
+| T-30 | feat: GET/POST /events/{id}/announcements | 2 | type:feature, area:backend, workflow:W5 | T-18 |
 | T-31 | feat: tasks panel on the organizer event page | 3 | type:feature, area:frontend, workflow:W5 | T-03, T-15, T-26, T-27 |
-| T-32 | feat: participants and check-in panel | 2 | type:feature, area:frontend, workflow:W5, good-first-ticket | T-15, T-28, T-29 |
-| T-33 | feat: post an announcement (organizer) | 1 | type:feature, area:frontend, workflow:W5, good-first-ticket | T-15, T-30 |
-| T-34 | feat: show announcements on the event details page | 1 | type:feature, area:frontend, workflow:W5, good-first-ticket | T-20, T-30 |
+| T-32 | feat: participants and check-in panel | 2 | type:feature, area:frontend, workflow:W5 | T-15, T-28, T-29 |
+| T-33 | feat: post an announcement (organizer) | 1 | type:feature, area:frontend, workflow:W5 | T-15, T-30 |
+| T-34 | feat: show announcements on the event details page | 1 | type:feature, area:frontend, workflow:W5 | T-20, T-30 |
 | T-35 | test: capacity limit under concurrent registrations | 3 | type:test, area:backend, workflow:W4 | T-21 |
-| T-36 | test: registration window, duplicates and cancel/re-register | 2 | type:test, area:backend, workflow:W4, good-first-ticket | T-21, T-22 |
-| T-37 | test: event status transition matrix | 2 | type:test, area:backend, workflow:W2, good-first-ticket | T-12 |
+| T-36 | test: registration window, duplicates and cancel/re-register | 2 | type:test, area:backend, workflow:W4 | T-21, T-22 |
+| T-37 | test: event status transition matrix | 2 | type:test, area:backend, workflow:W2 | T-12 |
 | T-38 | test: permission matrix integration tests | 3 | type:test, area:backend, workflow:W1, workflow:W2, workflow:W5 | T-04, T-05, T-08, T-10, T-12, T-26, T-29, T-30 |
 | T-39 | design: logo | 2 | type:design, area:frontend, area:docs, good-first-ticket | none |
 | T-40 | design: colour palette and theme.ts | 2 | type:design, area:frontend, area:docs, good-first-ticket | none |
 | T-41 | design: wireframes of the student screens | 2 | type:design, area:docs, workflow:W3, workflow:W4, good-first-ticket | none |
 | T-42 | design: wireframes of the organizer screens | 2 | type:design, area:docs, workflow:W2, workflow:W5, good-first-ticket | none |
 | T-43 | design: wireframes of organization and admin screens | 1 | type:design, area:docs, workflow:W1, good-first-ticket | none |
-| T-44 | design: UI polish – empty states and loading | 2 | type:design, area:frontend, good-first-ticket | T-06, T-14, T-19, T-25 |
-| T-45 | design: UI polish – friendly error messages | 2 | type:design, area:frontend, good-first-ticket | T-15, T-24 |
-| T-46 | docs: use case overview diagram | 1 | type:diagram, area:docs, good-first-ticket | T-76 |
+| T-44 | design: UI polish – empty states and loading | 2 | type:design, area:frontend | T-06, T-14, T-19, T-25 |
+| T-45 | design: UI polish – friendly error messages | 2 | type:design, area:frontend | T-15, T-24 |
+| T-46 | docs: use case overview diagram | 1 | type:diagram, area:docs | T-76 |
 | T-47 | docs: sequence diagram W2 (create, publish, transitions) | 2 | type:diagram, area:docs, workflow:W2, good-first-ticket | none |
 | T-48 | docs: sequence diagram W4 (registration with capacity check) | 2 | type:diagram, area:docs, workflow:W4, good-first-ticket | none |
-| T-49 | docs: review the event state machine against the code | 1 | type:diagram, area:docs, workflow:W2, good-first-ticket | T-12, T-84 |
-| T-50 | docs: review the ER diagram against migrations and entities | 1 | type:diagram, area:docs, good-first-ticket | T-30 |
+| T-49 | docs: review the event state machine against the code | 1 | type:diagram, area:docs, workflow:W2 | T-12, T-84 |
+| T-50 | docs: review the ER diagram against migrations and entities | 1 | type:diagram, area:docs | T-30 |
 | T-51 | research: review the interview guide | 1 | type:research, area:docs, good-first-ticket | none |
-| T-52 | research: Conduct 2 user interviews (#1) | 2 | type:research, area:docs, good-first-ticket | T-51 |
-| T-53 | research: Conduct 2 user interviews (#2) | 2 | type:research, area:docs, good-first-ticket | T-51 |
-| T-54 | research: Conduct 2 user interviews (#3) | 2 | type:research, area:docs, good-first-ticket | T-51 |
-| T-55 | research: Conduct 2 user interviews (#4) | 2 | type:research, area:docs, good-first-ticket | T-51 |
-| T-56 | research: Conduct 2 user interviews (#5) | 2 | type:research, area:docs, good-first-ticket | T-51 |
-| T-57 | docs: research method + consent | 1 | type:research, area:docs, good-first-ticket | T-52, T-53, T-54, T-55, T-56 |
-| T-58 | docs: synthesise interview findings | 2 | type:research, area:docs, good-first-ticket | T-52, T-53, T-54, T-55, T-56 |
-| T-59 | docs: assumptions we changed | 2 | type:research, area:docs, good-first-ticket | T-58 |
-| T-60 | research: personas | 2 | type:research, area:docs, good-first-ticket | T-58 |
-| T-61 | docs: main product flows from research | 1 | type:research, area:docs, good-first-ticket | T-58 |
+| T-52 | research: Conduct 2 user interviews (#1) | 2 | type:research, area:docs | T-51 |
+| T-53 | research: Conduct 2 user interviews (#2) | 2 | type:research, area:docs | T-51 |
+| T-54 | research: Conduct 2 user interviews (#3) | 2 | type:research, area:docs | T-51 |
+| T-55 | research: Conduct 2 user interviews (#4) | 2 | type:research, area:docs | T-51 |
+| T-56 | research: Conduct 2 user interviews (#5) | 2 | type:research, area:docs | T-51 |
+| T-57 | docs: research method + consent | 1 | type:research, area:docs | T-52, T-53, T-54, T-55, T-56 |
+| T-58 | docs: synthesise interview findings | 2 | type:research, area:docs | T-52, T-53, T-54, T-55, T-56 |
+| T-59 | docs: assumptions we changed | 2 | type:research, area:docs | T-58 |
+| T-60 | research: personas | 2 | type:research, area:docs | T-58 |
+| T-61 | docs: main product flows from research | 1 | type:research, area:docs | T-58 |
 | T-62 | docs: write problem statement | 2 | type:docs, area:docs, good-first-ticket | none |
 | T-63 | docs: list stakeholders | 1 | type:docs, area:docs, good-first-ticket | none |
 | T-64 | docs: define project scope | 1 | type:docs, area:docs, good-first-ticket | none |
-| T-65 | docs: define out of scope | 1 | type:docs, area:docs, good-first-ticket | T-64 |
-| T-66 | docs: map course requirements R1–R16 | 2 | type:docs, area:docs, good-first-ticket | T-67, T-68, T-69, T-70, T-71, T-72, T-73 |
+| T-65 | docs: define out of scope | 1 | type:docs, area:docs | T-64 |
+| T-66 | docs: map course requirements R1–R16 | 2 | type:docs, area:docs | T-67, T-68, T-69, T-70, T-71, T-72, T-73 |
 | T-67 | docs: FR for accounts and admin | 1 | type:docs, area:docs, good-first-ticket | none |
 | T-68 | docs: FR for W1 organizations | 2 | type:docs, area:docs, workflow:W1, good-first-ticket | none |
 | T-69 | docs: FR for W2 event lifecycle | 2 | type:docs, area:docs, workflow:W2, good-first-ticket | none |
@@ -3235,22 +3235,22 @@ create them for the final delivery.
 | T-71 | docs: FR for W4 registration | 2 | type:docs, area:docs, workflow:W4, good-first-ticket | none |
 | T-72 | docs: FR for W5 organizing | 2 | type:docs, area:docs, workflow:W5, good-first-ticket | none |
 | T-73 | docs: write non-functional requirements | 2 | type:docs, area:docs, good-first-ticket | none |
-| T-74 | docs: describe actors | 1 | type:docs, area:docs, good-first-ticket | T-63 |
-| T-75 | docs: permission matrix | 2 | type:docs, area:docs, good-first-ticket | T-67, T-68, T-69, T-70, T-71, T-72, T-74 |
-| T-76 | docs: agree use case list | 1 | type:docs, area:docs, good-first-ticket | T-75 |
-| T-77 | docs: use cases AUTH/ADM | 1 | type:docs, area:docs, good-first-ticket | T-76 |
-| T-78 | docs: use cases W1 | 2 | type:docs, area:docs, workflow:W1, good-first-ticket | T-76 |
-| T-79 | docs: use cases W2 | 2 | type:docs, area:docs, workflow:W2, good-first-ticket | T-76 |
-| T-80 | docs: use cases W3 | 1 | type:docs, area:docs, workflow:W3, good-first-ticket | T-76 |
-| T-81 | docs: use cases W4 | 2 | type:docs, area:docs, workflow:W4, good-first-ticket | T-76 |
-| T-82 | docs: use cases W5 | 2 | type:docs, area:docs, workflow:W5, good-first-ticket | T-76 |
-| T-83 | docs: workflow W1 | 2 | type:docs, area:docs, workflow:W1, good-first-ticket | T-78 |
+| T-74 | docs: describe actors | 1 | type:docs, area:docs | T-63 |
+| T-75 | docs: permission matrix | 2 | type:docs, area:docs | T-67, T-68, T-69, T-70, T-71, T-72, T-74 |
+| T-76 | docs: agree use case list | 1 | type:docs, area:docs | T-75 |
+| T-77 | docs: use cases AUTH/ADM | 1 | type:docs, area:docs | T-76 |
+| T-78 | docs: use cases W1 | 2 | type:docs, area:docs, workflow:W1 | T-76 |
+| T-79 | docs: use cases W2 | 2 | type:docs, area:docs, workflow:W2 | T-76 |
+| T-80 | docs: use cases W3 | 1 | type:docs, area:docs, workflow:W3 | T-76 |
+| T-81 | docs: use cases W4 | 2 | type:docs, area:docs, workflow:W4 | T-76 |
+| T-82 | docs: use cases W5 | 2 | type:docs, area:docs, workflow:W5 | T-76 |
+| T-83 | docs: workflow W1 | 2 | type:docs, area:docs, workflow:W1 | T-78 |
 | T-84 | docs: workflow W2 + event state machine | 3 | type:docs, area:docs, workflow:W2 | T-79, T-47 |
-| T-85 | docs: workflow W3 | 1 | type:docs, area:docs, workflow:W3, good-first-ticket | T-80 |
-| T-86 | docs: workflow W4 | 2 | type:docs, area:docs, workflow:W4, good-first-ticket | T-81, T-48 |
-| T-87 | docs: workflow W5 | 2 | type:docs, area:docs, workflow:W5, good-first-ticket | T-82, T-58 |
+| T-85 | docs: workflow W3 | 1 | type:docs, area:docs, workflow:W3 | T-80 |
+| T-86 | docs: workflow W4 | 2 | type:docs, area:docs, workflow:W4 | T-81, T-48 |
+| T-87 | docs: workflow W5 | 2 | type:docs, area:docs, workflow:W5 | T-82, T-58 |
 | T-88 | docs: final review of the mid-term docs | 3 | type:docs, area:docs | T-46, T-49, T-50, T-57, T-58, T-59, T-60, T-61, T-62, T-63, T-64, T-65, T-66, T-67, T-68, T-69, T-70, T-71, T-72, T-73, T-74, T-75, T-76, T-77, T-78, T-79, T-80, T-81, T-82, T-83, T-84, T-85, T-86, T-87, T-90, T-91, T-92, T-93 |
-| T-89 | docs: assemble the mid-term document and export it to PDF | 2 | type:docs, area:docs, good-first-ticket | T-88, T-94, T-95, T-96, T-97, T-98 |
+| T-89 | docs: assemble the mid-term document and export it to PDF | 2 | type:docs, area:docs | T-88, T-94, T-95, T-96, T-97, T-98 |
 | T-90 | docs: GenAI tools and purposes | 1 | type:report, area:docs, good-first-ticket | none |
 | T-91 | docs: GenAI artifacts list | 2 | type:report, area:docs, good-first-ticket | none |
 | T-92 | docs: GenAI verification process | 2 | type:report, area:docs, good-first-ticket | none |
@@ -3264,16 +3264,16 @@ create them for the final delivery.
 
 ## Totals
 
-| Category | Tickets | Points | 1–2 point tickets |
-|----------|---------|--------|-------------------|
-| `type:feature` | 34 | 72 | 26 |
-| `type:test` | 4 | 10 | 2 |
-| `type:design` | 7 | 13 | 7 |
-| `type:diagram` | 5 | 7 | 5 |
-| `type:research` | 11 | 19 | 11 |
-| `type:docs` | 28 | 48 | 26 |
-| `type:report` | 9 | 12 | 9 |
-| `type:qa` | 1 | 3 | 0 |
-| **Overall** | **99** | **184** | **86** |
+| Category | Tickets | Points | 1–2 point tickets | `good-first-ticket` |
+|----------|---------|--------|-------------------|---------------------|
+| `type:feature` | 34 | 72 | 26 | 2 |
+| `type:test` | 4 | 10 | 2 | 0 |
+| `type:design` | 7 | 13 | 7 | 5 |
+| `type:diagram` | 5 | 7 | 5 | 2 |
+| `type:research` | 11 | 19 | 11 | 1 |
+| `type:docs` | 28 | 48 | 26 | 10 |
+| `type:report` | 9 | 12 | 9 | 9 |
+| `type:qa` | 1 | 3 | 0 | 0 |
+| **Overall** | **99** | **184** | **86** | **29** |
 
 About 37 points per team member (5 people). `no-genai` tickets: T-06, T-17, T-22, T-25, T-29.
