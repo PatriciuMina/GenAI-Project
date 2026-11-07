@@ -1,0 +1,1289 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.319
+           Opus 5.5 · Claude Team
+ ▘▘   ▝▝   ~/projects/GenAI-Project
+
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.
+
+❯ /clear                                                                        
+
+❯ /plan                                                                         
+  ⎿  Enabled plan mode
+
+❯ Read CLAUDE.md and follow it (especially the GitHub safety rules: ONLY repo   
+  PatriciuMina/GenAI-Project, ONLY owner PatriciuMina).                         
+                                                                                
+  Write scripts/create-issues.sh (bash, using only the gh CLI, plus python3 or  
+  jq if useful)                                                                 
+  that reads docs/planning/midterm-tickets.md and creates on GitHub:            
+  1. Labels, if missing (with colors and short descriptions): type:feature,     
+  type:test,                                                                    
+     type:design, type:diagram, type:research, type:docs, type:report, type:qa, 
+  type:bug,                                                                     
+     area:backend, area:frontend, area:docs, workflow:W1..workflow:W5,          
+  points:1..points:5,                                                           
+     good-first-ticket, no-genai, blocked. Also every other label used in the   
+  file.                                                                         
+  2. Milestone "Mid-term", if missing.                                          
+  3. A GitHub Project (v2) "UBB Events Board" owned by PatriciuMina, if         
+  missing, linked to                                                            
+     the repo, with a number field "Points".                                    
+  4. Every ticket T-01..T-99 as an issue, in order: title "[T-nn] <title>",     
+  body from the                                                                 
+     file, labels from the file plus points:<n>, milestone "Mid-term", NO       
+  assignees. Add                                                                
+     each issue to the project, set Points and set Status to "Todo".            
+  5. After all issues exist, update each body so "Depends on: T-xx" also shows  
+  the real                                                                      
+     issue links (#123), so dependencies are clickable.                         
+     Requirements:                                                              
+  - A --dry-run mode (the default!) that only prints what it would create, and  
+  a --run                                                                       
+    flag to really do it.                                                       
+  - Idempotent: skip labels, milestone, project and issues (matched by "[T-nn]" 
+  in the                                                                        
+    title) that already exist, so it can be re-run safely after a failure.      
+  - Pace the API calls (short sleep between issue creations) to avoid GitHub's  
+  secondary                                                                     
+    rate limits, and stop with a clear message on errors.                       
+  - Print a final summary (created / skipped counts, project URL).              
+    Also write a short section in docs/planning/README.md explaining how to run 
+  it.                                                                           
+                                                                                
+  Before implementing, list the open decisions (for example title format, how   
+  to show                                                                       
+  dependencies, whether to use GitHub's native issue dependencies, pacing) with 
+  your                                                                          
+  recommendation for each, and wait for my answers.                             
+  Do NOT run the script with --run. You may run the dry-run. Do not commit or   
+  push.                                                                         
+
+  Listed 1 directory, ran 4 shell commands (ctrl+o to expand)
+
+⏺ I checked the ticket file and GitHub without changing anything. There's an
+  empty "GenAI Pro" project already linked to the repo, and 74 ticket links are
+  relative and will break inside issues; I need four decisions from you before
+  writing the plan.
+
+⏺ User answered Claude's questions:
+  ⎿  · Project board: your account already has an empty Project v2 "GenAI Pro" 
+     (#1), linked to GenAI-Project, with Status and Estimate fields. Which 
+     project should the script use? → Reuse "GenAI Pro", rename it
+     · How should the script show dependencies ("Depends on: T-xx")? → Text 
+     links + native (Recommended)
+     · Ticket titles in the file already carry a type prefix ("feat: GET 
+     /users/me/...", "docs: ..."). What format should the issue title use? → 
+     [T-01] feat: GET /users/me/… (Recommended)
+     · Ticket bodies contain 74 relative links (e.g. ../midterm/README.md, 
+     ../../CONTRIBUTING.md) that break inside GitHub issues, and they mention 
+     "Shared conventions" from the file. How should the body be built? → Rewrite
+     + header line (Recommended)
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+⏺ User answered Claude's questions:
+  ⎿  · The Status field of "GenAI Pro" has the options Backlog / Ready / In 
+     progress / In review / Done. There is no "Todo". CONTRIBUTING.md §1 says 
+     the columns are Todo → In Progress → In Review → Done. What should the 
+     script do? → Set options to CONTRIBUTING's (Recommended)
+     · CONTRIBUTING.md §1 names the board "GenAI Pro". After the rename to "UBB 
+     Events Board", should I update that line too, along with the column names 
+     if they change? → Yes, update CONTRIBUTING (Recommended)
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ User approved Claude's plan
+  ⎿  Plan saved to: 
+     ~/.claude/plans/pasted-content-id-e6a9-read-claude-md-gentle-alpaca.md · 
+     /plan to edit
+     Plan: scripts/create-issues.sh (mid-term tickets → GitHub)
+
+     Context
+
+     docs/planning/midterm-tickets.md holds 99 tickets (## T-nn: title, then the
+     - Points:, - Labels: and - Depends on: lines, then the body). Nothing
+     exists on GitHub yet: there are no issues, no milestone and only the
+     default labels. Project #1 "GenAI Pro" exists. It is empty, linked to the
+     repo, and its Status field has Backlog/Ready/In progress/In review/Done. We
+     need a safe, re-runnable script that creates the labels, the milestone,
+     the board and all issues, so the team can start picking tickets.
+
+     Decisions (answered by the human)
+
+     ┌─────┬───────────┬───────────────────────────────────────────────────────┐
+     │  #  │ Decision  │                        Answer                         │
+     ├─────┼───────────┼───────────────────────────────────────────────────────┤
+     │ 1   │ Project   │ Reuse project #1 and rename "GenAI Pro" → "UBB Events │
+     │     │           │  Board". Add the number field Points.                 │
+     ├─────┼───────────┼───────────────────────────────────────────────────────┤
+     │     │           │ If the "Todo" option is missing, replace the Status   │
+     │ 2   │ Status    │ options with Todo / In Progress / In Review / Done    │
+     │     │           │ (the CONTRIBUTING columns). This is safe because the  │
+     │     │           │ project is empty.                                     │
+     ├─────┼───────────┼───────────────────────────────────────────────────────┤
+     │     │ Dependenc │ Rewrite the body line to Depends on: T-03 (#3), T-05  │
+     │ 3   │ ies       │ (#5) and add GitHub's native "blocked by" relations.  │
+     │     │           │ If that API is unavailable, warn and continue.        │
+     ├─────┼───────────┼───────────────────────────────────────────────────────┤
+     │ 4   │ Title     │ [T-01] feat: GET /users/me/memberships (…), i.e. the  │
+     │     │           │ file's title unchanged.                               │
+     ├─────┼───────────┼───────────────────────────────────────────────────────┤
+     │     │           │ Rewrite relative links to https://github.com/Patriciu │
+     │ 5   │ Body      │ Mina/GenAI-Project/blob/main/<resolved path>. Prepend │
+     │     │           │  one line that links to the "Shared conventions"      │
+     │     │           │ section of midterm-tickets.md.                        │
+     ├─────┼───────────┼───────────────────────────────────────────────────────┤
+     │ 6   │ CONTRIBUT │ Update §1 (board name and column names).              │
+     │     │ ING       │                                                       │
+     └─────┴───────────┴───────────────────────────────────────────────────────┘
+
+     Defaults I chose (no question needed):
+     - Pacing: 3 s after each issue creation, 1 s after other write calls. Both
+       can be overridden with SLEEP_CREATE/SLEEP_WRITE.
+     - On a "secondary rate limit"/abuse error the script retries once after 60
+       s. Any other error stops it with a clear message.
+
+     Files
+
+     - New scripts/create-issues.sh (executable)
+     - New docs/planning/README.md (what the folder contains + "Creating the
+       GitHub issues" section)
+     - Edit CONTRIBUTING.md §1, lines 9–10: rename the board to "UBB Events
+       Board" and fix the column casing to Todo → In Progress → In Review → Done
+     - Edit docs/genai/usage-log.md: append one row
+
+     Script design
+
+     Safety:
+     - Constants REPO=PatriciuMina/GenAI-Project and OWNER=PatriciuMina.
+     - Every gh call passes --repo/--owner, or repos/$REPO for gh api.
+     - set -euo pipefail. Checks up front: gh, jq and python3 are installed and
+       gh auth status succeeds.
+
+     Modes:
+     - --dry-run (default) runs read-only gh calls and prints WOULD CREATE … /
+       SKIP (exists) ….
+     - --run makes the changes.
+     - -h prints help.
+     - Any other argument is an error.
+     - All write calls go through one write_call helper. In dry-run it only
+       prints; in --run it runs the call, sleeps, and handles retry and errors.
+
+     Parsing: an embedded python3 -I step turns the markdown into JSON, which
+     the rest of the script reads with jq.
+     - A ticket block starts at ^## T-(\d\d): (.*) and ends at the next ^#  or
+       ^##  line. A trailing --- is stripped.
+     - Fields extracted per ticket: id, title, points, labels, deps, body.
+     - Validation: exactly 99 sequential IDs, each ticket has
+       Points/Labels/Depends, every dependency exists. Otherwise the script
+       aborts.
+     - Body = header line + block text (the Points/Labels/Depends lines are
+       kept), with relative links rewritten via posixpath.normpath from
+       docs/planning/. http(s) and #anchor links stay as they are.
+
+     Steps (each one idempotent):
+     1. Labels
+        - Required set:
+          type:feature/test/design/diagram/research/docs/report/qa/bug,
+          area:backend/frontend/docs, workflow:W1–W5, points:1–5,
+          good-first-ticket, no-genai, blocked, plus every other label found in
+          the file.
+        - Each has a fixed color and a short description from a table in the
+          script. A label found only in the file gets a neutral color.
+        - Read the existing names with gh label list --limit 200. Create the
+          missing ones with gh label create; existing labels are never modified.
+     2. Milestone "Mid-term": gh api repos/$REPO/milestones?state=all. If
+        missing, create it with POST.
+     3. Project (via gh project list --owner):
+        - If "UBB Events Board" exists, use it. Else, if "GenAI Pro" exists,
+          rename it with gh project edit --title. Else create it.
+        - Link it to the repo with gh project link, only if a GraphQL check
+          shows it isn't linked yet.
+        - Add the "Points" NUMBER field with field-create if it's missing.
+        - If the Status field lacks "Todo", replace its options with GraphQL
+          updateProjectV2Field, then re-read the option IDs.
+     4. Issues T-01..T-99 in order:
+        - Read existing issues once: gh issue list --state all --limit 500 
+          --json number,title,body,id. Map them by the regex ^\[T-(\d\d)\].
+        - Missing ticket: gh issue create with title, body, --label (file labels
+          + points:n) and --milestone "Mid-term". No assignees. Then sleep
+          SLEEP_CREATE.
+        - Every ticket, created or existing: make sure it is on the board with
+          gh project item-add, which is idempotent and returns the item ID.
+        - Set Points if it is empty. Set Status=Todo only if Status is empty, so
+          a re-run never moves tickets the team has already started.
+        - The current field values are read once from gh project item-list 
+          --format json.
+     5. Dependency links (after all issues exist):
+        - Rewrite the Depends-on line to T-03 (#3), …. Run gh issue edit 
+          --body-file only when the body differs, so a re-run makes no changes.
+        - Native relations: GET repos/$REPO/issues/{n}/dependencies/blocked_by,
+          then POST with {"issue_id": <database id of blocker>} for each one
+          that is missing.
+        - If the first POST returns 404/410, print a warning once and skip the
+          native relations.
+     6. Summary: created / skipped / updated counts for labels, milestone,
+        project, issues, board items, body updates and native relations, plus
+        the project URL.
+
+     Dry-run caveat: when the project doesn't exist yet, or when issues would be
+     created, dry-run prints the dependency rewrites with placeholder numbers
+     (#?).
+
+     Verification (what I'll run; --run is not used)
+
+     - bash -n scripts/create-issues.sh passes. If shellcheck is installed, it
+       runs clean.
+     - ./scripts/create-issues.sh (dry-run) shows:
+       - the missing labels (~33);
+       - the milestone;
+       - the project rename "GenAI Pro" → "UBB Events Board", the Points field
+         and the Status options;
+       - 99 WOULD CREATE [T-nn] … lines;
+       - a summary with 0 errors.
+     - ./scripts/create-issues.sh --bogus exits with a usage error.
+     - Spot-check one generated body, printed to the scratchpad in dry-run with
+       --show-body T-01, for absolute links and the header line.
+
+     Hand-off checks for the human:
+     - Read the dry-run output.
+     - Then run ./scripts/create-issues.sh --run yourself (about 6–8 minutes)
+       and check:
+       - the Issues tab shows 99 issues [T-01]…[T-99] with labels, points:n and
+         milestone Mid-term;
+       - https://github.com/users/PatriciuMina/projects/1 is called "UBB Events
+         Board", with every item in Todo and Points filled;
+       - T-02 shows "Depends on: T-01 (#…)" and the "Blocked by" sidebar.
+     - Re-run with --run: everything is skipped and 0 items are created.
+     - Nothing is committed or pushed.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Plan approved. Next I'll write the script.
+
+⏺ Write(scripts/create-issues.sh)
+  ⎿  Wrote 537 lines to scripts/create-issues.sh
+       1 #!/usr/bin/env bash
+       2 # Creates the mid-term GitHub issues from docs/planning/midterm-
+         tickets.md.
+       3 #
+       4 #   ./scripts/create-issues.sh                 dry-run (default)
+         : only prints what it would do
+       5 #   ./scripts/create-issues.sh --run           really creates la
+         bels, milestone, board, issues
+       6 #   ./scripts/create-issues.sh --show-body T-01  prints the gene
+         rated issue body of one ticket
+     … +531 lines (ctrl+o to expand)
+
+⏺ Bash(python3 - <<'PY'
+      p='scripts/create-issues.sh'…)
+  ⎿  363:  if [ "$MODE" = run ]; then load_fields; fi
+     417:  item="$(jq -c --arg u "$url" '[.items[] | select(.content.url ==
+      $u)][0] // empty' "$ITEMS_FILE")"
+     … +43 lines (ctrl+o to expand)
+  ⎿  Updated scripts/create-issues.sh (+2 -3)
+      360    {name:"In Review", color:BLUE, description:"PR open, waiting
+            for review"},
+      361    {name:"Done", color:GREEN, description:"Merged / finished"}]
+           }){projectV2Field{... on ProjectV2SingleSelectField{id}}}}'
+      362    fi
+      363 -  [ "$MODE" = run ] && load_fields                            
+      363 +  if [ "$MODE" = run ]; then load_fields; fi                  
+      364  fi
+      365  
+      366  # ---- 4. issues ---------------------------------------------
+           ----------------------------
+     ...
+      414    fi
+      415  
+      416    [ -n "$PROJECT_NUMBER" ] || continue
+      417 -  item="$(jq -c --arg r "$REPO" --argjson n "$number" \       
+      418 -    '[.items[] | select(.content.number == $n and .content.rep
+          -ository == $r)][0] // empty' "$ITEMS_FILE")"                  
+      417 +  item="$(jq -c --arg u "$url" '[.items[] | select(.content.ur
+          +l == $u)][0] // empty' "$ITEMS_FILE")"                        
+      418    if [ -n "$item" ]; then
+      419      items_skipped=$((items_skipped + 1))
+      420      item_id="$(printf '%s' "$item" | jq -r '.id')"
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+⏺ Dry-run works. Two small fixes for the dry-run summary: count the board items
+  it would add, and say "would rename".
+
+⏺ Bash(python3 - <<'PY'
+      p='scripts/create-issues.sh'…)
+  ⎿  ================ Summary (dry-run) ================
+     Labels:            25 would create, 0 skipped (exist)
+     Milestone:         1 would create
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated scripts/create-issues.sh (+7 -4)
+      407        gh issue create --repo "$REPO" --title "$title" --body-f
+           ile "$WORK_DIR/body.md" \
+      408          --milestone "$MILESTONE" "${label_args[@]}"
+      409      issues_created=$((issues_created + 1))
+      410 -    [ "$MODE" = run ] || continue                             
+      410 +    if [ "$MODE" != run ]; then                               
+      411 +      if [ -n "$PROJECT_NUMBER" ]; then items_added=$((items_a
+          +dded + 1)); fields_set=$((fields_set + 2)); fi                
+      412 +      continue                                                
+      413 +    fi                                                        
+      414      url="$(printf '%s' "$WRITE_OUT" | tail -n 1)"
+      415      number="${url##*/}"
+      416      log "         -> #${number}"
+     ...
+      531  log "================ Summary (${MODE}) ================"
+      532  log "Labels:            ${labels_created} ${verb}, ${labels_sk
+           ipped} skipped (exist)"
+      533  log "Milestone:         $([ "$milestone_state" = created ] && 
+           echo "1 ${verb}" || echo "skipped (exists)")"
+      531 -log "Project:           ${project_state} - ${PROJECT_URL}"    
+      534 +log "Project:           $([ "$MODE" = run ] || [ "$project_sta
+          +te" = skipped ] || printf "would be ")${project_state} - ${PRO
+          +JECT_URL}"                                                    
+      535  log "Issues:            ${issues_created} ${verb}, ${issues_sk
+           ipped} skipped (exist)"
+      533 -log "Board items:       ${items_added} added, ${items_skipped}
+          - already on the board, ${fields_set} field values set"        
+      534 -log "Body dep links:    ${bodies_updated} updated, ${bodies_sk
+          -ipped} already up to date"                                    
+      536 +log "Board items:       ${items_added} $([ "$MODE" = run ] && 
+          +echo added || echo "would add"), ${items_skipped} already on t
+          +he board, ${fields_set} field values set"                     
+      537 +log "Body dep links:    ${bodies_updated} $([ "$MODE" = run ] 
+          +&& echo updated || echo "would update"), ${bodies_skipped} alr
+          +eady up to date"                                              
+      538  log "Native blocked-by: ${deps_created} ${verb}, ${deps_skippe
+           d} skipped (exist), API ${native_deps}"
+      539  [ "$MODE" = run ] || log "Dry-run only. Re-run with --run to a
+           pply."
+  ⎿  (timeout 5m)
+
+⏺ Bash(python3 - <<'PY'
+      p='scripts/create-issues.sh'…)
+  ⎿  Body dep links:    68 would update, 0 already up to date
+     Native blocked-by: 177 would create, 0 skipped (exist), API enabled
+     Dry-run only. Re-run with --run to apply.
+  ⎿  Updated scripts/create-issues.sh (+2 -1)
+      476    if [ -z "$number" ]; then
+      477      log "  WOULD UPDATE ${tid} body: Depends on: ${dep_text}"
+      478      bodies_updated=$((bodies_updated + 1))
+      479 +    deps_created=$((deps_created + $(printf '%s\n' $deps | wc 
+          +-l)))                                                         
+      480      continue
+      481    fi
+      482  
+     ...
+      523    done
+      524  done
+      525  if [ "$MODE" != run ] && [ "$issues_created" -gt 0 ]; then
+      525 -  log "  (dry-run: issues do not exist yet, so issue numbers s
+          -how as #? and native links are listed after --run)"           
+      526 +  log "  (dry-run: issues do not exist yet, so issue numbers s
+          +how as #?)"                                                   
+      527  fi
+      528  
+      529  # ---- 6. summary --------------------------------------------
+           ----------------------------
+  ⎿  (timeout 5m)
+
+⏺ Now the docs: the README, CONTRIBUTING §1 and the usage log.
+
+⏺ Write(docs/planning/README.md)
+  ⎿  Wrote 47 lines to docs/planning/README.md
+       1 # Planning
+       2 
+       3 | File | What it is |
+       4 |------|------------|
+       5 | [`midterm-tickets.md`](midterm-tickets.md) | All mid-term tick
+         ets T-01..T-99 (points, labels, dependencies, full description) 
+         |
+       6 
+       7 ## Creating the GitHub issues
+       8 
+     … +39 lines (ctrl+o to expand)
+
+⏺ Update(CONTRIBUTING.md)
+  ⎿  Added 1 line, removed 1 line
+       6  
+       7  ## 1. The project board
+       8  
+       9 -All work is tracked as GitHub issues on the project board **Gen
+         -AI Pro**                                                       
+       9 +All work is tracked as GitHub issues on the project board **UBB
+         + Events Board**                                                
+      10  (*Projects* tab of the repository). Columns: **Todo → In Progre
+          ss → In Review → Done**.
+      11  
+      12  Every issue says what it **depends on** (other issue numbers) a
+          nd has **story points**.
+
+⏺ Bash(cat >> docs/genai/usage-log.md <<'EOF'
+      | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | Script to
+      create the mid-term issues and board (nothing cr…)
+  ⎿   M CONTRIBUTING.md
+      M docs/genai/usage-log.md
+     ?? docs/planning/README.md
+     … +19 lines (ctrl+o to expand)
+  ⎿  Updated docs/genai/usage-log.md (+1 -0)
+      15  | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Mid-term documentation drafts (instructions only, no content) |
+           Read the repo and create light drafts in docs/midterm/ (README
+           index A–E + 01–08): per section a heading, "What to write", ex
+          act sources in the repo, format, one marked example, "Done when
+          " checklist and a `> TODO (team):` marker, sized as tickets; R1
+          –R16 copied as given; interview questions may be written, no in
+          vented results; list open decisions first and wait for answers;
+           no commit | `docs/midterm/README.md`, `01-problem-statement.md
+          ` … `08-individual-contributions.md`, `docs/midterm/interviews/
+          README.md` (anonymised notes template); R1–R16 table copied fro
+          m `docs/course/course-requirements.md`; 12 student + 12 organiz
+          er interview questions; 13 pre-filled assumptions to validate (
+          no results) | Ran the hand-off checks (9 files + interviews/REA
+          DME, TODO markers and Done-when checklists in every file, only 
+          docs changed); read README and the interview guide in 06; compa
+          red docs/course/course-requirements.md with the original course
+           statement | Answered open decisions before writing: added `doc
+          s/course/course-requirements.md` as the source for R1–R16 and A
+          –E; status values implemented/partial/planned with separate FR-
+          AUTH/FR-ADM groups; assumption list changed (removed "2h login/
+          no refresh" as too technical for users; added English-only UI, 
+          only organizers/presidents create events, students find events 
+          via social media/word of mouth; table with an interview-evidenc
+          e column); interview notes in `docs/midterm/interviews/`, UC ID
+          s in blocks per workflow. _Further changes: Chose light drafts 
+          so teammates write the content; provided docs/course/course-req
+          uirements.md as source and corrected the A–E mapping; changed t
+          he assumptions list (removed 2h login, added English-only UI, w
+          ho creates events, how students find events); chose implemented
+          /partial/planned status with FR-AUTH/FR-ADM groups, anonymised 
+          interview notes in interviews/, UC number block … [+16 chars]
+      16  | 2026-11-07 | Patriciu Mina | Claude Opus 5.5 (claude.ai chat)
+           | Course requirements summary | Asked Claude to summarize the 
+          course project statement (R1–R16) and the mid-term deliverables
+           A–E as a reference file for the team | `docs/course/course-req
+          uirements.md` | Compared the summary with the original course s
+          tatement | Kept as a summary (not verbatim), marked as such in 
+          the file; used as the source for the mid-term docs |
+      17  | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Mid-term ticket planning (no code, nothing created on GitHub) |
+           Read the whole repo (code + TODOs, data-model, course requirem
+          ents, docs/midterm, README, CONTRIBUTING, issue templates) and 
+          plan all GitHub issues for mid-term parts A–E in `docs/planning
+          /midterm-tickets.md` with a fixed parseable format (`## T-nn`, 
+          Points/Labels/Depends on, body with API contract, acceptance cr
+          iteria, guide links), categories type:feature/test/design/diagr
+          am/research/docs/report/qa, no assignees, nothing already imple
+          mented; list open decisions first and wait for answers; no comm
+          it | `docs/planning/midterm-tickets.md`: header (labels, shared
+           API conventions incl. business error codes, seed accounts), 99
+           tickets (34 feature, 4 test, 7 design, 5 diagram, 11 research,
+           28 docs, 9 report, 1 QA; 184 points, 86 of 1–2 points), "Defer
+          red to final" list, summary table and totals. Docs/report ticke
+          ts generated from the `**Ticket:**` markers and "Done when" lis
+          ts in `docs/midterm/01–05, 07` | Script check: 99 `## T-` headi
+          ngs with Points/Labels/Depends on lines each, IDs sequential, e
+          very dependency exists, no dependency cycles, exactly one `type
+          :` label per ticket, good-first-ticket exactly on 1–2 point tic
+          kets, totals recomputed from the tickets; spot-read W1–W5 contr
+          acts against entities, repositories, `OrgPermissionService` and
+           the dev seed (accounts, events, registrations); human verifica
+          tion: re-ran the hand-off checks myself (99 tickets, Points/Lab
+          els/Depends lines, 184 points) and reviewed the plan in the Git
+          Hub PR view (summary table, sample tickets, check-in and announ
+          cement rules, API paths and error codes), no further changes | 
+          Answered open decisions before writing: president/admin adds me
+          mbers by email (no self-join), manual status transitions (no sc
+          heduler), diagram tickets own the diagrams (§4.3 use-case diagr
+          am, sequence diagrams only W2/W4); cut mid-term scope: moved W1
+           change role/leave/edit org, W5 task and announ … [+288 chars]
+      18 +| 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+         +Script to create the mid-term issues and board (nothing created
+         + on GitHub) | Write `scripts/create-issues.sh` (bash + gh, jq/p
+         +ython3) that reads `docs/planning/midterm-tickets.md` and creat
+         +es labels, milestone "Mid-term", the Project v2 board with a Po
+         +ints field, issues T-01..T-99 (labels + points, no assignees, S
+         +tatus Todo) and clickable dependency links; dry-run by default,
+         + `--run` to apply, idempotent, paced API calls, clear errors, f
+         +inal summary; README section; list open decisions first and wai
+         +t for answers; do not run `--run`, no commit | `scripts/create-
+         +issues.sh` (dry-run/`--run`/`--show-body`, embedded parser with
+         + validation, relative links → absolute GitHub links, label/mile
+         +stone/project/issue/board/dependency steps, 60 s retry on secon
+         +dary rate limit), `docs/planning/README.md`; `CONTRIBUTING.md` 
+         +§1 board name | `bash -n` OK; `--bogus` → usage error (exit 2);
+         + `--show-body T-02/T-62/T-99` checked header line, absolute lin
+         +ks and block boundaries; dry-run against GitHub (read-only): 25
+         + labels, milestone, rename of project #1, Points field, Status 
+         +options, 99 issues, 99 board items, 68 body updates, 177 native
+         + dependency links, exit 0 | Answered open decisions before impl
+         +ementation: reuse and rename the existing "GenAI Pro" board ins
+         +tead of creating a new one, replace its Status options with the
+         + CONTRIBUTING columns, text links + native "blocked by" depende
+         +ncies, keep the file titles unchanged after `[T-nn]`, rewrite r
+         +elative links and add a shared-conventions header line, update 
+         +CONTRIBUTING §1 |                                              
+
+⏺ scripts/create-issues.sh is written and the dry-run works against the real
+  GitHub state. The --run mode has never been executed, so none of the steps
+  that create, edit or link anything on GitHub have run yet. Nothing was created
+  on GitHub, and nothing is committed or pushed.
+
+  What the dry-run reports for --run:
+  - 25 labels (none of them exist yet)
+  - the "Mid-term" milestone
+  - project #1 renamed from "GenAI Pro" to "UBB Events Board", with a new number
+    field "Points" and Status options Todo / In Progress / In Review / Done
+    (the project is already linked to the repo)
+  - 99 issues, each added to the board with Points and Status set
+  - 68 issue bodies updated with clickable # links in their "Depends on" line
+  - 177 native "blocked by" relations. T-88 alone accounts for 38.
+
+  How the script behaves (your decisions applied):
+  - Titles are [T-nn] <title from the file>.
+  - Issue bodies: relative links become full GitHub links, and each body starts
+    with a line linking to the "Shared conventions" section.
+  - Re-runs skip anything that already exists. Points and Status are only set
+    when empty, so re-running never moves a ticket someone has started.
+  - Pacing: 3 s after each issue and 1 s after other writes. On a rate-limit
+    error it waits 60 s and retries once; any other error stops it with a
+    message.
+  - Native dependencies: if GitHub rejects that API, the script prints one
+    warning and keeps only the body links.
+  - Run time: about 15 minutes with --run, mostly because of the pacing and the
+    177 dependency links.
+
+  Files:
+  - scripts/create-issues.sh (new)
+  - docs/planning/README.md (new): how to run it
+  - CONTRIBUTING.md §1: board renamed to "UBB Events Board". The column names
+    there were already correct.
+  - docs/genai/usage-log.md: new row added. You still need to add your own
+    verification and human changes to it.
+
+  How to verify:
+  1. bash -n scripts/create-issues.sh should print nothing.
+  2. ./scripts/create-issues.sh --bogus should print the usage text and exit
+     with code 2.
+  3. ./scripts/create-issues.sh --show-body T-62 should show the header line and
+     only https://github.com/PatriciuMina/GenAI-Project/blob/main/... links.
+  4. ./scripts/create-issues.sh (dry-run) should end with a summary showing 25
+     labels, 1 milestone, 99 issues, 99 board items, 68 body updates and 177
+     dependency links. My copy of the output is in
+     /private/tmp/claude-501/-Users-patriciumina-projects-GenAI-Project/a629aa80
+     -e5d9-4393-a314-dd5838fd6e09/scratchpad/dryrun.txt.
+  5. When you're happy, run ./scripts/create-issues.sh --run yourself, then
+     check:
+     - the Issues tab has [T-01]…[T-99] with labels, a points:n label and
+       milestone Mid-term;
+     - https://github.com/users/PatriciuMina/projects/1 is called "UBB Events
+       Board", with every item in Todo and Points filled in;
+     - T-02's body says Depends on: T-01 (#…) and its sidebar shows "Blocked
+       by".
+  6. Run --run a second time: the summary should show 0 created and 0 updated.
+
+  Risks in the --run steps: two of them use output formats I couldn't check
+  because there are no issues yet:
+  - the Points value read back from the board's item list;
+  - the native "blocked by" API response.
+
+  If the script stops at either one, the message names the step and a re-run
+  picks up where it left off.
+
+✻ Churned for 5m 56s · done 10:38 AM
+※ recap: You asked for a script that creates the 99 mid-term tickets as GitHub issues on a board; it's written and its dry-run works, but nothing is on GitHub yet. Next, review the dry-run output, then run ./scripts/create-issues.sh --run yourself.
+
+❯ Problem found by the human: good-first-ticket is on almost every 1–2 point    
+  ticket, but                                                                   
+  about 75% of them are blocked by other tickets, so they are not good first    
+  tickets.                                                                      
+  New rule: good-first-ticket only on tickets with 1–2 points AND "Depends on:  
+  none".                                                                        
+  1. Update docs/planning/midterm-tickets.md: apply the new rule to every       
+  ticket's Labels                                                               
+     line and fix the summary table/totals.                                     
+  2. Update scripts/create-issues.sh so it applies the same rule (for future    
+  runs, e.g.                                                                    
+     the final-delivery tickets).                                               
+  3. Write scripts/fix-good-first-labels.sh (dry-run by default, --run to       
+  apply, only repo                                                              
+     PatriciuMina/GenAI-Project) that removes good-first-ticket from the        
+  existing issues                                                               
+     that have dependencies, and adds it to any 1–2 point issue without         
+  dependencies that                                                             
+     is missing it. Print the list of changes and a summary.                    
+  4. In CONTRIBUTING.md (board section), explain how to pick a ticket: look at  
+  the                                                                           
+     "Blocked by" box in the issue sidebar and only start tickets whose         
+  blockers are all                                                              
+     closed; good-first-ticket marks tickets that can be started right away.    
+     Run the new script only in dry-run mode. Do not run it with --run. Do not  
+  commit or push.                                                               
+
+  Searched for 2 patterns, ran 2 shell commands (ctrl+o to expand)
+
+⏺ The rule takes good-first-ticket off 57 tickets, keeps it on 29, and adds it
+  to none. Next I'll apply it to the file.
+
+⏺ Bash(python3 -I - <<'PY'
+      import re…)
+  ⎿  99 99 1 [99, 184, 86, 29]
+      docs/planning/midterm-tickets.md | 252 +++++++++++++++++++-----------
+     ---------
+     … +19 lines (ctrl+o to expand)
+  ⎿  1 file changed (binary, mode only or too large to show)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ The ticket file is consistent now. Next, create-issues.sh:
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ Bash(python3 -I - <<'PY'
+      p='scripts/create-issues.sh'…)
+  ⎿  LABELS: type:feature, area:frontend, workflow:W1, workflow:W5, points:
+     1
+     LABELS: type:feature, area:backend, workflow:W1, good-first-ticket, po
+     ints:2
+  ⎿  Updated scripts/create-issues.sh (+7 -1)
+       5  #   ./scripts/create-issues.sh --run           really creates l
+          abels, milestone, board, issues
+       6  #   ./scripts/create-issues.sh --show-body T-01  prints the gen
+          erated issue body of one ticket
+       7  #
+       8 +# Labels: good-first-ticket is set only on 1-2 point tickets wi
+         +th "Depends on: none".                                         
+       9  # Idempotent: everything that already exists is skipped, so it 
+          is safe to re-run after a
+      10  # failure. Needs: gh (logged in, scopes repo + project), jq, py
+          thon3.
+      11  # Works with the macOS default bash 3.2 (no associative arrays)
+          .
+     ...
+      173          errors.append(f"{t['id']}: invalid points '{meta['Poin
+           ts']}'")
+      174      labels = [x.strip() for x in meta["Labels"].split(",") if 
+           x.strip()]
+      175      deps = [] if meta["Depends on"] == "none" else [x.strip() 
+           for x in meta["Depends on"].split(",")]
+      176 +    # Rule: good-first-ticket only on 1-2 point tickets with "
+          +Depends on: none",                                            
+      177 +    # whatever the Labels line says (the label is added or rem
+          +oved here).                                                   
+      178 +    labels = [x for x in labels if x != "good-first-ticket"]  
+      179 +    if meta["Points"] in ("1", "2") and not deps:             
+      180 +        labels.append("good-first-ticket")                    
+      181      for d in deps:
+      182          if d not in ids:
+      183              errors.append(f"{t['id']}: unknown dependency {d}"
+           )
+     ...
+      244      points:3)          echo "f9c74f|3 story points" ;;
+      245      points:4)          echo "f4a259|4 story points" ;;
+      246      points:5)          echo "e76f51|5 story points (several da
+           ys)" ;;
+      241 -    good-first-ticket) echo "7057ff|1-2 points, self-contained
+          -, good to start" ;;                                           
+      247 +    good-first-ticket) echo "7057ff|1-2 points and no dependen
+          +cies: can start right away" ;;                                
+      248      no-genai)          echo "b60205|Must be done without GenAI
+            tools" ;;
+      249      blocked)           echo "000000|Waiting on another ticket 
+           or decision" ;;
+      250      *)                 echo "ededed|Label used in the mid-term
+            tickets" ;;
+
+⏺ Next, the fix script:
+
+⏺ Write(scripts/fix-good-first-labels.sh)
+  ⎿  Wrote 175 lines to scripts/fix-good-first-labels.sh
+       1 #!/usr/bin/env bash
+       2 # Applies the good-first-ticket rule to the existing "[T-nn]" is
+         sues:
+       3 #   good-first-ticket  <=>  1-2 points (label points:1 / points:
+         2)  AND  no dependencies
+       4 # "No dependencies" = the body says "Depends on: none" (or has n
+         o Depends line) AND the
+       5 # issue has no native "blocked by" relations.
+       6 #
+       7 #   ./scripts/fix-good-first-labels.sh          dry-run (default
+     … +169 lines (~7 KB) (ctrl+o to expand)
+
+⏺ Bash(sed -i '' 's/echo "\$(do_or_would updated)"/{ [ "$MODE" = run ] \&\& echo
+      updated || echo "would update"; }/' scripts/fix-good-first-labels.sh &&
+      grep -n 'Label…)
+  ⎿  172:log "Label description:   $([ "$label_changed" = 1 ] && { [ "$MODE
+     " = run ] && echo updated || echo "would update"; } || echo 'already c
+     orrect')"
+     … +38 lines (ctrl+o to expand)
+  ⎿  Updated scripts/fix-good-first-labels.sh (+1 -1)
+      169  log "Label ${verb_rm}: ${removed}"
+      170  log "Already correct:     ${unchanged}"
+      171  log "Skipped (no points): ${skipped}"
+      172 -log "Label description:   $([ "$label_changed" = 1 ] && echo "
+          -$(do_or_would updated)" || echo 'already correct')"           
+      172 +log "Label description:   $([ "$label_changed" = 1 ] && { [ "$
+          +MODE" = run ] && echo updated || echo "would update"; } || ech
+          +o 'already correct')"                                         
+      173  log "Native blocked-by:   ${native}"
+      174  log "With ${LABEL} afterwards: $(( $(jq '[.[] | select(.title 
+           | test("^\\[T-[0-9]+\\]")) | select([.labels[].name] | index("
+           good-first-ticket"))] | length' "$WORK_DIR/issues.json") + add
+           ed - removed ))"
+      175  [ "$MODE" = run ] || log "Dry-run only. Re-run with --run to a
+           pply."
+  ⎿  (timeout 5m)
+
+⏺ A network timeout during the TLS handshake made the script abandon the native
+  "blocked by" reads for the rest of the run, and that fallback is too lenient.
+  I'm changing it to retry, fall back only on 404/410, and fail on anything
+  else.
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Update(scripts/fix-good-first-labels.sh)
+  ⎿  Added 17 lines, removed 6 lines
+      126  
+      127    blockers=0
+      128    if [ "$native" = available ]; then
+      129 -    if out="$(gh api "repos/${REPO}/issues/${number}/dependenc
+          -ies/blocked_by?per_page=100" --jq 'length' 2>"$WORK_DIR/err")"
+          -; then                                                        
+      130 -      blockers="$out"                                         
+      131 -    else                                                      
+      132 -      warn "Native \"blocked by\" not readable ($(head -n 1 "$
+          -WORK_DIR/err")); using only the Depends on line."             
+      133 -      native="unavailable"                                    
+      134 -    fi                                                        
+      129 +    out=""                                                    
+      130 +    for attempt in 1 2 3; do                                  
+      131 +      if out="$(gh api "repos/${REPO}/issues/${number}/depende
+          +ncies/blocked_by?per_page=100" --jq 'length' 2>"$WORK_DIR/err"
+          +)"; then                                                      
+      132 +        break                                                 
+      133 +      fi                                                      
+      134 +      out=""                                                  
+      135 +      # The feature itself is missing: fall back to the Depend
+          +s on line for all issues.                                     
+      136 +      if grep -qE 'HTTP 40[4]|HTTP 410|Not Found' "$WORK_DIR/e
+          +rr"; then                                                     
+      137 +        warn "Native \"blocked by\" not available ($(head -n 1
+          + "$WORK_DIR/err")); using only the Depends on line."          
+      138 +        native="unavailable"                                  
+      139 +        break                                                 
+      140 +      fi                                                      
+      141 +      [ "$attempt" = 3 ] && die "Reading \"blocked by\" of #${
+          +number} failed 3 times: $(cat "$WORK_DIR/err")"               
+      142 +      warn "#${number}: reading \"blocked by\" failed ($(head 
+          +-n 1 "$WORK_DIR/err")), retrying in 5 s..."                   
+      143 +      sleep 5                                                 
+      144 +    done                                                      
+      145 +    [ -n "$out" ] && blockers="$out"                          
+      146    fi
+      147  
+      148    if { [ -z "$dep_line" ] || [ "$dep_line" = "none" ]; } && [ 
+           "$blockers" -eq 0 ]; then
+
+⏺ Bash(python3 -I - <<'PY'
+      p='scripts/fix-good-first-labels.sh'…)
+  ⎿  exit=1
+     0
+     0
+     … +3 lines (ctrl+o to expand)
+  ⎿  Updated scripts/fix-good-first-labels.sh (+2 -4)
+      171    CHANGES="${CHANGES}${tid} "
+      172  done <"$WORK_DIR/tickets.jsonl"
+      173  
+      174 -verb_add="$([ "$MODE" = run ] && echo added || echo 'would add
+          -')"                                                           
+      175 -verb_rm="$([ "$MODE" = run ] && echo removed || echo 'would re
+          -move')"                                                       
+      174  log ""
+      175  log "================ Summary (${MODE}) ================"
+      176  log "Issues checked:      ${total}"
+      179 -log "Label ${verb_add}:   ${added}"                           
+      180 -log "Label ${verb_rm}: ${removed}"                            
+      177 +log "Label added:         ${added}$([ "$MODE" = run ] || echo 
+          +' (would add)')"                                              
+      178 +log "Label removed:       ${removed}$([ "$MODE" = run ] || ech
+          +o ' (would remove)')"                                         
+      179  log "Already correct:     ${unchanged}"
+      180  log "Skipped (no points): ${skipped}"
+      181  log "Label description:   $([ "$label_changed" = 1 ] && { [ "$
+           MODE" = run ] && echo updated || echo "would update"; } || ech
+           o 'already correct')"
+  ⎿  (timeout 5m)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ The first failure was a network blip: gh auth status calls the API, so the
+  "not logged in" message was misleading. I'll reword it in both scripts and run
+  the dry-run again.
+
+⏺ Bash(for f in scripts/fix-good-first-labels.sh scripts/create-issues.sh; do
+      sed -i '' 's/|| die "gh is not logged in\. Run: gh auth login/|| die "gh
+      auth status fail…)
+  ⎿  54:gh auth status >/dev/null 2>&1 || die "gh auth status failed (not l
+     ogged in, or a network problem). Check: gh auth status; log in with: g
+     h auth login"
+     … +17 lines (ctrl+o to expand)
+  ⎿  Updated scripts/create-issues.sh (+1 -1)
+      204  fi
+      205  
+      206  command -v gh >/dev/null 2>&1 || die "'gh' (GitHub CLI) is not
+            installed."
+      207 -gh auth status >/dev/null 2>&1 || die "gh is not logged in. Ru
+          -n: gh auth login (scopes: repo, project)."                    
+      207 +gh auth status >/dev/null 2>&1 || die "gh auth status failed (
+          +not logged in, or a network problem). Check: gh auth status; l
+          +og in with: gh auth login (scopes: repo, project)."           
+      208  
+      209  log "== Mode: ${MODE}  (repo ${REPO}, owner ${OWNER})"
+      210  [ "$MODE" = "run" ] || log "== Dry-run: nothing will be change
+           d. Use --run to really create everything."
+  ⎿  Updated scripts/fix-good-first-labels.sh (+1 -1)
+      51  for tool in gh jq; do
+      52    command -v "$tool" >/dev/null 2>&1 || die "'$tool' is not ins
+          talled."
+      53  done
+      54 -gh auth status >/dev/null 2>&1 || die "gh is not logged in. Run
+         -: gh auth login"                                               
+      54 +gh auth status >/dev/null 2>&1 || die "gh auth status failed (n
+         +ot logged in, or a network problem). Check: gh auth status; log
+         + in with: gh auth login"                                       
+      55  
+      56  WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/fix-good-first.XXXXXX")"
+      57  trap 'rm -rf "$WORK_DIR"' EXIT
+  ⎿  (timeout 5m)
+
+⏺ The dry-run is clean: 57 removals, no warnings, and native "blocked by" was
+  read for every issue. Next I'll check that these 57 are the same tickets that
+  lost the label in the file:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ The fix script will also correct the - Labels: line in each issue body, since
+  57 bodies still list good-first-ticket after the label was lost from the file.
+  I'm adding that correction next.
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Update(scripts/fix-good-first-labels.sh)
+  ⎿  Added 25 lines, removed 9 lines
+      153  
+      154    if [ "$has_deps" = no ] && { [ "$points" = 1 ] || [ "$points
+           " = 2 ]; }; then want=true; else want=false; fi
+      155  
+      156 -  if [ "$has" = "$want" ]; then                               
+      156 +  # The body repeats the labels ("- Labels: ..."); keep that l
+          +ine consistent with the rule.                                 
+      157 +  printf '%s' "$issue" | jq -r '.body' | tr -d '\r' >"$WORK_DI
+          +R/old_body.md"                                                
+      158 +  if [ "$want" = true ]; then                                 
+      159 +    sed -E "/^- Labels: /{/(^|, |: )${LABEL}(,|\$)/!s/\$/, ${L
+          +ABEL}/;}" "$WORK_DIR/old_body.md" >"$WORK_DIR/new_body.md"    
+      160 +  else                                                        
+      161 +    sed -E "/^- Labels: /{s/, ${LABEL}(,|\$)/\\1/;}" "$WORK_DI
+          +R/old_body.md" >"$WORK_DIR/new_body.md"                       
+      162 +  fi                                                          
+      163 +  body_args=()                                                
+      164 +  if ! cmp -s "$WORK_DIR/old_body.md" "$WORK_DIR/new_body.md";
+          + then                                                         
+      165 +    body_args=(--body-file "$WORK_DIR/new_body.md")           
+      166 +  fi                                                          
+      167 +                                                              
+      168 +  if [ "$has" = "$want" ] && [ ${#body_args[@]} -eq 0 ]; then 
+      169      unchanged=$((unchanged + 1))
+      170      continue
+      171    fi
+      160 -  if [ "$want" = true ]; then                                 
+      161 -    line="$(do_or_would ADD)    ${LABEL} on #${number} ${tid} 
+          -(${points} pt, ${why})"                                       
+      162 -    log "  $line"                                             
+      163 -    write_call "Adding label to #${number}" gh issue edit "$nu
+          -mber" --repo "$REPO" --add-label "$LABEL"                     
+      172 +  body_note="$([ ${#body_args[@]} -gt 0 ] && echo ' + fix "- L
+          +abels:" line in body' || true)"                               
+      173 +  if [ "$has" = "$want" ]; then                               
+      174 +    log "  $(do_or_would FIX) body \"- Labels:\" line of #${nu
+          +mber} ${tid} (label already correct)"                         
+      175 +    write_call "Updating body of #${number}" gh issue edit "$n
+          +umber" --repo "$REPO" "${body_args[@]}"                       
+      176 +    bodies=$((bodies + 1))                                    
+      177 +  elif [ "$want" = true ]; then                               
+      178 +    log "  $(do_or_would ADD)    ${LABEL} on #${number} ${tid}
+          + (${points} pt, ${why})${body_note}"                          
+      179 +    write_call "Adding label to #${number}" gh issue edit "$nu
+          +mber" --repo "$REPO" --add-label "$LABEL" ${body_args[@]+"${bo
+          +dy_args[@]}"}                                                 
+      180      added=$((added + 1))
+      181 +    [ -z "$body_note" ] || bodies=$((bodies + 1))             
+      182    else
+      166 -    line="$(do_or_would REMOVE) ${LABEL} from #${number} ${tid
+          -} (${points} pt, ${why})"                                     
+      167 -    log "  $line"                                             
+      168 -    write_call "Removing label from #${number}" gh issue edit 
+          -"$number" --repo "$REPO" --remove-label "$LABEL"              
+      183 +    log "  $(do_or_would REMOVE) ${LABEL} from #${number} ${ti
+          +d} (${points} pt, ${why})${body_note}"                        
+      184 +    write_call "Removing label from #${number}" gh issue edit 
+          +"$number" --repo "$REPO" --remove-label "$LABEL" ${body_args[@
+          +]+"${body_args[@]}"}                                          
+      185      removed=$((removed + 1))
+      186 +    [ -z "$body_note" ] || bodies=$((bodies + 1))             
+      187    fi
+      171 -  CHANGES="${CHANGES}${tid} "                                 
+      188  done <"$WORK_DIR/tickets.jsonl"
+      189  
+      190  log ""
+
+⏺ Bash(python3 -I - <<'PY'
+      p='scripts/fix-good-first-labels.sh'…)
+  ⎿  110:added=0; removed=0; bodies=0; unchanged=0; skipped=0; native="avai
+     lable"
+     194:log "Body Labels line:    ${bodies}$([ "$MODE" = run ] || echo ' (
+     … +7 lines (ctrl+o to expand)
+  ⎿  Updated scripts/fix-good-first-labels.sh (+2 -2)
+      107  log "Checking ${total} [T-nn] issues (reads native \"blocked b
+           y\" for each, takes a moment)..."
+      108  log ""
+      109  
+      110 -added=0; removed=0; unchanged=0; skipped=0; native="available"
+      111 -CHANGES=""                                                    
+      110 +added=0; removed=0; bodies=0; unchanged=0; skipped=0; native="
+          +available"                                                    
+      111  
+      112  while IFS= read -r issue; do
+      113    number="$(printf '%s' "$issue" | jq -r '.number')"
+     ...
+      191  log "Issues checked:      ${total}"
+      192  log "Label added:         ${added}$([ "$MODE" = run ] || echo 
+           ' (would add)')"
+      193  log "Label removed:       ${removed}$([ "$MODE" = run ] || ech
+           o ' (would remove)')"
+      194 +log "Body Labels line:    ${bodies}$([ "$MODE" = run ] || echo
+          + ' (would fix)')"                                             
+      195  log "Already correct:     ${unchanged}"
+      196  log "Skipped (no points): ${skipped}"
+      197  log "Label description:   $([ "$label_changed" = 1 ] && { [ "$
+           MODE" = run ] && echo updated || echo "would update"; } || ech
+           o 'already correct')"
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Both checks pass. Next, CONTRIBUTING:
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Update(CONTRIBUTING.md)
+  ⎿  Added 11 lines
+      11  
+      12  Every issue says what it **depends on** (other issue numbers) a
+          nd has **story points**.
+      13  
+      14 +### How to pick a ticket                                       
+      15 +                                                               
+      16 +1. Open a ticket in **Todo** and look at the **Relationships → 
+         +Blocked by** box in the                                        
+      17 +   issue sidebar on the right (the `Depends on: T-xx (#nn)` lin
+         +e in the description lists the                                 
+      18 +   same tickets).                                              
+      19 +2. Start it **only if every blocking issue is closed** (purple 
+         +"closed" icon). If one is                                      
+      20 +   still open, the ticket is not ready yet: pick another one or
+         + help finish the blocker.                                      
+      21 +3. **`good-first-ticket`** marks tickets with 1–2 points and **
+         +no dependencies at all**: they                                 
+      22 +   can be started right away and are the best way to begin. Fil
+         +ter the board or the issue                                     
+      23 +   list with `label:good-first-ticket`.                        
+      24 +                                                               
+      25  ## 2. Working on a ticket, step by step
+      26  
+      27  1. **Pick** a ticket in **Todo** whose dependencies are all **D
+          one**.
+
+⏺ Update(CONTRIBUTING.md)  ⎿  Added 1 line, removed 1 line
+      24  
+      25  ## 2. Working on a ticket, step by step
+      26  
+      27 -1. **Pick** a ticket in **Todo** whose dependencies are all **D
+         -one**.                                                         
+      27 +1. **Pick** a ticket in **Todo** whose blockers are all closed 
+         +(see "How to pick a ticket" above).                            
+      28     If you are unsure, ask in the team chat before starting.
+      29  2. **Assign yourself** to the issue and move it to **In Progres
+          s**.
+      30  3. **Create a branch** from an up-to-date `main`, named `featur
+          e/<issue-number>-short-name`:
+
+⏺ Now the planning README and the usage log:
+
+⏺ Bash(cat >> docs/planning/README.md <<'EOF'…)
+  ⎿  | 2026-11-07 | Patriciu Mina | Claude Opus 5.5 (claude.ai chat) | Cour
+     se requirements summary | Asked Claude to summarize the course project
+      statement (R1–R16) and the mid-term deliverables A–E as a r
+     … +6 lines (ctrl+o to expand)
+  ⎿  Updated docs/planning/README.md (+22 -0)
+      45    Override with `SLEEP_CREATE=5 SLEEP_WRITE=2 ./scripts/create-
+          issues.sh --run`.
+      46  - **Editing tickets later:** change the issue on GitHub. The sc
+          ript never changes existing
+      47    issue text except the `Depends on:` line, and only when its l
+          inks are missing or wrong.
+      48 +                                                               
+      49 +## Rule for `good-first-ticket`                                
+      50 +                                                               
+      51 +`good-first-ticket` goes **only** on tickets with **1–2 points 
+         +and `Depends on: none`**, so                                   
+      52 +it marks tickets that can be started right away. `create-issues
+         +.sh` enforces this rule                                        
+      53 +itself, whatever the `Labels:` line in the ticket file says.   
+      54 +                                                               
+      55 +[`scripts/fix-good-first-labels.sh`](../../scripts/fix-good-fir
+         +st-labels.sh) applies the                                      
+      56 +rule to issues that already exist on GitHub:                   
+      57 +- it removes the label from issues that have dependencies and a
+         +dds it where it is missing;                                    
+      58 +- it keeps the `- Labels:` line in the issue body consistent;  
+      59 +- it updates the label description.                            
+      60 +                                                               
+      61 +"Has dependencies" means a `Depends on:` line other than `none`
+         +, or any native "Blocked by"                                   
+      62 +relation.                                                      
+      63 +                                                               
+      64 +```bash                                                        
+      65 +./scripts/fix-good-first-labels.sh          # dry-run (default)
+         +: lists the changes and a summary                              
+      66 +./scripts/fix-good-first-labels.sh --run    # really change the
+         + labels (about 2 minutes)                                      
+      67 +```                                                            
+      68 +                                                               
+      69 +It is safe to re-run: issues that already follow the rule are s
+         +kipped.                                                        
+
+⏺ I found that create-issues.sh rewrites entire issue bodies on re-run, which
+  would overwrite teammates' GitHub edits and touch 57 bodies right now. I'm
+  changing it so only the Depends on: line is replaced.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Bash(python3 -I - <<'PY'
+      p='scripts/create-issues.sh'…)
+  ⎿  ================ Summary (dry-run) ================
+     Labels:            0 would create, 25 skipped (exist)
+     Milestone:         skipped (exists)
+     … +8 lines (ctrl+o to expand)
+  ⎿  Updated scripts/create-issues.sh (+5 -4)
+      467  while [ "$i" -lt "$TICKET_COUNT" ]; do
+      468    tid="$(jq -r ".[$i].id" "$TICKETS_JSON")"
+      469    deps="$(jq -r ".[$i].deps[]" "$TICKETS_JSON")"
+      470 -  base_body="$(jq -r ".[$i].body" "$TICKETS_JSON")"           
+      470    i=$((i + 1))
+      471    [ -n "$deps" ] || continue
+      472  
+     ...
+      485      continue
+      486    fi
+      487  
+      489 -  new_body="$(printf '%s' "$base_body" | python3 -I -c '      
+      488 +  # Only the "- Depends on:" line of the CURRENT issue body is
+          + replaced, so edits made on                                   
+      489 +  # GitHub (description, checklists, ...) are never overwritte
+          +n by a re-run.                                                
+      490 +  cur_body="$(jq -r --argjson n "$number" '.[] | select(.numbe
+          +r == $n) | .body' "$ISSUES_FILE" | tr -d '\r')"               
+      491 +  new_body="$(printf '%s' "$cur_body" | python3 -I -c '       
+      492  import re, sys
+      493  print(re.sub(r"(?m)^- Depends on: .*$", lambda m: "- Depends o
+           n: " + sys.argv[1], sys.stdin.read(), count=1), end="")
+      494  ' "$dep_text")"
+      493 -  cur_body="$(jq -r --argjson n "$number" '.[] | select(.numbe
+          -r == $n) | .body' "$ISSUES_FILE" | tr -d '\r')"               
+      494 -  if [ "$(printf '%s' "$cur_body" | sed -e 's/[[:space:]]*$//'
+          -)" = "$(printf '%s' "$new_body" | sed -e 's/[[:space:]]*$//')"
+          - ]; then                                                      
+      495 +  if [ "$cur_body" = "$new_body" ]; then                      
+      496      bodies_skipped=$((bodies_skipped + 1))
+      497    else
+      498      log "  $([ "$MODE" = run ] && echo UPDATE || echo 'WOULD U
+           PDATE') #${number} (${tid}) body: Depends on: ${dep_text}"
+  ⎿  (timeout 5m)
+
+⏺ With that fix, a re-run of create-issues.sh changes nothing. Last step is the
+  usage log:
+
+⏺ Bash(cat >> docs/genai/usage-log.md <<'EOF'
+      | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | Fix the
+      good-first-ticket rule (file, scripts, existing is…)
+  ⎿   M CONTRIBUTING.md
+      M docs/genai/usage-log.md
+      M docs/planning/midterm-tickets.md
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated docs/genai/usage-log.md (+1 -0)
+      16  | 2026-11-07 | Patriciu Mina | Claude Opus 5.5 (claude.ai chat)
+           | Course requirements summary | Asked Claude to summarize the 
+          course project statement (R1–R16) and the mid-term deliverables
+           A–E as a reference file for the team | `docs/course/course-req
+          uirements.md` | Compared the summary with the original course s
+          tatement | Kept as a summary (not verbatim), marked as such in 
+          the file; used as the source for the mid-term docs |
+      17  | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Mid-term ticket planning (no code, nothing created on GitHub) |
+           Read the whole repo (code + TODOs, data-model, course requirem
+          ents, docs/midterm, README, CONTRIBUTING, issue templates) and 
+          plan all GitHub issues for mid-term parts A–E in `docs/planning
+          /midterm-tickets.md` with a fixed parseable format (`## T-nn`, 
+          Points/Labels/Depends on, body with API contract, acceptance cr
+          iteria, guide links), categories type:feature/test/design/diagr
+          am/research/docs/report/qa, no assignees, nothing already imple
+          mented; list open decisions first and wait for answers; no comm
+          it | `docs/planning/midterm-tickets.md`: header (labels, shared
+           API conventions incl. business error codes, seed accounts), 99
+           tickets (34 feature, 4 test, 7 design, 5 diagram, 11 research,
+           28 docs, 9 report, 1 QA; 184 points, 86 of 1–2 points), "Defer
+          red to final" list, summary table and totals. Docs/report ticke
+          ts generated from the `**Ticket:**` markers and "Done when" lis
+          ts in `docs/midterm/01–05, 07` | Script check: 99 `## T-` headi
+          ngs with Points/Labels/Depends on lines each, IDs sequential, e
+          very dependency exists, no dependency cycles, exactly one `type
+          :` label per ticket, good-first-ticket exactly on 1–2 point tic
+          kets, totals recomputed from the tickets; spot-read W1–W5 contr
+          acts against entities, repositories, `OrgPermissionService` and
+           the dev seed (accounts, events, registrations); human verifica
+          tion: re-ran the hand-off checks myself (99 tickets, Points/Lab
+          els/Depends lines, 184 points) and reviewed the plan in the Git
+          Hub PR view (summary table, sample tickets, check-in and announ
+          cement rules, API paths and error codes), no further changes | 
+          Answered open decisions before writing: president/admin adds me
+          mbers by email (no self-join), manual status transitions (no sc
+          heduler), diagram tickets own the diagrams (§4.3 use-case diagr
+          am, sequence diagrams only W2/W4); cut mid-term scope: moved W1
+           change role/leave/edit org, W5 task and announ … [+288 chars]
+      18  | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Script to create the mid-term issues and board (nothing created
+           on GitHub) | Write `scripts/create-issues.sh` (bash + gh, jq/p
+          ython3) that reads `docs/planning/midterm-tickets.md` and creat
+          es labels, milestone "Mid-term", the Project v2 board with a Po
+          ints field, issues T-01..T-99 (labels + points, no assignees, S
+          tatus Todo) and clickable dependency links; dry-run by default,
+           `--run` to apply, idempotent, paced API calls, clear errors, f
+          inal summary; README section; list open decisions first and wai
+          t for answers; do not run `--run`, no commit | `scripts/create-
+          issues.sh` (dry-run/`--run`/`--show-body`, embedded parser with
+           validation, relative links → absolute GitHub links, label/mile
+          stone/project/issue/board/dependency steps, 60 s retry on secon
+          dary rate limit), `docs/planning/README.md`; `CONTRIBUTING.md` 
+          §1 board name | `bash -n` OK; `--bogus` → usage error (exit 2);
+           `--show-body T-02/T-62/T-99` checked header line, absolute lin
+          ks and block boundaries; dry-run against GitHub (read-only): 25
+           labels, milestone, rename of project #1, Points field, Status 
+          options, 99 issues, 99 board items, 68 body updates, 177 native
+           dependency links, exit 0 | Answered open decisions before impl
+          ementation: reuse and rename the existing "GenAI Pro" board ins
+          tead of creating a new one, replace its Status options with the
+           CONTRIBUTING columns, text links + native "blocked by" depende
+          ncies, keep the file titles unchanged after `[T-nn]`, rewrite r
+          elative links and add a shared-conventions header line, update 
+          CONTRIBUTING §1 |
+      19 +| 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+         +Fix the good-first-ticket rule (file, scripts, existing issues;
+         + labels on GitHub not changed yet) | Human found that ~75% of g
+         +ood-first-ticket tickets are blocked; new rule: good-first-tick
+         +et only on 1–2 points AND "Depends on: none". Apply it in `midt
+         +erm-tickets.md` (labels + summary/totals) and in `create-issues
+         +.sh`; write `scripts/fix-good-first-labels.sh` (dry-run default
+         +, `--run`, only this repo) for the existing issues; explain in 
+         +CONTRIBUTING how to pick a ticket via the "Blocked by" box; onl
+         +y dry-run, no commit | `docs/planning/midterm-tickets.md` (labe
+         +l removed from 57 tickets, kept on 29; label description; total
+         +s with a `good-first-ticket` column); `scripts/create-issues.sh
+         +` (parser enforces the rule, new label description, clearer aut
+         +h/network error; fix: on re-run only the `Depends on:` line of 
+         +an existing body is replaced, so edits on GitHub are not overwr
+         +itten); new `scripts/fix-good-first-labels.sh` (points from `po
+         +ints:n`, dependencies from the body line + native blocked-by, r
+         +etries reads, keeps the body `- Labels:` line consistent, updat
+         +es the label description); `CONTRIBUTING.md` §1 "How to pick a 
+         +ticket"; `docs/planning/README.md` rule section | Script check:
+         + ticket blocks == summary table, 0 rule violations, 29 good-fir
+         +st tickets, totals recomputed (99 / 184 / 86 / 29); `bash -n` o
+         +n both scripts; fix-script dry-run against GitHub: 57 removals 
+         +(same 57 tickets as in the file diff), 0 additions, 57 body Lab
+         +els lines, 42 unchanged; a check that after the fix every issue
+         +'s `- Labels:` line equals the file; `create-issues.sh` dry-run
+         +: 0 to create, 0 body updates, 177 native links exist. A transi
+         +ent TLS timeout during the first dry-run showed the fallback wa
+         +s too lenient → now retries and stops instead of silently ignor
+         +ing native blockers | Found the good-first-ticket problem and d
+         +efined the new rule; _to fill in after review: ran `--run`? oth
+         +er changes_ |                                                  
+
+⏺ I applied the new rule everywhere: good-first-ticket only on tickets with 1–2
+  points and "Depends on: none". The fix script has only been run in dry-run, so
+  the issues on GitHub still carry the old labels. Nothing is committed or
+  pushed.
+
+  1. docs/planning/midterm-tickets.md
+  - The label is removed from 57 tickets and stays on 29; no ticket gains it.
+    The 5 no-genai tickets lose it too, because they all have dependencies.
+  - The label's description in the Labels table now states the rule.
+  - The Totals table has a new good-first-ticket column: 99 tickets, 184 points,
+    86 tickets of 1–2 points, 29 good-first.
+  - A check confirmed every ticket's Labels line matches the summary table and
+    nothing breaks the rule.
+
+  2. scripts/create-issues.sh
+  - The parser applies the rule itself, whatever the Labels: line in the file
+    says, and the label description is updated.
+  - Bug fix in my previous version: on a re-run, step 5 replaced the whole body
+    of any issue whose text differed from the file. That would have overwritten
+    edits teammates make on GitHub, and right now it would have rewritten 57
+    bodies. It now replaces only the Depends on: line. Its dry-run now shows 0
+    changes.
+
+  3. scripts/fix-good-first-labels.sh (new)
+  - Dry-run by default; --run applies; it only touches
+    PatriciuMina/GenAI-Project.
+  - An issue counts as having dependencies if its Depends on: line isn't none or
+    it has any native "Blocked by" relation.
+  - Beyond what you asked, it also updates the - Labels: line in each changed
+    issue's body, so the text doesn't still say good-first-ticket. It also
+    updates the label's description on GitHub.
+  - The dry-run would remove the label from 57 issues and add it to none,
+    leaving 29. Those 57 are exactly the tickets that lost it in the file. Full
+    output: /private/tmp/claude-501/-Users-patriciumina-projects-GenAI-Project/a
+    629aa80-e5d9-4393-a314-dd5838fd6e09/scratchpad/fix-dryrun.txt
+  - During the first dry-run a network timeout made it silently stop reading
+    "Blocked by" for the remaining issues. It now retries, and stops with an
+    error unless GitHub reports the feature as missing.
+
+  4. CONTRIBUTING.md
+  - §1 has a new "How to pick a ticket" part: check the "Blocked by" box in the
+    issue sidebar, start only when every blocker is closed, and use
+    good-first-ticket (filter label:good-first-ticket) for tickets you can start
+    right away.
+  - §2 step 1 now points there.
+
+  I also added the rule and the fix script to docs/planning/README.md, and
+  appended a row to docs/genai/usage-log.md. Please fill in its "Human changes"
+  column.
+
+  How to verify:
+  1. git diff docs/planning/midterm-tickets.md: only good-first-ticket
+     disappears from Labels lines, plus the description and Totals changes.
+  2. ./scripts/fix-good-first-labels.sh should end with: 57 removed, 0 added, 57
+     body Labels lines fixed, 42 already correct, 29 with good-first-ticket
+     afterwards.
+  3. ./scripts/create-issues.sh should show 0 to create and 0 body updates.
+  4. When you're happy, run ./scripts/fix-good-first-labels.sh --run yourself
+     (about 2 minutes), then check:
+     - the issue list filtered by label:good-first-ticket shows 29 open issues,
+       with no "Blocked by" in their sidebars;
+     - T-02 (#10) no longer has the label, and its body's Labels line no longer
+       mentions it;
+     - running the dry-run again shows 0 changes.
+
+✻ Cogitated for 12m 0s · done 11:37 AM
+
+※ recap: You asked for `good-first-ticket` to go only on 1–2 point tickets with no dependencies. The file, both scripts and CONTRIBUTING are updated, and the dry-run shows 57 labels to remove. Next: review it, then run `./scripts/fix-good-first-labels.sh --run` yourself.

@@ -6,14 +6,25 @@ Setup and run instructions are in the [README](README.md); coding rules are in
 
 ## 1. The project board
 
-All work is tracked as GitHub issues on the project board **GenAI Pro**
+All work is tracked as GitHub issues on the project board **UBB Events Board**
 (*Projects* tab of the repository). Columns: **Todo → In Progress → In Review → Done**.
 
 Every issue says what it **depends on** (other issue numbers) and has **story points**.
 
+### How to pick a ticket
+
+1. Open a ticket in **Todo** and look at the **Relationships → Blocked by** box in the
+   issue sidebar on the right (the `Depends on: T-xx (#nn)` line in the description lists the
+   same tickets).
+2. Start it **only if every blocking issue is closed** (purple "closed" icon). If one is
+   still open, the ticket is not ready yet: pick another one or help finish the blocker.
+3. **`good-first-ticket`** marks tickets with 1–2 points and **no dependencies at all**: they
+   can be started right away and are the best way to begin. Filter the board or the issue
+   list with `label:good-first-ticket`.
+
 ## 2. Working on a ticket, step by step
 
-1. **Pick** a ticket in **Todo** whose dependencies are all **Done**.
+1. **Pick** a ticket in **Todo** whose blockers are all closed (see "How to pick a ticket" above).
    If you are unsure, ask in the team chat before starting.
 2. **Assign yourself** to the issue and move it to **In Progress**.
 3. **Create a branch** from an up-to-date `main`, named `feature/<issue-number>-short-name`:
