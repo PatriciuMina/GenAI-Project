@@ -1,0 +1,1338 @@
+▗ ▗   ▖ ▖  Claude Code v2.1.319
+           Opus 5.5 · Claude Team
+ ▘▘   ▝▝   ~/projects/GenAI-Project
+
+  Get to finished work sooner with Opus 5.5. Switch anytime with /model.
+
+❯ /clear                                                                        
+
+❯ /plan                                                                         
+  ⎿  Enabled plan mode
+
+❯ Read CLAUDE.md and follow it. Read the whole repository: code (backend +      
+  frontend, incl.                                                               
+  TODO comments), docs/data-model.md, docs/course/course-requirements.md,       
+  docs/midterm/*                                                                
+  (each section has a suggested ticket title and points), README, CONTRIBUTING  
+  and                                                                           
+  .github/ISSUE_TEMPLATE.                                                       
+                                                                                
+  Plan ALL GitHub issues needed to finish the MID-TERM deliverable (A–E in      
+  docs/course/course-requirements.md). Write them to                            
+  docs/planning/midterm-tickets.md.                                             
+  Do NOT create anything on GitHub. No assignees: teammates pick tickets from   
+  the board.                                                                    
+  Anything already implemented or already written must NOT become a ticket.     
+                                                                                
+  Ticket categories (label type:*):                                             
+  - type:feature: the remaining MVP functionality of W1–W5 (MVP only, no        
+  waitlist), incl.                                                              
+    the memberships endpoint from the frontend TODO; split backend and frontend 
+  into                                                                          
+    separate tickets when the work is 3+ points.                                
+  - type:test: tests for important business rules (capacity, status             
+  transitions,                                                                  
+    permissions).                                                               
+  - type:design: logo, color palette + update frontend/src/theme.ts, wireframes 
+  of the                                                                        
+    main screens, UI polish (empty states, loading, error messages).            
+  - type:diagram: use case diagram, sequence diagrams for the main workflows,   
+  review of                                                                     
+    the state machine and ER diagram.                                           
+  - type:research: 5 separate tickets "Conduct 2 user interviews (#1..#5)",     
+  interview                                                                     
+    synthesis (findings), "assumptions we changed", personas, main product      
+  flows.                                                                        
+  - type:docs: one ticket per section in docs/midterm/01–05 (use the suggested  
+  titles and                                                                    
+    points from the files), final review of the mid-term docs, assembling the   
+  mid-term                                                                      
+    document and exporting it to PDF.                                           
+  - type:report: GenAI report (07), and 5 tickets "Individual contribution      
+  statement                                                                     
+    #1..#5" (no names).                                                         
+  - type:qa: manual test of all workflows, reporting bugs with the bug          
+  template.                                                                     
+                                                                                
+  For EVERY ticket, use exactly this structure so a script can parse it later:  
+  T-<nn>: <title>                                                               
+                                                                                
+  - Points: <1-5>                                                               
+  - Labels: <comma-separated: one type:* label, plus                            
+  area:backend/area:frontend/area:docs                                          
+    where relevant, plus workflow:W1..W5 where relevant, plus good-first-ticket 
+  for                                                                           
+    1–2 point tickets, plus no-genai for a few self-contained feature tickets>  
+  - Depends on: <T-ids or "none">                                               
+    then the body: Context; What to do; Files/folders to touch; for code        
+  tickets the API                                                               
+    contract (method, path, example request/response JSON) and business rules;  
+  Acceptance                                                                    
+    criteria as a checklist; How to check it's done; Link to the relevant guide 
+    (docs/dev-guide/..., docs/midterm/README.md, CONTRIBUTING.md).              
+    Write tickets so someone with NO AI tools can do them. Points scale from    
+  CONTRIBUTING.md;                                                              
+    split anything bigger than 5. Include many 1–2 point tickets so everyone    
+  can contribute.                                                               
+                                                                                
+  End the file with a summary table (ID, title, points, labels, depends on) and 
+  totals                                                                        
+  per category and overall.                                                     
+                                                                                
+  Before writing, list the open decisions (for example granularity, which W1–W5 
+  features                                                                      
+  count as MVP, how many tickets in total, ordering/dependencies) with your     
+  recommendation                                                                
+  for each, and wait for my answers. Do not commit or push.                     
+
+  Searched for 2 patterns, read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+⏺ Reading the remaining code (frontend pages, backend org/auth, guides) before
+  listing the decisions.
+
+  Read 1 file, ran 2 shell commands (ctrl+o to expand)
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ I've read the repo: the code, the TODOs, data-model, the course requirements,
+  the midterm drafts 01–08, README, CONTRIBUTING and the templates. Below are
+  the open decisions with my recommendation for each. They're also in the plan
+  file.
+
+  Already done, so no tickets for these: auth (register, login, JWT), GET 
+  /users/me, GET /organizations[/{id}], OrgPermissionService, the whole schema
+  with entities and repositories, dev seed, frontend auth, layout and
+  organizations pages, Docker, CI, the ADRs, the ER diagram, the midterm drafts
+  and the interview guide.
+
+  #: D1
+  Decision: W1 MVP
+  Recommendation: Includes: the memberships endpoint GET /users/me/memberships
+    (from the frontend TODO), a members list, the president adds a member by
+    email, changes a role or removes a member, a member can leave, the president
+
+    edits org details, and an admin creates an org and appoints its president.
+    Excludes: self-join and join requests.
+  ────────────────────────────────────────
+  #: D2
+  Decision: W2 MVP
+  Recommendation: Organizers create a draft, edit it, publish it, then move it
+  on
+    by hand (close registration → start → complete), with date checks. They can
+    also cancel. Excludes: an automatic scheduler and deleting events.
+  ────────────────────────────────────────
+  #: D3
+  Decision: W3 MVP
+  Recommendation: A paged GET /events with filters for category, organization,
+    date range and title text, sorted by start date. Students see PUBLISHED,
+    REGISTRATION_CLOSED and ONGOING events. Only organizers see DRAFT events,
+    through GET  /organizations/{id}/events. The details page shows free places
+    and the deadline.
+  ────────────────────────────────────────
+  #: D4
+  Decision: W4 MVP
+  Recommendation: Register, cancel your own registration, a "My registrations"
+    page, and a "registered" badge on event details. No waitlist.
+  ────────────────────────────────────────
+  #: D5
+  Decision: W5 MVP
+  Recommendation: Tasks: create, edit/assign, change status (no delete). Also a
+    participant list, check-in (no undo) and announcements, which organizers
+  post
+     and participants/members read. The "Organizing" nav item shows only for
+    organizers and presidents.
+  ────────────────────────────────────────
+  #: D6
+  Decision: Granularity
+  Recommendation: Split backend and frontend at 3+ points, and keep backend
+    tickets at 3 points or less per endpoint group. Feature tickets include
+  their
+     own basic tests. The type:test tickets add dedicated suites: capacity
+    concurrency, the status-transition matrix and the permission matrix.
+  ────────────────────────────────────────
+  #: D7
+  Decision: Diagrams vs. docs overlap
+  Recommendation: Section 4.3 of 04 already has a use-case diagram ticket, so it
+
+    becomes the type:diagram ticket rather than a duplicate. There's one
+    sequence-diagram ticket per workflow, embedded into the 05 sections, and the
+
+    05 docs tickets depend on them. The state machine and ER reviews happen
+  after
+     the W2 backend is done.
+  ────────────────────────────────────────
+  #: D8
+  Decision: Docs/report mapping
+  Recommendation: One ticket per "Ticket:" marker in 01–05, with the titles and
+    points from the files. Section 4.6 is split into W2 (2 pts) and W3 (1 pt),
+    which the file itself allows. Sections 6.1, 6.2, 6.4, 6.5 and 6.6 become
+    type:research. Section 07 becomes 4 report tickets (7.1–7.4). Plus a final
+    review ticket and an "assemble and export to PDF" ticket.
+  ────────────────────────────────────────
+  #: D9
+  Decision: Interviews and personas
+  Recommendation: Each interview ticket is 1 student + 1 organizer, worth 2
+    points, giving 10 interviews in total. Personas go in a new section 6.7 of
+    06-ux-research.md.
+  ────────────────────────────────────────
+  #: D10
+  Decision: Design
+  Recommendation: Logo (2 pts), palette + theme.ts (2 pts), 3 wireframe tickets
+    and 3 polish tickets (empty states, loading, errors). Wireframes won't block
+
+    the frontend tickets.
+  ────────────────────────────────────────
+  #: D11
+  Decision: Dependencies
+  Recommendation: Docs tickets don't wait for features; the final review
+    re-checks statuses. The docs chain is: FR → permission matrix → use-case
+  list
+     → use cases → workflows. The research chain is: interviews → findings →
+    assumptions, personas and product flows.
+  ────────────────────────────────────────
+  #: D12
+  Decision: no-genai and QA
+  Recommendation: 4 small, self-contained feature tickets get no-genai. QA gets
+    one manual-test ticket per workflow. That comes to about 95 tickets and 190
+    points, roughly 38 per person.
+
+⏺ User answered Claude's questions:
+  ⎿  · W1 membership: how do students become members of an organization in the 
+     MVP? → President adds by email (Recommended)
+     · W2 lifecycle: how do events move PUBLISHED → REGISTRATION_CLOSED → 
+     ONGOING → COMPLETED in the MVP? → Manual by organizer (Recommended)
+     · Diagrams vs. docs: 04 §4.3 and every 05 section already ask for a 
+     diagram. How should type:diagram tickets relate to them? → Diagram tickets 
+     own them (Recommended)
+     · Accept my remaining recommendations D3–D12 (W3–W5 MVP scope, granularity,
+     docs/research/report mapping, design, dependencies, ~95 tickets / ~190 
+     points)? → Accept D3–D12 with these changes to reduce the mid-term scope to
+     about 60–65 tickets. Move to the FINAL delivery (list them at the end of 
+     the file under "Deferred to final", not as mid-term tickets): W1 change 
+     role, member leaves, president edits org details (keep memberships 
+     endpoint, members list, add member by email, remove member, admin creates 
+     org); W5 task editing beyond create/assign/status, and announcement 
+     editing; QA: one manual-test ticket for all workflows instead of one per 
+     workflow; sequence-diagram tickets only for W2 and W4, for W1, W3 and W5 
+     the 05 docs ticket includes a simple Mermaid flow diagram itself; at most 2
+     UI polish tickets. Keep small tickets small (do not merge them) and keep 
+     everything required by deliverables B–E.
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ User answered Claude's questions:
+  ⎿  · After your cuts I still count about 99 tickets (~180 points), not 60–65. 
+     Deliverables B–E alone take 53 tickets: 28 docs (one per 'Ticket:' marker 
+     in 01–05, plus final review and PDF), 11 research, 9 report and 5 diagram. 
+     The rest are 34 feature, 4 test, 7 design and 1 QA. The only way to reach 
+     about 65 is to merge small tickets, which you asked me not to do. How 
+     should I proceed? → Keep ~99 small tickets (Recommended)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Now writing the final plan with the full ticket list.
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+  ⎿  User rejected Claude's plan:
+     ╭─────────────────────────────────────────────────────────────────────────╮
+     │ Plan: mid-term ticket backlog → docs/planning/midterm-tickets.md        │
+     │                                                                         │
+     │ Context                                                                 │
+     │                                                                         │
+     │ The mid-term deliverable (A–E in docs/course/course-requirements.md)    │
+     │ needs a complete,                                                       │
+     │ parseable backlog so the 5 teammates can pick tickets from the board,   │
+     │ without AI tools if                                                     │
+     │ they prefer. Output: one new file docs/planning/midterm-tickets.md +    │
+     │ one row appended to                                                     │
+     │ docs/genai/usage-log.md. Nothing on GitHub, no commit/push, no          │
+     │ assignees.                                                              │
+     │                                                                         │
+     │ Decisions (answered by the human)                                       │
+     │                                                                         │
+     │ - W1: president/admin adds members by email; no self-join. W2: manual   │
+     │   status transitions                                                    │
+     │   by organizers with date checks; no scheduler. D3–D12 accepted.        │
+     │ - Deferred to final (listed at end of file, not tickets): W1 change     │
+     │   role, member leaves,                                                  │
+     │   president edits org; W5 task editing beyond create/assign/status      │
+     │   (title/description/due,                                               │
+     │   delete) and announcement edit/delete; per-workflow QA; sequence       │
+     │   diagrams W1/W3/W5;                                                    │
+     │   further UI polish; plus already-out-of-scope waitlist and automatic   │
+     │   transitions.                                                          │
+     │ - Diagram tickets own diagrams: §4.3 = use-case diagram ticket;         │
+     │   sequence diagrams only W2,                                            │
+     │   W4 (embedded in 05 §5.2/§5.4); W1/W3/W5 05-docs tickets draw a simple │
+     │   Mermaid flow.                                                         │
+     │ - Keep ~99 small tickets (human accepted after count was shown); max 2  │
+     │   polish tickets.                                                       │
+     │                                                                         │
+     │ Ticket format (every ticket, parseable)                                 │
+     │                                                                         │
+     │ ## T-<nn>: <title>                                                      │
+     │ - Points: <1-5>                                                         │
+     │ - Labels: <type:*, area:*, workflow:W*, good-first-ticket (1–2 pts),    │
+     │ no-genai>                                                               │
+     │ - Depends on: <T-ids or none>                                           │
+     │ Body sections: Context · What to do · Files/folders to touch · API      │
+     │ contract (code only:                                                    │
+     │ method, path, example request/response JSON, status codes, error code   │
+     │ values) ·                                                               │
+     │ Business rules (code only) · Acceptance criteria (checklist) · How to   │
+     │ check it's                                                              │
+     │ done · Guide (docs/dev-guide/how-to-add-a-feature.md §…,                │
+     │ frontend-guide.md §…,                                                   │
+     │ docs/midterm/README.md, CONTRIBUTING.md). Titles use                    │
+     │ Conventional-Commit style                                               │
+     │ (feat:, test:, docs:, design:, research:).                              │
+     │                                                                         │
+     │ Shared API conventions (stated once in the file header, referenced by   │
+     │ tickets)                                                                │
+     │                                                                         │
+     │ - Errors via existing ApiException/ConflictException(code,              │
+     │   msg)/NotFoundException;                                               │
+     │   business codes: ALREADY_MEMBER, USER_NOT_FOUND,                       │
+     │   CANNOT_REMOVE_PRESIDENT,                                              │
+     │   ORGANIZATION_NAME_TAKEN, INVALID_STATUS_TRANSITION,                   │
+     │   EVENT_NOT_EDITABLE,                                                   │
+     │   CONCURRENT_UPDATE (optimistic lock), EVENT_FULL, REGISTRATION_CLOSED, │
+     │   ALREADY_REGISTERED, NOT_REGISTERED, CHECK_IN_NOT_ALLOWED,             │
+     │   ALREADY_CHECKED_IN,                                                   │
+     │   ASSIGNEE_NOT_IN_ORGANIZATION.                                         │
+     │ - Permissions with                                                      │
+     │   @PreAuthorize("@orgPermissions.isOrganizer(principal.id, #orgId)")    │
+     │   pattern; ADMIN gets no org rights unless stated.                      │
+     │ - Paging: new common/dto/PageResponse<T> record (content, page, size,   │
+     │   totalElements,                                                        │
+     │   totalPages), introduced by T-16.                                      │
+     │ - Students' event list: PUBLISHED, REGISTRATION_CLOSED, ONGOING with    │
+     │   endAt >= now;                                                         │
+     │   details visible for any non-DRAFT; DRAFT only to organizers of the    │
+     │   org.                                                                  │
+     │ - Check-in allowed when event is REGISTRATION_CLOSED or ONGOING,        │
+     │   CONFIRMED only.                                                       │
+     │                                                                         │
+     │ Ticket list (99 tickets, 184 points)                                    │
+     │                                                                         │
+     │ Abbrev: BE = area:backend, FE = area:frontend, D = area:docs, gft =     │
+     │ good-first-ticket.                                                      │
+     │                                                                         │
+     │ type:feature (34 tickets, 72 pts)                                       │
+     │                                                                         │
+     │ ┌─────┬─────────────────────────────────────────┬─────┬─────────┬────── │
+     │ ──┐                                                                     │
+     │ │ ID  │                  Title                  │ Pts │ Extra   │       │
+     │ Depend │                                                                │
+     │ │     │                                         │     │ labels  │   s   │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-0 │ BE: GET /users/me/memberships           │ 2   │ BE W1   │ none  │
+     │  │                                                                      │
+     │ │ 1   │                                         │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │     │                                         │     │ FE W1   │       │
+     │  │                                                                      │
+     │ │ T-0 │ FE: show "Organizing" nav only to       │ 1   │ W5 gft  │ T-01  │
+     │  │                                                                      │
+     │ │ 2   │ organizers/presidents                   │     │ no-gena │       │
+     │  │                                                                      │
+     │ │     │                                         │     │ i       │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-0 │ BE: GET /organizations/{id}/members     │ 2   │ BE W1   │ none  │
+     │  │                                                                      │
+     │ │ 3   │                                         │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-0 │ BE: POST /organizations/{id}/members    │ 2   │ BE W1   │ T-03  │
+     │  │                                                                      │
+     │ │ 4   │ (add by email)                          │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-0 │ BE: DELETE /organizations/{id}/members/ │     │ BE W1   │       │
+     │  │                                                                      │
+     │ │ 5   │ {membershipId}                          │ 1   │ gft no- │ T-03  │
+     │  │                                                                      │
+     │ │     │                                         │     │ genai   │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-0 │ FE: members list on organization        │ 2   │ FE W1   │ T-01, │
+     │  │                                                                      │
+     │ │ 6   │ details                                 │     │ gft     │ T-03  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-0 │                                         │     │ FE W1   │ T-04, │
+     │  │                                                                      │
+     │ │ 7   │ FE: add/remove member UI for presidents │ 2   │ gft     │ T-05, │
+     │  │                                                                      │
+     │ │     │                                         │     │         │ T-06  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-0 │ BE: POST /organizations (admin creates  │ 3   │ BE W1   │ none  │
+     │  │                                                                      │
+     │ │ 8   │ org + president)                        │     │         │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-0 │ FE: Admin page – create organization    │ 2   │ FE W1   │ T-08  │
+     │  │                                                                      │
+     │ │ 9   │ form                                    │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ BE: POST /organizations/{orgId}/events  │ 3   │ BE W2   │ none  │
+     │  │                                                                      │
+     │ │ 0   │ (create DRAFT)                          │     │         │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ BE: PUT /events/{id} (edit              │ 2   │ BE W2   │ T-10  │
+     │  │                                                                      │
+     │ │ 1   │ DRAFT/PUBLISHED, optimistic lock)       │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ BE: POST /events/{id}/status (lifecycle │ 3   │ BE W2   │ T-10  │
+     │  │                                                                      │
+     │ │ 2   │  transitions + cancel)                  │     │         │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ FE: create/edit event form              │ 3   │ FE W2   │ T-10, │
+     │  │                                                                      │
+     │ │ 3   │                                         │     │         │ T-11  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ FE: Organizing page – events of my      │ 2   │ FE W2   │ T-01, │
+     │  │                                                                      │
+     │ │ 4   │ organizations                           │     │ gft     │ T-17  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ FE: organizer event page with status    │ 2   │ FE W2   │ T-12, │
+     │  │                                                                      │
+     │ │ 5   │ actions                                 │     │ gft     │ T-14  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ BE: GET /events search (filters,        │ 3   │ BE W3   │ none  │
+     │  │                                                                      │
+     │ │ 6   │ paging, PageResponse)                   │     │         │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ BE: GET /organizations/{id}/events      │ 2   │ BE W3   │ none  │
+     │  │                                                                      │
+     │ │ 7   │                                         │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ BE: GET /events/{id} details with free  │ 2   │ BE W3   │ none  │
+     │  │                                                                      │
+     │ │ 8   │ places                                  │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-1 │ FE: events list with filters            │ 3   │ FE W3   │ T-16  │
+     │  │                                                                      │
+     │ │ 9   │                                         │     │         │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │ FE: event details page                  │ 2   │ FE W3   │ T-18  │
+     │  │                                                                      │
+     │ │ 0   │                                         │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │ BE: POST /events/{id}/registrations     │ 3   │ BE W4   │ T-18  │
+     │  │                                                                      │
+     │ │ 1   │ (capacity lock)                         │     │         │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │ BE: DELETE                              │ 2   │ BE W4   │ T-21  │
+     │  │                                                                      │
+     │ │ 2   │ /events/{id}/registrations/me (cancel)  │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │ BE: GET /users/me/registrations         │ 2   │ BE W4   │ T-18  │
+     │  │                                                                      │
+     │ │ 3   │                                         │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │     │                                         │     │         │ T-20, │
+     │  │                                                                      │
+     │ │ T-2 │ FE: register/cancel on event details    │ 2   │ FE W4   │ T-21, │
+     │  │                                                                      │
+     │ │ 4   │                                         │     │ gft     │ T-22, │
+     │  │                                                                      │
+     │ │     │                                         │     │         │ T-23  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │                                         │     │ FE W4   │ T-22, │
+     │  │                                                                      │
+     │ │ 5   │ FE: My registrations page               │ 2   │ gft no- │ T-23  │
+     │  │                                                                      │
+     │ │     │                                         │     │ genai   │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │ BE: GET/POST /events/{id}/tasks         │ 2   │ BE W5   │ T-03, │
+     │  │                                                                      │
+     │ │ 6   │                                         │     │ gft     │ T-18  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │ BE: PATCH /events/{id}/tasks/{taskId}   │ 2   │ BE W5   │ T-26  │
+     │  │                                                                      │
+     │ │ 7   │ (assignee, status)                      │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │ BE: GET /events/{id}/registrations      │ 2   │ BE W5   │ T-21  │
+     │  │                                                                      │
+     │ │ 8   │ (participant list)                      │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-2 │ BE: POST …/registrations/{registrationI │ 2   │ BE W5   │ T-28  │
+     │  │                                                                      │
+     │ │ 9   │ d}/check-in                             │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-3 │ BE: GET/POST /events/{id}/announcements │ 2   │ BE W5   │ T-18  │
+     │  │                                                                      │
+     │ │ 0   │                                         │     │ gft     │       │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │     │                                         │     │         │ T-03, │
+     │  │                                                                      │
+     │ │ T-3 │ FE: tasks panel on organizer event page │ 3   │ FE W5   │ T-15, │
+     │  │                                                                      │
+     │ │ 1   │                                         │     │         │ T-26, │
+     │  │                                                                      │
+     │ │     │                                         │     │         │ T-27  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-3 │                                         │     │ FE W5   │ T-15, │
+     │  │                                                                      │
+     │ │ 2   │ FE: participants + check-in panel       │ 2   │ gft     │ T-28, │
+     │  │                                                                      │
+     │ │     │                                         │     │         │ T-29  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-3 │ FE: post announcement form              │ 1   │ FE W5   │ T-15, │
+     │  │                                                                      │
+     │ │ 3   │                                         │     │ gft     │ T-30  │
+     │  │                                                                      │
+     │ ├─────┼─────────────────────────────────────────┼─────┼─────────┼────── │
+     │ ──┤                                                                     │
+     │ │ T-3 │                                         │     │ FE W5   │ T-20, │
+     │  │                                                                      │
+     │ │ 4   │ FE: announcements on event details      │ 1   │ gft no- │ T-30  │
+     │  │                                                                      │
+     │ │     │                                         │     │ genai   │       │
+     │  │                                                                      │
+     │ └─────┴─────────────────────────────────────────┴─────┴─────────┴────── │
+     │ ──┘                                                                     │
+     │                                                                         │
+     │ type:test (4, 10 pts)                                                   │
+     │                                                                         │
+     │ T-35 capacity + concurrent last-place registration (Testcontainers, 2   │
+     │ threads) 3 BE W4 · T-21                                                 │
+     │ T-36 registration window/duplicate/cancel-and-re-register rules 2 BE W4 │
+     │ gft · T-21, T-22                                                        │
+     │ T-37 event status transition matrix (parameterized 6×6 + date rules) 2  │
+     │ BE W2 gft · T-12                                                        │
+     │ T-38 permission matrix integration tests (401/403 per role for W1/W2/W5 │
+     │ writes) 3 BE W1 W2 W5 · T-04, T-05, T-08, T-10, T-12, T-26, T-29, T-30  │
+     │                                                                         │
+     │ type:design (7, 13 pts)                                                 │
+     │                                                                         │
+     │ T-39 logo (Logo.tsx + public SVG + docs/design/logo.md) 2 FE D gft ·    │
+     │ none                                                                    │
+     │ T-40 color palette + update theme.ts (WCAG AA contrast) 2 FE D gft ·    │
+     │ none                                                                    │
+     │ T-41 wireframes: student screens (events list, details, my              │
+     │ registrations) 2 D gft · none                                           │
+     │ T-42 wireframes: organizer screens (organizing, event form,             │
+     │ tasks/participants/announcements) 2 D gft · none                        │
+     │ T-43 wireframes: organization details + admin 1 D gft · none            │
+     │ T-44 UI polish: empty states + loading on new pages 2 FE gft · T-06,    │
+     │ T-14, T-19, T-25                                                        │
+     │ T-45 UI polish: friendly messages for business-rule errors 2 FE gft ·   │
+     │ T-15, T-24                                                              │
+     │                                                                         │
+     │ type:diagram (5, 7 pts)                                                 │
+     │                                                                         │
+     │ T-46 use case overview diagram (04 §4.3) 1 D gft · T-76                 │
+     │ T-47 sequence diagram W2 (embed in 05 §5.2) 2 D W2 gft · none           │
+     │ T-48 sequence diagram W4 with capacity alt (05 §5.4) 2 D W4 gft · none  │
+     │ T-49 review event state machine vs code 1 D W2 gft · T-12, T-84         │
+     │ T-50 review ER diagram vs migrations/entities 1 D gft · T-30            │
+     │                                                                         │
+     │ type:research (11, 19 pts) — all D                                      │
+     │                                                                         │
+     │ T-51 review interview guide (6.2) 1 · none                              │
+     │ T-52…T-56 Conduct 2 user interviews #1…#5 (1 student + 1 organizer      │
+     │ each, notes I-NN.md, log row) 2 each · T-51                             │
+     │ T-57 research method + consent (6.1) 1 · T-52–T-56                      │
+     │ T-58 synthesise interview findings (6.4) 2 · T-52–T-56                  │
+     │ T-59 assumptions we changed (6.5) 2 · T-58                              │
+     │ T-60 personas (new §6.7 in 06) 2 · T-58                                 │
+     │ T-61 main product flows (6.6) 1 · T-58                                  │
+     │                                                                         │
+     │ type:docs (28, 48 pts) — titles/points from the files                   │
+     │                                                                         │
+     │ 01: T-62 problem statement 2 (none; team experience allowed, final      │
+     │ review adds I-NN refs) · T-63 stakeholders 1 · T-64 scope 1 · T-65 out  │
+     │ of scope 1 (T-64)                                                       │
+     │ 02: T-66 map R1–R16 2 (T-67–T-73) · T-67 FR accounts/admin 1 · T-68 FR  │
+     │ W1 2 · T-69 FR W2 2 · T-70 FR W3 1 · T-71 FR W4 2 · T-72 FR W5 2 · T-73 │
+     │ NFR 2                                                                   │
+     │ 03: T-74 actors 1 (T-63) · T-75 permission matrix 2 (T-67–T-72, T-74)   │
+     │ 04: T-76 agree UC list 1 (T-75) · T-77 UC AUTH/ADM 1 · T-78 UC W1 2 ·   │
+     │ T-79 UC W2 2 · T-80 UC W3 1 · T-81 UC W4 2 · T-82 UC W5 2 (all T-76)    │
+     │ 05: T-83 workflow W1 (+simple Mermaid) 2 (T-78) · T-84 W2 + state       │
+     │ machine 3 (T-79, T-47) ·                                                │
+     │     T-85 W3 (+Mermaid) 1 (T-80) · T-86 W4 2 (T-81, T-48) · T-87 W5      │
+     │ (+Mermaid) 2 (T-82, T-58)                                               │
+     │ T-88 final review of mid-term docs (statuses vs main, IDs, links,       │
+     │ Done-when boxes) 3 · T-62–T-87, T-57–T-61, T-90–T-93                    │
+     │ T-89 assemble mid-term document + export PDF 2 · T-88, T-94–T-98        │
+     │                                                                         │
+     │ type:report (9, 12 pts) — D                                             │
+     │                                                                         │
+     │ T-90 GenAI tools and purposes (7.1) 1 · T-91 GenAI artifacts list (7.2) │
+     │ 2 ·                                                                     │
+     │ T-92 GenAI verification process (7.3) 2 · T-93 GenAI human decisions    │
+     │ (7.4) 2 — all none                                                      │
+     │ T-94…T-98 Individual contribution statement #1…#5 1 each · none (fill   │
+     │ last)                                                                   │
+     │                                                                         │
+     │ type:qa (1, 3 pts)                                                      │
+     │                                                                         │
+     │ T-99 manual test of all workflows W1–W5 (seed accounts, docker compose, │
+     │ bugs via bug template) 3 · T-02, T-07, T-09, T-13, T-15, T-19, T-24,    │
+     │ T-25, T-31–T-34                                                         │
+     │                                                                         │
+     │ File layout                                                             │
+     │                                                                         │
+     │ 1. Header: purpose, how to use (board, CONTRIBUTING), label legend,     │
+     │    points scale link,                                                   │
+     │    shared API conventions, seed accounts to test with.                  │
+     │ 2. Tickets by category in the order above.                              │
+     │ 3. "Deferred to final" list.                                            │
+     │ 4. Summary table (ID, title, points, labels, depends on) + totals per   │
+     │    category + overall.                                                  │
+     │                                                                         │
+     │ Steps                                                                   │
+     │                                                                         │
+     │ 1. Write docs/planning/midterm-tickets.md (exactly the 99 tickets       │
+     │    above, final IDs                                                     │
+     │    double-checked; T-49 → T-84 dependency).                             │
+     │ 2. Append usage-log row (2026-11-07, Patriciu Mina, Claude Code (Claude │
+     │    Opus 5.5), mid-term                                                  │
+     │    ticket planning, decisions & human changes listed above). Tell the   │
+     │    human how to verify it                                               │
+     │    (the commands below), and that nothing was committed or created on   │
+     │    GitHub.                                                              │
+     │                                                                         │
+     │ Verification                                                            │
+     │                                                                         │
+     │ - grep -c '^## T-' docs/planning/midterm-tickets.md → 99.               │
+     │ - grep -c '^- Points:', '^- Labels:', '^- Depends on:' → 99 each.       │
+     │ - Script check: every Depends-on ID exists and is lower-risk (no        │
+     │   cycles); summary totals =                                             │
+     │   sum of ticket points (184); each ticket has exactly one type: label.  │
+     │ - git status → only the new file + usage-log modified.                  │
+     ╰─────────────────────────────────────────────────────────────────────────╯
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ Updated plan
+  ⎿  /plan to preview
+
+⏺ User approved Claude's plan
+  ⎿  Plan saved to: 
+     ~/.claude/plans/pasted-content-id-1603-read-claude-md-floofy-lark.md · 
+     /plan to edit
+     Plan: mid-term ticket backlog → docs/planning/midterm-tickets.md
+
+     Context
+
+     The mid-term deliverable (A–E in docs/course/course-requirements.md) needs
+     a complete,
+     parseable backlog so the 5 teammates can pick tickets from the board,
+     without AI tools if
+     they prefer. Output: one new file docs/planning/midterm-tickets.md + one
+     row appended to
+     docs/genai/usage-log.md. Nothing on GitHub, no commit/push, no assignees.
+
+     Decisions (answered by the human)
+
+     - W1: president/admin adds members by email; no self-join. W2: manual
+       status transitions
+       by organizers with date checks; no scheduler. D3–D12 accepted.
+     - Deferred to final (listed at end of file, not tickets): W1 change role,
+       member leaves,
+       president edits org; W5 task editing beyond create/assign/status
+       (title/description/due,
+       delete) and announcement edit/delete; per-workflow QA; sequence diagrams
+       W1/W3/W5;
+       further UI polish; plus already-out-of-scope waitlist and automatic
+       transitions.
+     - Diagram tickets own diagrams: §4.3 = use-case diagram ticket; sequence
+       diagrams only W2,
+       W4 (embedded in 05 §5.2/§5.4); W1/W3/W5 05-docs tickets draw a simple
+       Mermaid flow.
+     - Keep ~99 small tickets (human accepted after count was shown); max 2
+       polish tickets.
+     - no-genai: exactly 5 tickets, one per team member, each a 2-pt feature
+       with real business
+       logic the author can explain: T-06, T-17, T-22, T-25, T-29. The file
+       header explains the
+       label (do it without GenAI; be ready to explain the rules) and no other
+       ticket carries it.
+
+     Ticket format (every ticket, parseable)
+
+     ## T-<nn>: <title>
+     - Points: <1-5>
+     - Labels: <type:*, area:*, workflow:W*, good-first-ticket (1–2 pts), 
+     no-genai>
+     - Depends on: <T-ids or none>
+     Body sections: Context · What to do · Files/folders to touch · API contract
+     (code only:
+     method, path, example request/response JSON, status codes, error code
+     values) ·
+     Business rules (code only) · Acceptance criteria (checklist) · How to check
+     it's
+     done · Guide (docs/dev-guide/how-to-add-a-feature.md §…, frontend-guide.md
+     §…,
+     docs/midterm/README.md, CONTRIBUTING.md). Titles use Conventional-Commit
+     style
+     (feat:, test:, docs:, design:, research:).
+
+     Shared API conventions (stated once in the file header, referenced by 
+     tickets)
+
+     - Errors via existing ApiException/ConflictException(code, 
+       msg)/NotFoundException;
+       business codes: ALREADY_MEMBER, USER_NOT_FOUND, CANNOT_REMOVE_PRESIDENT,
+       ORGANIZATION_NAME_TAKEN, INVALID_STATUS_TRANSITION, EVENT_NOT_EDITABLE,
+       CONCURRENT_UPDATE (optimistic lock), EVENT_FULL, REGISTRATION_CLOSED,
+       ALREADY_REGISTERED, NOT_REGISTERED, CHECK_IN_NOT_ALLOWED,
+       ALREADY_CHECKED_IN,
+       ASSIGNEE_NOT_IN_ORGANIZATION.
+     - Permissions with @PreAuthorize("@orgPermissions.isOrganizer(principal.id,
+       #orgId)")
+       pattern; ADMIN gets no org rights unless stated.
+     - Paging: new common/dto/PageResponse<T> record (content, page, size,
+       totalElements,
+       totalPages), introduced by T-16.
+     - Students' event list: PUBLISHED, REGISTRATION_CLOSED, ONGOING with endAt 
+       >= now;
+       details visible for any non-DRAFT; DRAFT only to organizers of the org.
+     - Check-in allowed when event is REGISTRATION_CLOSED or ONGOING, CONFIRMED
+       only.
+
+     Ticket list (99 tickets, 184 points)
+
+     Abbrev: BE = area:backend, FE = area:frontend, D = area:docs, gft =
+     good-first-ticket.
+
+     type:feature (34 tickets, 72 pts)
+
+     ┌─────┬─────────────────────────────────────────┬─────┬─────────┬────────┐
+     │ ID  │                  Title                  │ Pts │ Extra   │ Depend │
+     │     │                                         │     │ labels  │   s    │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │ BE: GET /users/me/memberships           │ 2   │ BE W1   │ none   │
+     │ 1   │                                         │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │ FE: show "Organizing" nav only to       │ 1   │ FE W1   │ T-01   │
+     │ 2   │ organizers/presidents                   │     │ W5 gft  │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │ BE: GET /organizations/{id}/members     │ 2   │ BE W1   │ none   │
+     │ 3   │                                         │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │ BE: POST /organizations/{id}/members    │ 2   │ BE W1   │ T-03   │
+     │ 4   │ (add by email)                          │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │ BE: DELETE /organizations/{id}/members/ │ 1   │ BE W1   │ T-03   │
+     │ 5   │ {membershipId}                          │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │ FE: members list on organization        │     │ FE W1   │ T-01,  │
+     │ 6   │ details                                 │ 2   │ gft no- │ T-03   │
+     │     │                                         │     │ genai   │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │                                         │     │ FE W1   │ T-04,  │
+     │ 7   │ FE: add/remove member UI for presidents │ 2   │ gft     │ T-05,  │
+     │     │                                         │     │         │ T-06   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │ BE: POST /organizations (admin creates  │ 3   │ BE W1   │ none   │
+     │ 8   │ org + president)                        │     │         │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-0 │ FE: Admin page – create organization    │ 2   │ FE W1   │ T-08   │
+     │ 9   │ form                                    │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ BE: POST /organizations/{orgId}/events  │ 3   │ BE W2   │ none   │
+     │ 0   │ (create DRAFT)                          │     │         │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ BE: PUT /events/{id} (edit              │ 2   │ BE W2   │ T-10   │
+     │ 1   │ DRAFT/PUBLISHED, optimistic lock)       │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ BE: POST /events/{id}/status (lifecycle │ 3   │ BE W2   │ T-10   │
+     │ 2   │  transitions + cancel)                  │     │         │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ FE: create/edit event form              │ 3   │ FE W2   │ T-10,  │
+     │ 3   │                                         │     │         │ T-11   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ FE: Organizing page – events of my      │ 2   │ FE W2   │ T-01,  │
+     │ 4   │ organizations                           │     │ gft     │ T-17   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ FE: organizer event page with status    │ 2   │ FE W2   │ T-12,  │
+     │ 5   │ actions                                 │     │ gft     │ T-14   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ BE: GET /events search (filters,        │ 3   │ BE W3   │ none   │
+     │ 6   │ paging, PageResponse)                   │     │         │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │                                         │     │ BE W3   │        │
+     │ 7   │ BE: GET /organizations/{id}/events      │ 2   │ gft no- │ none   │
+     │     │                                         │     │ genai   │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ BE: GET /events/{id} details with free  │ 2   │ BE W3   │ none   │
+     │ 8   │ places                                  │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-1 │ FE: events list with filters            │ 3   │ FE W3   │ T-16   │
+     │ 9   │                                         │     │         │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │ FE: event details page                  │ 2   │ FE W3   │ T-18   │
+     │ 0   │                                         │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │ BE: POST /events/{id}/registrations     │ 3   │ BE W4   │ T-18   │
+     │ 1   │ (capacity lock)                         │     │         │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │ BE: DELETE                              │     │ BE W4   │        │
+     │ 2   │ /events/{id}/registrations/me (cancel)  │ 2   │ gft no- │ T-21   │
+     │     │                                         │     │ genai   │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │ BE: GET /users/me/registrations         │ 2   │ BE W4   │ T-18   │
+     │ 3   │                                         │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │     │                                         │     │         │ T-20,  │
+     │ T-2 │ FE: register/cancel on event details    │ 2   │ FE W4   │ T-21,  │
+     │ 4   │                                         │     │ gft     │ T-22,  │
+     │     │                                         │     │         │ T-23   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │                                         │     │ FE W4   │ T-22,  │
+     │ 5   │ FE: My registrations page               │ 2   │ gft no- │ T-23   │
+     │     │                                         │     │ genai   │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │ BE: GET/POST /events/{id}/tasks         │ 2   │ BE W5   │ T-03,  │
+     │ 6   │                                         │     │ gft     │ T-18   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │ BE: PATCH /events/{id}/tasks/{taskId}   │ 2   │ BE W5   │ T-26   │
+     │ 7   │ (assignee, status)                      │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │ BE: GET /events/{id}/registrations      │ 2   │ BE W5   │ T-21   │
+     │ 8   │ (participant list)                      │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-2 │ BE: POST …/registrations/{registrationI │     │ BE W5   │        │
+     │ 9   │ d}/check-in                             │ 2   │ gft no- │ T-28   │
+     │     │                                         │     │ genai   │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-3 │ BE: GET/POST /events/{id}/announcements │ 2   │ BE W5   │ T-18   │
+     │ 0   │                                         │     │ gft     │        │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │     │                                         │     │         │ T-03,  │
+     │ T-3 │ FE: tasks panel on organizer event page │ 3   │ FE W5   │ T-15,  │
+     │ 1   │                                         │     │         │ T-26,  │
+     │     │                                         │     │         │ T-27   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-3 │                                         │     │ FE W5   │ T-15,  │
+     │ 2   │ FE: participants + check-in panel       │ 2   │ gft     │ T-28,  │
+     │     │                                         │     │         │ T-29   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-3 │ FE: post announcement form              │ 1   │ FE W5   │ T-15,  │
+     │ 3   │                                         │     │ gft     │ T-30   │
+     ├─────┼─────────────────────────────────────────┼─────┼─────────┼────────┤
+     │ T-3 │ FE: announcements on event details      │ 1   │ FE W5   │ T-20,  │
+     │ 4   │                                         │     │ gft     │ T-30   │
+     └─────┴─────────────────────────────────────────┴─────┴─────────┴────────┘
+
+     type:test (4, 10 pts)
+
+     T-35 capacity + concurrent last-place registration (Testcontainers, 2
+     threads) 3 BE W4 · T-21
+     T-36 registration window/duplicate/cancel-and-re-register rules 2 BE W4 gft
+     · T-21, T-22
+     T-37 event status transition matrix (parameterized 6×6 + date rules) 2 BE
+     W2 gft · T-12
+     T-38 permission matrix integration tests (401/403 per role for W1/W2/W5
+     writes) 3 BE W1 W2 W5 · T-04, T-05, T-08, T-10, T-12, T-26, T-29, T-30
+
+     type:design (7, 13 pts)
+
+     T-39 logo (Logo.tsx + public SVG + docs/design/logo.md) 2 FE D gft · none
+     T-40 color palette + update theme.ts (WCAG AA contrast) 2 FE D gft · none
+     T-41 wireframes: student screens (events list, details, my registrations) 2
+     D gft · none
+     T-42 wireframes: organizer screens (organizing, event form,
+     tasks/participants/announcements) 2 D gft · none
+     T-43 wireframes: organization details + admin 1 D gft · none
+     T-44 UI polish: empty states + loading on new pages 2 FE gft · T-06, T-14,
+     T-19, T-25
+     T-45 UI polish: friendly messages for business-rule errors 2 FE gft · T-15,
+     T-24
+
+     type:diagram (5, 7 pts)
+
+     T-46 use case overview diagram (04 §4.3) 1 D gft · T-76
+     T-47 sequence diagram W2 (embed in 05 §5.2) 2 D W2 gft · none
+     T-48 sequence diagram W4 with capacity alt (05 §5.4) 2 D W4 gft · none
+     T-49 review event state machine vs code 1 D W2 gft · T-12, T-84
+     T-50 review ER diagram vs migrations/entities 1 D gft · T-30
+
+     type:research (11, 19 pts) — all D
+
+     T-51 review interview guide (6.2) 1 · none
+     T-52…T-56 Conduct 2 user interviews #1…#5 (1 student + 1 organizer each,
+     notes I-NN.md, log row) 2 each · T-51
+     T-57 research method + consent (6.1) 1 · T-52–T-56
+     T-58 synthesise interview findings (6.4) 2 · T-52–T-56
+     T-59 assumptions we changed (6.5) 2 · T-58
+     T-60 personas (new §6.7 in 06) 2 · T-58
+     T-61 main product flows (6.6) 1 · T-58
+
+     type:docs (28, 48 pts) — titles/points from the files
+
+     01: T-62 problem statement 2 (none; team experience allowed, final review
+     adds I-NN refs) · T-63 stakeholders 1 · T-64 scope 1 · T-65 out of scope 1
+     (T-64)
+     02: T-66 map R1–R16 2 (T-67–T-73) · T-67 FR accounts/admin 1 · T-68 FR W1 2
+     · T-69 FR W2 2 · T-70 FR W3 1 · T-71 FR W4 2 · T-72 FR W5 2 · T-73 NFR 2
+     03: T-74 actors 1 (T-63) · T-75 permission matrix 2 (T-67–T-72, T-74)
+     04: T-76 agree UC list 1 (T-75) · T-77 UC AUTH/ADM 1 · T-78 UC W1 2 · T-79
+     UC W2 2 · T-80 UC W3 1 · T-81 UC W4 2 · T-82 UC W5 2 (all T-76)
+     05: T-83 workflow W1 (+simple Mermaid) 2 (T-78) · T-84 W2 + state machine 3
+     (T-79, T-47) ·
+         T-85 W3 (+Mermaid) 1 (T-80) · T-86 W4 2 (T-81, T-48) · T-87 W5
+     (+Mermaid) 2 (T-82, T-58)
+     T-88 final review of mid-term docs (statuses vs main, IDs, links, Done-when
+     boxes) 3 · T-62–T-87, T-57–T-61, T-90–T-93
+     T-89 assemble mid-term document + export PDF 2 · T-88, T-94–T-98
+
+     type:report (9, 12 pts) — D
+
+     T-90 GenAI tools and purposes (7.1) 1 · T-91 GenAI artifacts list (7.2) 2 ·
+     T-92 GenAI verification process (7.3) 2 · T-93 GenAI human decisions (7.4)
+     2 — all none
+     T-94…T-98 Individual contribution statement #1…#5 1 each · none (fill last)
+
+     type:qa (1, 3 pts)
+
+     T-99 manual test of all workflows W1–W5 (seed accounts, docker compose,
+     bugs via bug template) 3 · T-02, T-07, T-09, T-13, T-15, T-19, T-24, T-25,
+     T-31–T-34
+
+     File layout
+
+     1. Header: purpose, how to use (board, CONTRIBUTING), label legend, points
+        scale link,
+        shared API conventions, seed accounts to test with.
+     2. Tickets by category in the order above.
+     3. "Deferred to final" list.
+     4. Summary table (ID, title, points, labels, depends on) + totals per
+        category + overall.
+
+     Steps
+
+     1. Write docs/planning/midterm-tickets.md (exactly the 99 tickets above,
+        final IDs
+        double-checked; T-49 → T-84 dependency).
+     2. Append usage-log row (2026-11-07, Patriciu Mina, Claude Code (Claude
+        Opus 5.5), mid-term
+        ticket planning, decisions & human changes listed above). Tell the human
+        how to verify it
+        (the commands below), and that nothing was committed or created on
+        GitHub.
+
+     Verification
+
+     - grep -c '^## T-' docs/planning/midterm-tickets.md → 99.
+     - grep -c '^- Points:', '^- Labels:', '^- Depends on:' → 99 each.
+     - Script check: every Depends-on ID exists and is lower-risk (no cycles);
+       summary totals =
+       sum of ticket points (184); each ticket has exactly one type: label.
+     - git status → only the new file + usage-log modified.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Writing the file in parts in the scratchpad, then assembling with a script
+  that also builds the summary table and validates dependencies.
+
+  Made 2 scratchpad edits +417, searched for 1 pattern (ctrl+o to expand)
+
+⏺ Fix the wording in T-08, then write W2.
+
+  Made 3 scratchpad edits +570, searched for 1 pattern, ran 2 shell commands (ctrl+o to expand)
+
+⏺ Still writing ticket parts (W1–W4 done); fixing two details in W4, then W5 and
+  the remaining categories.
+
+  Made 2 scratchpad edits +674, ran 4 shell commands (ctrl+o to expand)
+
+⏺ Writing the docs, report and QA tickets now (generated from the midterm files
+  so titles, points and "Done when" lists match exactly), then assembling and
+  validating.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+⏺ Bash(cd /private/tmp/claude-501/-Users-patriciumina-projects-GenAI-Project/1f7
+      701bc-bd74-47d9-80ba-3cac1fabd94b/scratchpad && sed -i ''
+      "s/esc(v\[\"title\"\])/esc(v[…)
+  ⎿  no-genai: ['T-06', 'T-17', 'T-22', 'T-25', 'T-29']
+     99 184 86
+     type:feature 34 72
+     … +7 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to /Users/patriciumina/projects/GenAI-Project
+  ⎿  1 file changed (binary, mode only or too large to show)
+
+⏺ Validation passed: 99 tickets, 184 points, every dependency exists, no cycles.
+  Spot-checking a generated docs ticket and the summary.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ Bash(sed -i '' '/^(Split into two tickets if two people own W2 and W3.)$/d'
+      docs/planning/midterm-tickets.md && grep -c "Split into two tickets"
+      docs/planning/midter…)
+  ⎿  0
+     163:ORGANIZER or PRESIDENT membership. Remove the TODO comment.
+     169:- `frontend-guide.md` §7 (update the sentence about the TODO)
+     … +2 lines (ctrl+o to expand)
+  ⎿  Updated docs/planning/midterm-tickets.md (+0 -2)
+      2505  Detailed use cases for event lifecycle and discovery. Lifecyc
+            le use cases must match the
+      2506  state machine in `05-workflows.md` (W2) and say which status 
+            the event has before and after.
+      2507  Extra sources: `event/` package, `EventStatus`, data-model.md
+             lifecycle and W3 indexes.
+      2508 -(Split into two tickets if two people own W2 and W3.)        
+      2508  
+      2509  **This ticket covers only the W2 use cases (UC-20–29).** W3 i
+            s T-80.
+      2510  Follow the section's *Where to find the information* and *For
+            mat* exactly, replace the `> TODO (team):` marker and the `> 
+            **Example – replace:**` block.
+     ...
+      2535  Detailed use cases for event lifecycle and discovery. Lifecyc
+            le use cases must match the
+      2536  state machine in `05-workflows.md` (W2) and say which status 
+            the event has before and after.
+      2537  Extra sources: `event/` package, `EventStatus`, data-model.md
+             lifecycle and W3 indexes.
+      2539 -(Split into two tickets if two people own W2 and W3.)        
+      2538  
+      2539  **This ticket covers only the W3 use cases (UC-30–39).** W2 i
+            s T-79.
+      2540  Follow the section's *Where to find the information* and *For
+            mat* exactly, replace the `> TODO (team):` marker and the `> 
+            **Example – replace:**` block.
+
+⏺ Now the usage-log row.
+
+⏺ Bash(cat >> docs/genai/usage-log.md <<'EOF'
+      | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | Mid-term
+      ticket planning (no code, nothing created on GitH…)
+  ⎿   M docs/genai/usage-log.md
+     ?? docs/planning/
+  ⎿  Updated docs/genai/usage-log.md (+1 -0)
+      14  | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Dockerized full stack, CI, README, CONTRIBUTING, issue/PR templ
+          ates | Extend docker-compose so `docker compose up --build` run
+          s postgres + backend + frontend (multi-stage Dockerfiles, nginx
+           serving the build and proxying /api, all config from root .env
+          , dev seed users, must not hit the seeded-DB-without-seed Flywa
+          y problem); GitHub Actions CI (backend `./mvnw verify` on Java 
+          21 with Testcontainers, frontend npm ci/lint/test/build on Node
+           24, ubuntu-latest only, Maven/npm caching); README for non-exp
+          ert teammates; CONTRIBUTING (board workflow, branches, Conventi
+          onal Commits, DoD, non-code tickets as PRs under /docs, story p
+          oints, GenAI usage-log rule); issue templates (feature, docs, d
+          esign, research, bug) and PR template. List design decisions fi
+          rst and wait for answers; no commit | `docker-compose.yml` (bac
+          kend + frontend services, `dev` profile + seed-dev Flyway locat
+          ion pinned in `environment:`, datasource → `postgres:5432`, hea
+          lthchecks, depends_on service_healthy), `backend/Dockerfile` (t
+          emurin 21 jdk → 21-jre-alpine, non-root, `--strict-checksums`),
+           `backend/.dockerignore`, `frontend/Dockerfile` (node:24-alpine
+           → nginx:1.29-alpine), `frontend/nginx.conf` (/api proxy, SPA f
+          allback, asset caching), `frontend/.dockerignore`, `.env.exampl
+          e` (BACKEND_PORT, FRONTEND_PORT, comments), `.github/workflows/
+          ci.yml`, `.github/ISSUE_TEMPLATE/{feature,docs,design,research,
+          bug,config}.yml` (labels `type:*`, not created yet), `.github/p
+          ull_request_template.md`, `README.md`, `CONTRIBUTING.md`; run-c
+          ommand updates in `CLAUDE.md`, `docs/dev-guide/frontend-guide.m
+          d`, `docs/dev-guide/how-to-add-a-feature.md`, `docs/data-model.
+          md` (`docker compose up -d postgres` + dev profile) | Human ans
+          wered design decisions D1–D7 before implementation; `docker com
+          pose config -q` OK; actionlint 1.7.7 clean on ci.yml; issue-tem
+          plate YAML parses; `./mvnw verify` 47 tests 0 failures; fronten
+          d `npm ci`, lint, 15/15 tests, build OK on Node … [+1106 chars]
+      15  | 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+          Mid-term documentation drafts (instructions only, no content) |
+           Read the repo and create light drafts in docs/midterm/ (README
+           index A–E + 01–08): per section a heading, "What to write", ex
+          act sources in the repo, format, one marked example, "Done when
+          " checklist and a `> TODO (team):` marker, sized as tickets; R1
+          –R16 copied as given; interview questions may be written, no in
+          vented results; list open decisions first and wait for answers;
+           no commit | `docs/midterm/README.md`, `01-problem-statement.md
+          ` … `08-individual-contributions.md`, `docs/midterm/interviews/
+          README.md` (anonymised notes template); R1–R16 table copied fro
+          m `docs/course/course-requirements.md`; 12 student + 12 organiz
+          er interview questions; 13 pre-filled assumptions to validate (
+          no results) | Ran the hand-off checks (9 files + interviews/REA
+          DME, TODO markers and Done-when checklists in every file, only 
+          docs changed); read README and the interview guide in 06; compa
+          red docs/course/course-requirements.md with the original course
+           statement | Answered open decisions before writing: added `doc
+          s/course/course-requirements.md` as the source for R1–R16 and A
+          –E; status values implemented/partial/planned with separate FR-
+          AUTH/FR-ADM groups; assumption list changed (removed "2h login/
+          no refresh" as too technical for users; added English-only UI, 
+          only organizers/presidents create events, students find events 
+          via social media/word of mouth; table with an interview-evidenc
+          e column); interview notes in `docs/midterm/interviews/`, UC ID
+          s in blocks per workflow. _Further changes: Chose light drafts 
+          so teammates write the content; provided docs/course/course-req
+          uirements.md as source and corrected the A–E mapping; changed t
+          he assumptions list (removed 2h login, added English-only UI, w
+          ho creates events, how students find events); chose implemented
+          /partial/planned status with FR-AUTH/FR-ADM groups, anonymised 
+          interview notes in interviews/, UC number block … [+16 chars]
+      16  | 2026-11-07 | Patriciu Mina | Claude Opus 5.5 (claude.ai chat)
+           | Course requirements summary | Asked Claude to summarize the 
+          course project statement (R1–R16) and the mid-term deliverables
+           A–E as a reference file for the team | `docs/course/course-req
+          uirements.md` | Compared the summary with the original course s
+          tatement | Kept as a summary (not verbatim), marked as such in 
+          the file; used as the source for the mid-term docs |
+      17 +| 2026-11-07 | Patriciu Mina | Claude Code (Claude Opus 5.5) | 
+         +Mid-term ticket planning (no code, nothing created on GitHub) |
+         + Read the whole repo (code + TODOs, data-model, course requirem
+         +ents, docs/midterm, README, CONTRIBUTING, issue templates) and 
+         +plan all GitHub issues for mid-term parts A–E in `docs/planning
+         +/midterm-tickets.md` with a fixed parseable format (`## T-nn`, 
+         +Points/Labels/Depends on, body with API contract, acceptance cr
+         +iteria, guide links), categories type:feature/test/design/diagr
+         +am/research/docs/report/qa, no assignees, nothing already imple
+         +mented; list open decisions first and wait for answers; no comm
+         +it | `docs/planning/midterm-tickets.md`: header (labels, shared
+         + API conventions incl. business error codes, seed accounts), 99
+         + tickets (34 feature, 4 test, 7 design, 5 diagram, 11 research,
+         + 28 docs, 9 report, 1 QA; 184 points, 86 of 1–2 points), "Defer
+         +red to final" list, summary table and totals. Docs/report ticke
+         +ts generated from the `**Ticket:**` markers and "Done when" lis
+         +ts in `docs/midterm/01–05, 07` | Script check: 99 `## T-` headi
+         +ngs with Points/Labels/Depends on lines each, IDs sequential, e
+         +very dependency exists, no dependency cycles, exactly one `type
+         +:` label per ticket, good-first-ticket exactly on 1–2 point tic
+         +kets, totals recomputed from the tickets; spot-read W1–W5 contr
+         +acts against entities, repositories, `OrgPermissionService` and
+         + the dev seed (accounts, events, registrations) | Answered open
+         + decisions before writing: president/admin adds members by emai
+         +l (no self-join), manual status transitions (no scheduler), dia
+         +gram tickets own the diagrams (§4.3 use-case diagram, sequence 
+         +diagrams only W2/W4); cut mid-term scope: moved W1 change role/
+         +leave/edit org, W5 task and announcement editing, per-workflow 
+         +QA and W1/W3/W5 sequence diagrams to "Deferred to final", max 2
+         + polish tickets; kept ~99 small tickets after Claude showed the
+         + 60–65 target was not reachable without merging; chose the 5 `n
+         +o-genai` tickets (T-06, T-17, T-22, T-25, T-29) … [+23 chars]  
+
+⏺ I wrote docs/planning/midterm-tickets.md with 99 tickets worth 184 points,
+  plus the "Deferred to final" list, a summary table and per-category totals. I
+  also added a row to docs/genai/usage-log.md. Nothing was created on GitHub and
+  nothing was committed.
+
+  ┌──────────┬─────────┬────────┐
+  │ Category │ Tickets │ Points │
+  ├──────────┼─────────┼────────┤
+  │ feature  │ 34      │ 72     │
+  ├──────────┼─────────┼────────┤
+  │ test     │ 4       │ 10     │
+  ├──────────┼─────────┼────────┤
+  │ design   │ 7       │ 13     │
+  ├──────────┼─────────┼────────┤
+  │ diagram  │ 5       │ 7      │
+  ├──────────┼─────────┼────────┤
+  │ research │ 11      │ 19     │
+  ├──────────┼─────────┼────────┤
+  │ docs     │ 28      │ 48     │
+  ├──────────┼─────────┼────────┤
+  │ report   │ 9       │ 12     │
+  ├──────────┼─────────┼────────┤
+  │ qa       │ 1       │ 3      │
+  ├──────────┼─────────┼────────┤
+  │ Total    │ 99      │ 184    │
+  └──────────┴─────────┴────────┘
+
+  - Size: 86 tickets are 1–2 points and nothing is above 3, which works out to
+    about 37 points per person.
+  - no-genai: exactly T-06, T-17, T-22, T-25 and T-29, one per team member.
+  - Docs and report tickets were generated from the **Ticket:** markers in
+    docs/midterm/01–05 and 07, so titles, points and "Done when" checklists
+    match the files exactly.
+  - Header: it explains the labels and lists the shared API conventions once,
+    including the business error codes, plus the seed accounts to test with. The
+    code tickets refer to it instead of repeating everything.
+
+  Small changes from the approved plan:
+  - More dependencies: T-16, T-17 and T-18 now depend on T-10, because T-10
+    creates the EventResponse and EventService they reuse. T-13 and T-15 also
+    depend on T-18, since they load an event.
+  - Two new error codes: CANCEL_NOT_ALLOWED (T-22) and ANNOUNCEMENT_NOT_ALLOWED
+    (T-30).
+  - Labels: the interview tickets got good-first-ticket, following your rule
+    that every 1–2 point ticket gets it.
+
+  To check it:
+  f=docs/planning/midterm-tickets.md
+  grep -c '^## T-' $f                                  # 99
+  for k in Points Labels "Depends on"; do grep -c "^- $k:" $f; done   # 99 each
+  grep -A2 'no-genai' $f | grep '^## T-' ; grep -c 'no-genai$\|no-genai,' $f   #
+  only the 5 tickets carry it
+  tail -15 $f                                          # totals: 99 tickets, 184
+  points
+  git status --short                                   # only the usage log and 
+  docs/planning/
+  I also checked that IDs are sequential, every dependency exists, there are no
+  dependency cycles and each ticket has exactly one type: label. Open the file
+  on GitHub or in a Markdown preview to read the tickets. A good one to start
+  with is T-12, which covers the status transitions.
+
+  Things to review before the issues are created:
+  - The API paths and error codes.
+  - The check-in rule: check-in is only allowed when the event is
+    REGISTRATION_CLOSED or ONGOING.
+  - The rule for who can read announcements: organization members and anyone
+    registered for the event.
+
+✻ Crunched for 12m 49s · done 10:16 AM
+
+❯ ➜  GenAI-Project git:(main) f=docs/planning/midterm-tickets.md                
+  grep -c '^## T-' $f                                  # 99                     
+  for k in Points Labels "Depends on"; do grep -c "^- $k:" $f; done   # 99 each 
+  grep -A2 'no-genai' $f | grep '^## T-' ; grep -c 'no-genai$\|no-genai,' $f    
+  # only the 5 tickets carry it                                                 
+  tail -15 $f                                          # totals: 99 tickets,    
+  184 points                                                                    
+  git status --short                                                            
+  99                                                                            
+  99                                                                            
+  99                                                                            
+  99                                                                            
+  0                                                                             
+  Totals                                                                        
+                                                                                
+  | Category | Tickets | Points | 1–2 point tickets |                           
+  |----------|---------|--------|-------------------|                           
+  | type:feature | 34 | 72 | 26 |                                               
+  | type:test | 4 | 10 | 2 |                                                    
+  | type:design | 7 | 13 | 7 |                                                  
+  | type:diagram | 5 | 7 | 5 |                                                  
+  | type:research | 11 | 19 | 11 |                                              
+  | type:docs | 28 | 48 | 26 |                                                  
+  | type:report | 9 | 12 | 9 |                                                  
+  | type:qa | 1 | 3 | 0 |                                                       
+  | Overall | 99 | 184 | 86 |                                                   
+                                                                                
+  About 37 points per team member (5 people). no-genai tickets: T-06, T-17,     
+  T-22, T-25, T-29.                                                             
+   M docs/genai/usage-log.md                                                    
+  ?? docs/planning/                                                             
+  ➜  GenAI-Project git:(main) ✗                                                 
+
+  Ran 1 shell command (ctrl+o to expand)
+
+⏺ The file is fine. The 0 came from a mistake in the command I gave you, not
+  from the tickets.
+
+  - First part: grep -A2 prints lines that come after a match. The ticket
+    heading sits two lines above the Labels: line, so it never got printed.
+  - Second part: the macOS grep doesn't understand \| (meaning "or") without -E,
+    so it matched nothing.
+
+  Use this instead:
+
+  f=docs/planning/midterm-tickets.md
+  grep -B2 -E '^- Labels:.*no-genai' $f | grep '^## T-'   # lists the 5 tickets
+  grep -cE '^- Labels:.*no-genai' $f                      # 5
+
+  I ran it and it lists exactly T-06, T-17, T-22, T-25 and T-29, with a count of
+  5. Your other checks also came out as expected:
+  - 99 tickets.
+  - 99 lines each for Points, Labels and Depends on.
+  - Totals of 99 tickets and 184 points.
+  - Only docs/genai/usage-log.md and the new docs/planning/ folder changed.
+
+  Nothing is committed.
+
+✻ Worked for 9s · done 10:17 AM
+
+※ recap: You asked for a GitHub ticket plan for the mid-term deliverable, and docs/planning/midterm-tickets.md is done and checked: 99 tickets, 184 points, nothing committed. Next, review it, then commit it with the usage-log change.
