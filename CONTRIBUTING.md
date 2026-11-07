@@ -39,11 +39,36 @@ Every issue says what it **depends on** (other issue numbers) and has **story po
 5. **Open a pull request** into `main`. Fill in the PR template, and put
    **`Closes #42`** in the description. GitHub then closes the issue automatically when the PR
    is merged.
-6. Move the ticket to **In Review** and ask a teammate to review.
-7. **Address review comments**: push more commits to the same branch and reply to each
-   comment. CI must be green.
-8. The **maintainer** approves and merges (squash merge). The issue then moves to **Done**.
-   Delete your branch after the merge.
+6. Move the ticket to **In Review**.
+7. **Review is optional but encouraged.** For **feature tickets** (`type:feature`) and other
+   larger changes, ask a teammate to look at the PR before you merge. If you get review
+   comments, push more commits to the same branch and reply to each comment.
+8. **Merge rule:** you (the author) may merge **as soon as CI is green**: both checks
+   *Backend (Maven verify, Java 21)* and *Frontend (lint, test, build, Node 24)*.
+   **No approval is required.**
+9. Merge with **Squash and merge**, then click **Delete branch**. The issue then closes and
+   moves to **Done**.
+
+There is **no single maintainer**: everyone in the team has the same rights. Everyone writes
+code, reviews and merges, and every change (also docs) goes through a PR into `main`.
+
+### How to review a PR
+
+Anyone except the author can review, whenever they are asked or want to help.
+
+
+1. **Read the linked issue** (`Closes #N`) and its **acceptance criteria**. The PR must meet
+   all of them, no more and no less.
+2. **Check that CI is green**: both the Backend and the Frontend checks. Do not approve a red
+   or still-running PR.
+3. **Read the diff** (*Files changed*): `CLAUDE.md` conventions, tests for new behaviour,
+   no secrets, usage-log row if GenAI was used (see the Definition of Done, section 4).
+4. **Run it locally if it changes behaviour** (endpoint, page, migration, Docker/config):
+   `gh pr checkout <number>`, then follow the "How to test" steps in the PR description.
+5. **Leave comments or approve**: *Review changes* → **Comment** for questions,
+   **Request changes** if something must be fixed, **Approve** when everything above is OK.
+   Be specific and kind, and say what you checked (e.g. "ran it locally, registration
+   returns 409 when full").
 
 ### Non-code tickets (diagrams, designs, research, docs)
 
@@ -93,7 +118,8 @@ A ticket is **Done** only when all of these are true:
 - [ ] API changes are visible in Swagger; docs/guides are updated if behavior changed.
 - [ ] No secrets committed (only placeholders in `.env.example`).
 - [ ] If GenAI was used: a row was added to `docs/genai/usage-log.md`.
-- [ ] The PR was reviewed and approved by a teammate, then merged into `main` by the maintainer.
+- [ ] CI (Backend + Frontend) is green, and the author squash-merged the PR into `main` and
+      deleted the branch (for feature tickets and larger changes: after a teammate looked at it).
 
 ## 5. Story points
 
