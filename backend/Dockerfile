@@ -10,7 +10,7 @@ WORKDIR /workspace
 # (Maven only warns by default, and a corrupted jar then breaks the app at runtime).
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw -B -q --strict-checksums dependency:go-offline
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw && ./mvnw -B -q --strict-checksums dependency:go-offline
 COPY src/ src/
 RUN ./mvnw -B -q --strict-checksums package -DskipTests && cp target/*.jar app.jar
 
