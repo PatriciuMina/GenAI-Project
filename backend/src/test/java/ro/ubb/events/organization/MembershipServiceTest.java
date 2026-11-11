@@ -2,18 +2,28 @@ package ro.ubb.events.organization;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
+import ro.ubb.events.common.exception.ApiException;
+import ro.ubb.events.common.exception.ConflictException;
 import ro.ubb.events.common.exception.NotFoundException;
+import ro.ubb.events.organization.dto.AddMemberRequest;
 import ro.ubb.events.organization.dto.MemberResponse;
 import ro.ubb.events.organization.dto.MembershipResponse;
 import ro.ubb.events.organization.entity.Organization;
@@ -25,6 +35,7 @@ import ro.ubb.events.organization.repository.OrganizationRepository;
 import ro.ubb.events.organization.service.MembershipService;
 import ro.ubb.events.user.entity.GlobalRole;
 import ro.ubb.events.user.entity.User;
+import ro.ubb.events.user.service.UserService;
 
 /** Unit test: repositories are mocked, the (simple) mapper is real. No Spring, no database. */
 @ExtendWith(MockitoExtension.class)
@@ -39,12 +50,16 @@ class MembershipServiceTest {
     @Mock
     private OrganizationRepository organizationRepository;
 
+    @Mock
+    private UserService userService;
+
     private MembershipService membershipService;
     private User user;
 
     @BeforeEach
     void setUp() {
-        membershipService = new MembershipService(membershipRepository, organizationRepository, new MembershipMapper());
+        membershipService = new MembershipService(
+                membershipRepository, organizationRepository, userService, new MembershipMapper());
         user = user(USER_ID, "Ana", "ana@test.ro");
     }
 
@@ -128,6 +143,82 @@ class MembershipServiceTest {
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("Organization 99 not found");
         verifyNoInteractions(membershipRepository);
+    }
+
+    // --- addMember: POST /organizations/{orgId}/members (T-04) ---
+
+    @Test
+    void addMemberSavesMembershipWithRequestedRoleAndReturnsIt() {
+        Instant joinedAt = Instant.parse("2026-11-11T09:00:00Z");
+        Organization organization = organization(ORG_ID, "CS Society");
+        User target = user(20L, "Andrei Toma", "andrei@test.ro");
+        when(organizationRepository.findById(ORG_ID)).thenReturn(Optional.of(organization));
+        when(userService.findByEmail("andrei@test.ro")).thenReturn(Optional.of(target));
+        when(membershipRepository.existsByUserIdAndOrganizationId(20L, ORG_ID)).thenReturn(false);
+        when(membershipRepository.saveAndFlush(any(OrganizationMembership.class))).thenAnswer(invocation -> {
+            OrganizationMembership toSave = invocation.getArgument(0);
+            ReflectionTestUtils.setField(toSave, "id", 42L);
+            ReflectionTestUtils.setField(toSave, "joinedAt", joinedAt);
+            return toSave;
+        });
+
+        MemberResponse result = membershipService.addMember(ORG_ID, new AddMemberRequest("andrei@test.ro", "ORGANIZER"));
+
+        assertThat(result).isEqualTo(new MemberResponse(
+                42L, 20L, "Andrei Toma", "andrei@test.ro", OrganizationRole.ORGANIZER, joinedAt));
+        ArgumentCaptor<OrganizationMembership> saved = ArgumentCaptor.forClass(OrganizationMembership.class);
+        verify(membershipRepository).saveAndFlush(saved.capture());
+        assertThat(saved.getValue().getUser()).isSameAs(target);
+        assertThat(saved.getValue().getOrganization()).isSameAs(organization);
+    }
+
+    @Test
+    void addMemberThrowsNotFoundForUnknownOrganization() {
+        when(organizationRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> membershipService.addMember(99L, new AddMemberRequest("andrei@test.ro", "MEMBER")))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("Organization 99 not found");
+        verifyNoInteractions(userService, membershipRepository);
+    }
+
+    @Test
+    void addMemberThrowsUserNotFoundForUnknownEmail() {
+        when(organizationRepository.findById(ORG_ID)).thenReturn(Optional.of(organization(ORG_ID, "CS Society")));
+        when(userService.findByEmail("nobody@test.ro")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> membershipService.addMember(ORG_ID, new AddMemberRequest("nobody@test.ro", "MEMBER")))
+                .isInstanceOfSatisfying(ApiException.class, e -> {
+                    assertThat(e.getStatus()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(e.getCode()).isEqualTo("USER_NOT_FOUND");
+                });
+        verify(membershipRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void addMemberThrowsAlreadyMemberWhenUserIsInTheOrganization() {
+        when(organizationRepository.findById(ORG_ID)).thenReturn(Optional.of(organization(ORG_ID, "CS Society")));
+        when(userService.findByEmail("ana@test.ro")).thenReturn(Optional.of(user));
+        when(membershipRepository.existsByUserIdAndOrganizationId(USER_ID, ORG_ID)).thenReturn(true);
+
+        assertThatThrownBy(() -> membershipService.addMember(ORG_ID, new AddMemberRequest("ana@test.ro", "MEMBER")))
+                .isInstanceOfSatisfying(ConflictException.class,
+                        e -> assertThat(e.getCode()).isEqualTo("ALREADY_MEMBER"));
+        verify(membershipRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void addMemberMapsUniqueConstraintViolationToAlreadyMember() {
+        // two requests add the same user at the same moment: both pass the exists check, the database rejects one
+        when(organizationRepository.findById(ORG_ID)).thenReturn(Optional.of(organization(ORG_ID, "CS Society")));
+        when(userService.findByEmail("ana@test.ro")).thenReturn(Optional.of(user));
+        when(membershipRepository.existsByUserIdAndOrganizationId(USER_ID, ORG_ID)).thenReturn(false);
+        when(membershipRepository.saveAndFlush(any(OrganizationMembership.class)))
+                .thenThrow(new DataIntegrityViolationException("uq_memberships_user_organization"));
+
+        assertThatThrownBy(() -> membershipService.addMember(ORG_ID, new AddMemberRequest("ana@test.ro", "MEMBER")))
+                .isInstanceOfSatisfying(ConflictException.class,
+                        e -> assertThat(e.getCode()).isEqualTo("ALREADY_MEMBER"));
     }
 
     private static User user(Long id, String fullName, String email) {
