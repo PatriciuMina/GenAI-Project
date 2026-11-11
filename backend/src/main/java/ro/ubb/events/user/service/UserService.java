@@ -46,7 +46,17 @@ public class UserService {
     public UserResponse getById(Long id) {
         return userRepository.findById(id)
                 .map(UserService::toResponse)
-                .orElseThrow(() -> new NotFoundException("User " + id + " not found"));
+                .orElseThrow(() -> userNotFound(id));
+    }
+
+    /** For the service layer only (the entity must not reach controllers). 404 NOT_FOUND if unknown. */
+    @Transactional(readOnly = true)
+    public User getEntityById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> userNotFound(id));
+    }
+
+    private static NotFoundException userNotFound(Long id) {
+        return new NotFoundException("User " + id + " not found");
     }
 
     private static UserResponse toResponse(User user) {
