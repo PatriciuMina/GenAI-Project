@@ -111,6 +111,26 @@ public class MembershipService {
         }
     }
 
+    /**
+     * Removes a membership from the organization. Tasks assigned to it become unassigned in the
+     * database ({@code fk_event_tasks_assignee ON DELETE SET NULL}). Who may call this is checked
+     * in the controller ({@code @PreAuthorize}).
+     *
+     * @throws NotFoundException if the membership does not exist or belongs to another organization
+     * @throws ConflictException 409 CANNOT_REMOVE_PRESIDENT: an organization always keeps its president
+     */
+    @Transactional
+    public void removeMember(Long organizationId, Long membershipId) {
+        OrganizationMembership membership = membershipRepository.findById(membershipId)
+                .filter(m -> m.getOrganization().getId().equals(organizationId))
+                .orElseThrow(() -> new NotFoundException(
+                        "Membership " + membershipId + " not found in organization " + organizationId));
+        if (membership.getOrgRole() == OrganizationRole.PRESIDENT) {
+            throw new ConflictException("CANNOT_REMOVE_PRESIDENT", "The president of an organization cannot be removed");
+        }
+        membershipRepository.delete(membership);
+    }
+
     private static ConflictException alreadyMember() {
         return new ConflictException("ALREADY_MEMBER", "This user is already a member of the organization");
     }
