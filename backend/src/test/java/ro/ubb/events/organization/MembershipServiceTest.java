@@ -221,6 +221,52 @@ class MembershipServiceTest {
                         e -> assertThat(e.getCode()).isEqualTo("ALREADY_MEMBER"));
     }
 
+    // --- removeMember: DELETE /organizations/{orgId}/members/{membershipId} (T-05) ---
+
+    @Test
+    void removeMemberDeletesTheMembership() {
+        OrganizationMembership membership =
+                membership(5L, user, organization(ORG_ID, "CS Society"), OrganizationRole.MEMBER, Instant.now());
+        when(membershipRepository.findById(5L)).thenReturn(Optional.of(membership));
+
+        membershipService.removeMember(ORG_ID, 5L);
+
+        verify(membershipRepository).delete(membership);
+    }
+
+    @Test
+    void removeMemberThrowsNotFoundForUnknownMembership() {
+        when(membershipRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> membershipService.removeMember(ORG_ID, 99L))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessage("Membership 99 not found in organization 1");
+        verify(membershipRepository, never()).delete(any());
+    }
+
+    @Test
+    void removeMemberThrowsNotFoundWhenMembershipBelongsToAnotherOrganization() {
+        OrganizationMembership otherOrgMembership =
+                membership(6L, user, organization(2L, "Theatre Club"), OrganizationRole.MEMBER, Instant.now());
+        when(membershipRepository.findById(6L)).thenReturn(Optional.of(otherOrgMembership));
+
+        assertThatThrownBy(() -> membershipService.removeMember(ORG_ID, 6L))
+                .isInstanceOf(NotFoundException.class);
+        verify(membershipRepository, never()).delete(any());
+    }
+
+    @Test
+    void removeMemberRefusesToRemoveThePresident() {
+        OrganizationMembership presidency =
+                membership(3L, user, organization(ORG_ID, "CS Society"), OrganizationRole.PRESIDENT, Instant.now());
+        when(membershipRepository.findById(3L)).thenReturn(Optional.of(presidency));
+
+        assertThatThrownBy(() -> membershipService.removeMember(ORG_ID, 3L))
+                .isInstanceOfSatisfying(ConflictException.class,
+                        e -> assertThat(e.getCode()).isEqualTo("CANNOT_REMOVE_PRESIDENT"));
+        verify(membershipRepository, never()).delete(any());
+    }
+
     private static User user(Long id, String fullName, String email) {
         User user = new User(email, "hash", fullName, GlobalRole.STUDENT);
         ReflectionTestUtils.setField(user, "id", id);

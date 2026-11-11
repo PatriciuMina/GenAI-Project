@@ -8,13 +8,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ro.ubb.events.common.dto.ApiError;
@@ -97,5 +100,21 @@ public class OrganizationController {
                 .buildAndExpand(member.membershipId())
                 .toUri();
         return ResponseEntity.created(location).body(member);
+    }
+
+    @DeleteMapping("/{orgId}/members/{membershipId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN') or @orgPermissions.isPresident(principal.id, #orgId)")
+    @Operation(summary = "Remove a member from the organization (president or ADMIN)",
+            description = "Tasks assigned to this membership become unassigned. The president cannot be removed.")
+    @ApiResponse(responseCode = "204", description = "Member removed")
+    @ApiResponse(responseCode = "403", description = "Not the president of this organization and not ADMIN",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Membership not found, or it belongs to another organization",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "CANNOT_REMOVE_PRESIDENT: the president cannot be removed",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public void removeMember(@PathVariable Long orgId, @PathVariable Long membershipId) {
+        membershipService.removeMember(orgId, membershipId);
     }
 }
