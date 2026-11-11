@@ -12,6 +12,8 @@ public interface OrganizationMembershipRepository extends JpaRepository<Organiza
 
     boolean existsByUserIdAndOrganizationId(Long userId, Long organizationId);
 
+    /** Loads the user in the same query, so mapping to a DTO needs no extra query per row. */
+    @EntityGraph(attributePaths = "user")
     List<OrganizationMembership> findByOrganizationId(Long organizationId);
 
     /** Loads the organization in the same query, so mapping to a DTO needs no extra query per row. */
