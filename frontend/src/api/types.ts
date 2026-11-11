@@ -46,6 +46,15 @@ export interface Organization {
   createdAt: string;
 }
 
+/** Body of POST /organizations (ADMIN only). Optional fields may be null. */
+export interface CreateOrganizationRequest {
+  name: string;
+  description: string | null;
+  contactEmail: string | null;
+  /** An existing account; becomes the organization's PRESIDENT. */
+  presidentEmail: string;
+}
+
 /** Backend `FieldErrorDto`. */
 export interface ApiFieldError {
   field: string;

@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Organization } from './types';
+import type { CreateOrganizationRequest, Organization } from './types';
 
 export async function getOrganizations(): Promise<Organization[]> {
   const { data } = await apiClient.get<Organization[]>('/organizations');
@@ -8,5 +8,11 @@ export async function getOrganizations(): Promise<Organization[]> {
 
 export async function getOrganization(id: number): Promise<Organization> {
   const { data } = await apiClient.get<Organization>(`/organizations/${id}`);
+  return data;
+}
+
+/** ADMIN only. Creates the organization and makes `presidentEmail` its PRESIDENT. */
+export async function createOrganization(body: CreateOrganizationRequest): Promise<Organization> {
+  const { data } = await apiClient.post<Organization>('/organizations', body);
   return data;
 }
