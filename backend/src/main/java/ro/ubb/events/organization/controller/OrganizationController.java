@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ro.ubb.events.common.dto.ApiError;
 import ro.ubb.events.organization.dto.AddMemberRequest;
+import ro.ubb.events.organization.dto.CreateOrganizationRequest;
 import ro.ubb.events.organization.dto.MemberResponse;
 import ro.ubb.events.organization.dto.OrganizationResponse;
 import ro.ubb.events.organization.service.MembershipService;
@@ -29,8 +30,8 @@ import ro.ubb.events.organization.service.OrganizationService;
 
 /**
  * Organizations (W1). Any logged-in user may read the organizations themselves: SecurityConfig
- * requires a valid token for every path that is not explicitly public. The members endpoints are
- * restricted further with {@code @PreAuthorize}.
+ * requires a valid token for every path that is not explicitly public. Creating an organization
+ * (ADMIN) and the members endpoints are restricted further with {@code @PreAuthorize}.
  */
 @RestController
 @RequestMapping("/api/v1/organizations")
@@ -52,6 +53,28 @@ public class OrganizationController {
     @ApiResponse(responseCode = "200", description = "List of organizations")
     public List<OrganizationResponse> findAll() {
         return organizationService.findAll();
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create an organization and appoint its president (ADMIN only)",
+            description = "The organization and the president's membership are created together (both or nothing).")
+    @ApiResponse(responseCode = "201", description = "Organization created; Location points to it")
+    @ApiResponse(responseCode = "400", description = "VALIDATION_FAILED: blank name or longer than 150 characters, invalid emails",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "403", description = "Not ADMIN",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "USER_NOT_FOUND: no account with the president's email",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "ORGANIZATION_NAME_TAKEN: the name exists (ignoring case)",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public ResponseEntity<OrganizationResponse> create(@Valid @RequestBody CreateOrganizationRequest request) {
+        OrganizationResponse created = organizationService.create(request);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.id())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
     }
 
     @GetMapping("/{id}")
