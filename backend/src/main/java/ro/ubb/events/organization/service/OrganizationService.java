@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ro.ubb.events.common.exception.NotFoundException;
 import ro.ubb.events.organization.dto.OrganizationResponse;
+import ro.ubb.events.organization.entity.Organization;
 import ro.ubb.events.organization.mapper.OrganizationMapper;
 import ro.ubb.events.organization.repository.OrganizationRepository;
 
@@ -34,6 +35,19 @@ public class OrganizationService {
     public OrganizationResponse getById(Long id) {
         return organizationRepository.findById(id)
                 .map(organizationMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException("Organization " + id + " not found"));
+                .orElseThrow(() -> notFound(id));
+    }
+
+    /**
+     * The organization entity, for the service layer of other features only (e.g. an event
+     * belongs to an organization); the entity must not reach controllers. 404 NOT_FOUND if unknown.
+     */
+    @Transactional(readOnly = true)
+    public Organization getEntityById(Long id) {
+        return organizationRepository.findById(id).orElseThrow(() -> notFound(id));
+    }
+
+    private static NotFoundException notFound(Long id) {
+        return new NotFoundException("Organization " + id + " not found");
     }
 }
