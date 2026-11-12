@@ -1,12 +1,19 @@
 // TanStack Query hooks for organizations. Pages use these hooks, never the API functions directly.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createOrganization, getOrganization, getOrganizations } from '../../api/organizations';
+import { getMyMemberships } from '../../api/users';
 
 /** Query keys: one place, so invalidation after a mutation is easy (queryClient.invalidateQueries). */
 export const organizationKeys = {
   all: ['organizations'] as const,
   detail: (id: number) => ['organizations', id] as const,
 };
+
+export const myMembershipsKey = ['me', 'memberships'] as const;
+
+export function useMyMemberships() {
+  return useQuery({ queryKey: myMembershipsKey, queryFn: getMyMemberships });
+}
 
 export function useOrganizations() {
   return useQuery({ queryKey: organizationKeys.all, queryFn: getOrganizations });

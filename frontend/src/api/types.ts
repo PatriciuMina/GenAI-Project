@@ -4,8 +4,18 @@
 /** Application-wide role (backend `GlobalRole`). */
 export type GlobalRole = 'STUDENT' | 'ADMIN';
 
-/** Role inside one organization (backend `OrganizationRole`). Not exposed per user yet. */
+/** Role inside one organization (backend `OrganizationRole`). */
 export type OrganizationRole = 'PRESIDENT' | 'ORGANIZER' | 'MEMBER';
+
+/** Backend `MembershipResponse` (GET /users/me/memberships). */
+export interface Membership {
+  membershipId: number;
+  organizationId: number;
+  organizationName: string;
+  role: OrganizationRole;
+  /** ISO-8601 instant. */
+  joinedAt: string;
+}
 
 /** Body of POST /auth/login. */
 export interface LoginRequest {

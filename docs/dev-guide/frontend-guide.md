@@ -236,8 +236,9 @@ Every backend error has the same JSON (`ApiError`):
   Other users see "You do not have access to this page."
 - **Hide a nav item** by role: set `roles` on the item in `NAV_ITEMS` (`AppLayout.tsx`).
 - The client-side checks are only for UX. **The backend must still enforce permissions**
-  (`@PreAuthorize`, `OrgPermissionService`). Organization roles (PRESIDENT/ORGANIZER/MEMBER) are
-  not available on the client yet. See the `TODO(W5)` in `AppLayout.tsx`.
+  (`@PreAuthorize`, `OrgPermissionService`). `AppLayout` loads the current user's memberships with
+  `useMyMemberships` and shows “Organizing” only when at least one membership has role PRESIDENT
+  or ORGANIZER. The item stays hidden while memberships load.
 
 ## 8. Tests
 
