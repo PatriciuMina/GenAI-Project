@@ -16,7 +16,8 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { NavLink, Outlet, useNavigate } from 'react-router';
-import type { GlobalRole } from '../api/types';
+import type { GlobalRole, Membership } from '../api/types';
+import { useMyMemberships } from '../features/organizations/queries';
 import { useAuth } from '../features/auth/useAuth';
 import { paths } from '../routes/paths';
 import { Logo } from './Logo';
@@ -28,9 +29,6 @@ interface NavItem {
   roles?: GlobalRole[];
 }
 
-// Navigation by role (decision D3). Only the global role (STUDENT/ADMIN) is known on the client.
-// TODO(W5): once the backend exposes the current user's organization memberships, show
-// "Organizing" only to PRESIDENT/ORGANIZER members.
 const NAV_ITEMS: NavItem[] = [
   { label: 'Organizations', to: paths.organizations },
   { label: 'Events', to: paths.events },
@@ -40,17 +38,25 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 // eslint-disable-next-line react-refresh/only-export-components -- exported for reuse/tests
-export function visibleNavItems(role: GlobalRole): NavItem[] {
-  return NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(role));
+export function visibleNavItems(role: GlobalRole, memberships?: Membership[]): NavItem[] {
+  const canOrganize = memberships?.some(
+    ({ role: orgRole }) => orgRole === 'ORGANIZER' || orgRole === 'PRESIDENT',
+  );
+  return NAV_ITEMS.filter(
+    (item) =>
+      (!item.roles || item.roles.includes(role)) &&
+      (item.label !== 'Organizing' || canOrganize === true),
+  );
 }
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const { data: memberships } = useMyMemberships();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   if (user === null) return null; // ProtectedRoute guarantees a user; keeps TypeScript happy
-  const items = visibleNavItems(user.role);
+  const items = visibleNavItems(user.role, memberships);
 
   const handleLogout = () => {
     logout();
