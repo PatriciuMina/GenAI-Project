@@ -11,6 +11,7 @@ import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,6 +59,16 @@ public class EventController {
                 .buildAndExpand(created.id())
                 .toUri();
         return ResponseEntity.created(location).body(created);
+    }
+
+    @GetMapping("/events/{id}")
+    @Operation(summary = "Get an event by id", description = "DRAFT events are visible only to organizers of their organization.")
+    @ApiResponse(responseCode = "200", description = "Event details, including confirmed registrations and free places")
+    @ApiResponse(responseCode = "404", description = "Event not found or a hidden draft",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public EventResponse getById(@PathVariable Long id,
+                                 @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        return eventService.getById(id, me.id());
     }
 
     @PutMapping("/events/{id}")
