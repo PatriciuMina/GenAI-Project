@@ -21,6 +21,11 @@ export function OrganizationDetailsPage() {
   const canViewMembers =
     user?.role === 'ADMIN' ||
     memberships?.some((membership) => membership.organizationId === id) === true;
+  const canManageMembers =
+    user?.role === 'ADMIN' ||
+    memberships?.some(
+      (membership) => membership.organizationId === id && membership.role === 'PRESIDENT',
+    ) === true;
 
   const back = (
     <Button component={RouterLink} to={paths.organizations} startIcon={<ArrowBackIcon />}>
@@ -65,7 +70,9 @@ export function OrganizationDetailsPage() {
           </Stack>
         </Paper>
       )}
-      {org && validId && <MembersSection orgId={id} enabled={canViewMembers} />}
+      {org && validId && (
+        <MembersSection orgId={id} enabled={canViewMembers} canManage={canManageMembers} />
+      )}
     </Stack>
   );
 }
