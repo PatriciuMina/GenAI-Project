@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { CreateOrganizationRequest, Organization } from './types';
+import type { CreateOrganizationRequest, Member, Organization } from './types';
 
 export async function getOrganizations(): Promise<Organization[]> {
   const { data } = await apiClient.get<Organization[]>('/organizations');
@@ -8,6 +8,11 @@ export async function getOrganizations(): Promise<Organization[]> {
 
 export async function getOrganization(id: number): Promise<Organization> {
   const { data } = await apiClient.get<Organization>(`/organizations/${id}`);
+  return data;
+}
+
+export async function getMembers(orgId: number): Promise<Member[]> {
+  const { data } = await apiClient.get<Member[]>(`/organizations/${orgId}/members`);
   return data;
 }
 
