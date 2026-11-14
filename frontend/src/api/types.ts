@@ -17,6 +17,17 @@ export interface Membership {
   joinedAt: string;
 }
 
+/** Backend `MemberResponse` (GET /organizations/{id}/members). */
+export interface Member {
+  membershipId: number;
+  userId: number;
+  fullName: string;
+  email: string;
+  role: OrganizationRole;
+  /** ISO-8601 instant. */
+  joinedAt: string;
+}
+
 /** Body of POST /auth/login. */
 export interface LoginRequest {
   email: string;
