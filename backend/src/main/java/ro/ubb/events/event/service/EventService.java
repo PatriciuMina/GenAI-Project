@@ -67,6 +67,20 @@ public class EventService {
         return eventMapper.toResponse(saved, 0);
     }
 
+    /** Returns a published or later event to any authenticated user; drafts are organizer-only. */
+    @Transactional(readOnly = true)
+    public EventResponse getById(Long eventId, Long userId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event " + eventId + " not found"));
+        if (event.getStatus() == EventStatus.DRAFT
+                && !orgPermissionService.isOrganizer(userId, event.getOrganization().getId())) {
+            // Hide the existence of drafts from non-organizers.
+            throw new NotFoundException("Event " + eventId + " not found");
+        }
+        long confirmedCount = registrationService.countConfirmedByEventId(eventId);
+        return eventMapper.toResponse(event, confirmedCount);
+    }
+
     /** Updates editable event details, checking event-scoped permission and D11 versioning. */
     @Transactional
     public EventResponse update(Long eventId, UpdateEventRequest request, Long userId) {
