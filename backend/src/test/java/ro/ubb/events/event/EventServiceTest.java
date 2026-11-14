@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +19,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import ro.ubb.events.common.exception.NotFoundException;
+import ro.ubb.events.common.exception.ConflictException;
+import ro.ubb.events.common.exception.ValidationException;
 import ro.ubb.events.event.dto.EventRequest;
 import ro.ubb.events.event.dto.EventResponse;
+import ro.ubb.events.event.dto.UpdateEventRequest;
 import ro.ubb.events.event.entity.Event;
 import ro.ubb.events.event.entity.EventCategory;
 import ro.ubb.events.event.entity.EventStatus;
@@ -30,6 +35,8 @@ import ro.ubb.events.organization.service.OrganizationService;
 import ro.ubb.events.user.entity.GlobalRole;
 import ro.ubb.events.user.entity.User;
 import ro.ubb.events.user.service.UserService;
+import ro.ubb.events.organization.service.OrgPermissionService;
+import ro.ubb.events.registration.service.RegistrationService;
 
 /** Unit test: repository and other features' services are mocked, the mapper is real. */
 @ExtendWith(MockitoExtension.class)
@@ -44,12 +51,15 @@ class EventServiceTest {
     @Mock private EventRepository eventRepository;
     @Mock private OrganizationService organizationService;
     @Mock private UserService userService;
+    @Mock private OrgPermissionService orgPermissionService;
+    @Mock private RegistrationService registrationService;
 
     private EventService eventService;
 
     @BeforeEach
     void setUp() {
-        eventService = new EventService(eventRepository, organizationService, userService, new EventMapper());
+        eventService = new EventService(eventRepository, organizationService, userService, new EventMapper(),
+                orgPermissionService, registrationService);
     }
 
     @Test
@@ -86,6 +96,83 @@ class EventServiceTest {
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("Organization 99 not found");
         verifyNoInteractions(eventRepository);
+    }
+
+    @Test
+    void updateChangesDraftAndIncrementsVersion() {
+        Event event = existingEvent(EventStatus.DRAFT, 0L);
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(event));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(true);
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(0L);
+
+        EventResponse result = eventService.update(12L, updateRequest(0L, 35), CREATOR_ID);
+
+        assertThat(result.title()).isEqualTo("Updated title");
+        assertThat(result.capacity()).isEqualTo(35);
+        verify(eventRepository).flush();
+    }
+
+    @Test
+    void updateAllowsPublishedEvent() {
+        Event event = existingEvent(EventStatus.PUBLISHED, 0L);
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(event));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(true);
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(0L);
+
+        assertThat(eventService.update(12L, updateRequest(0L, 35), CREATOR_ID).status())
+                .isEqualTo(EventStatus.PUBLISHED);
+    }
+
+    @Test
+    void updateRejectsNonEditableStatusAndOldVersion() {
+        Event completed = existingEvent(EventStatus.COMPLETED, 0L);
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(completed));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(true);
+        assertThatThrownBy(() -> eventService.update(12L, updateRequest(0L, 35), CREATOR_ID))
+                .isInstanceOf(ConflictException.class).hasMessageContaining("DRAFT or PUBLISHED");
+
+        Event draft = existingEvent(EventStatus.DRAFT, 2L);
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(draft));
+        assertThatThrownBy(() -> eventService.update(12L, updateRequest(1L, 35), CREATOR_ID))
+                .isInstanceOf(ConflictException.class).hasMessageContaining("changed");
+    }
+
+    @Test
+    void updateRejectsCapacityBelowConfirmedCount() {
+        Event event = existingEvent(EventStatus.DRAFT, 0L);
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(event));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(true);
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(2L);
+        assertThatThrownBy(() -> eventService.update(12L, updateRequest(0L, 1), CREATOR_ID))
+                .isInstanceOf(ValidationException.class);
+    }
+
+    @Test
+    void updateRejectsNonOrganizer() {
+        Event event = existingEvent(EventStatus.DRAFT, 0L);
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(event));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(false);
+        assertThatThrownBy(() -> eventService.update(12L, updateRequest(0L, 35), CREATOR_ID))
+                .isInstanceOf(ro.ubb.events.common.exception.ApiException.class)
+                .hasMessageContaining("Not an organizer");
+        verifyNoInteractions(registrationService);
+    }
+
+    private Event existingEvent(EventStatus status, long version) {
+        Organization organization = new Organization("Test Org", null, null);
+        ReflectionTestUtils.setField(organization, "id", ORG_ID);
+        User creator = new User("creator@test.ro", "hash", "Creator", GlobalRole.STUDENT);
+        Event event = new Event(organization, creator, "Old title", "Hall", EventCategory.WORKSHOP,
+                START, END, 40);
+        ReflectionTestUtils.setField(event, "id", 12L);
+        ReflectionTestUtils.setField(event, "version", version);
+        event.setStatus(status);
+        return event;
+    }
+
+    private static UpdateEventRequest updateRequest(long version, int capacity) {
+        return new UpdateEventRequest("Updated title", "New description", "Hall", EventCategory.WORKSHOP,
+                START, END, capacity, DEADLINE, version);
     }
 
     private static EventRequest request() {
