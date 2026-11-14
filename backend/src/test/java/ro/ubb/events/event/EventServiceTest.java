@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
@@ -96,6 +95,46 @@ class EventServiceTest {
                 .isInstanceOf(NotFoundException.class)
                 .hasMessage("Organization 99 not found");
         verifyNoInteractions(eventRepository);
+    }
+
+    @Test
+    void getByIdReturnsEventWithRegistrationCounts() {
+        Event event = existingEvent(EventStatus.PUBLISHED, 0L);
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(event));
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(2L);
+
+        EventResponse result = eventService.getById(12L, CREATOR_ID);
+
+        assertThat(result.confirmedCount()).isEqualTo(2);
+        assertThat(result.freePlaces()).isEqualTo(38);
+        assertThat(result.status()).isEqualTo(EventStatus.PUBLISHED);
+    }
+
+    @Test
+    void getByIdHidesDraftFromNonOrganizer() {
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(existingEvent(EventStatus.DRAFT, 0L)));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(false);
+
+        assertThatThrownBy(() -> eventService.getById(12L, CREATOR_ID))
+                .isInstanceOf(NotFoundException.class).hasMessage("Event 12 not found");
+        verifyNoInteractions(registrationService);
+    }
+
+    @Test
+    void getByIdReturnsDraftToOrganizer() {
+        when(eventRepository.findById(12L)).thenReturn(Optional.of(existingEvent(EventStatus.DRAFT, 0L)));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(true);
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(0L);
+
+        assertThat(eventService.getById(12L, CREATOR_ID).status()).isEqualTo(EventStatus.DRAFT);
+    }
+
+    @Test
+    void getByIdThrowsNotFoundForUnknownEvent() {
+        when(eventRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> eventService.getById(99L, CREATOR_ID))
+                .isInstanceOf(NotFoundException.class).hasMessage("Event 99 not found");
     }
 
     @Test
