@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import ro.ubb.events.auth.dto.AuthenticatedUser;
 import ro.ubb.events.common.dto.ApiError;
 import ro.ubb.events.event.dto.EventRequest;
 import ro.ubb.events.event.dto.EventResponse;
+import ro.ubb.events.event.dto.UpdateEventRequest;
 import ro.ubb.events.event.service.EventService;
 
 /** Events (W2 creation and lifecycle, W3 discovery). */
@@ -56,5 +58,21 @@ public class EventController {
                 .buildAndExpand(created.id())
                 .toUri();
         return ResponseEntity.created(location).body(created);
+    }
+
+    @PutMapping("/events/{id}")
+    @Operation(summary = "Edit a draft or published event", description = "Requires the version from the latest EventResponse.")
+    @ApiResponse(responseCode = "200", description = "Event updated")
+    @ApiResponse(responseCode = "400", description = "Invalid event fields or capacity below confirmed registrations",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "403", description = "Not an organizer of the event's organization",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Event not found",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "EVENT_NOT_EDITABLE or CONCURRENT_UPDATE",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public EventResponse update(@PathVariable Long id, @Valid @RequestBody UpdateEventRequest request,
+                                @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        return eventService.update(id, request, me.id());
     }
 }
