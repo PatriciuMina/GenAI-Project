@@ -74,6 +74,16 @@ public class EventService {
                 .orElseThrow(() -> new NotFoundException("Event " + eventId + " not found"));
     }
 
+    /**
+     * Loads the event and locks its row until the caller's transaction ends, so concurrent registrations
+     * for the same event are processed one after another. Must be called inside a transaction.
+     */
+    @Transactional
+    public Event getEntityByIdForUpdate(Long eventId) {
+        return eventRepository.findByIdForUpdate(eventId)
+                .orElseThrow(() -> new NotFoundException("Event " + eventId + " not found"));
+    }
+
     /** Returns a published or later event to any authenticated user; drafts are organizer-only. */
     @Transactional(readOnly = true)
     public EventResponse getById(Long eventId, Long userId) {

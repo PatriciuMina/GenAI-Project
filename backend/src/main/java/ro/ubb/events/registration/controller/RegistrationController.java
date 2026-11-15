@@ -7,15 +7,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ro.ubb.events.auth.dto.AuthenticatedUser;
 import ro.ubb.events.common.dto.ApiError;
 import ro.ubb.events.registration.dto.ParticipantResponse;
+import ro.ubb.events.registration.dto.RegistrationResponse;
 import ro.ubb.events.registration.entity.RegistrationStatus;
 import ro.ubb.events.registration.service.RegistrationService;
 
@@ -31,6 +35,22 @@ public class RegistrationController {
 
     public RegistrationController(RegistrationService registrationService) {
         this.registrationService = registrationService;
+    }
+
+    @PostMapping("/events/{eventId}/registrations")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Register the caller for a published event (capacity limit, no waitlist)",
+            description = "The event must be PUBLISHED and the registration deadline (or the start, if there is "
+                    + "none) not yet passed. A student who cancelled earlier may register again.")
+    @ApiResponse(responseCode = "201", description = "Registered; the new CONFIRMED registration")
+    @ApiResponse(responseCode = "404", description = "Event not found or still a DRAFT",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "REGISTRATION_CLOSED, EVENT_FULL or ALREADY_REGISTERED",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public RegistrationResponse register(
+            @PathVariable Long eventId,
+            @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        return registrationService.register(eventId, me.id());
     }
 
     @GetMapping("/events/{eventId}/registrations")

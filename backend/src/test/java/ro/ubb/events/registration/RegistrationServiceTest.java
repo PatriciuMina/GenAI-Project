@@ -31,6 +31,7 @@ import ro.ubb.events.registration.repository.RegistrationRepository;
 import ro.ubb.events.registration.service.RegistrationService;
 import ro.ubb.events.user.entity.GlobalRole;
 import ro.ubb.events.user.entity.User;
+import ro.ubb.events.user.service.UserService;
 
 /** Unit test for the participant list: repository and other features' services are mocked. */
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +44,7 @@ class RegistrationServiceTest {
     @Mock private RegistrationRepository registrationRepository;
     @Mock private EventService eventService;
     @Mock private OrgPermissionService orgPermissionService;
+    @Mock private UserService userService;
 
     private RegistrationService registrationService;
     private Event event;
@@ -50,7 +52,7 @@ class RegistrationServiceTest {
     @BeforeEach
     void setUp() {
         registrationService = new RegistrationService(registrationRepository, eventService,
-                orgPermissionService, new RegistrationMapper());
+                orgPermissionService, new RegistrationMapper(), userService);
         Organization organization = new Organization("UBB CS Society", null, null);
         ReflectionTestUtils.setField(organization, "id", ORG_ID);
         User creator = new User("elena@test.ro", "hash", "Elena Marin", GlobalRole.STUDENT);
