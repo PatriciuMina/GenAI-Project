@@ -130,15 +130,25 @@ action. Listing and viewing organizations already exists (read-only).
 **Format**
 Common table, 5–10 rows.
 
-> **Example – replace:**
-> | FR-W1-01 | Any logged-in user can list all organizations sorted by name and open one organization's details. | Student | R2 | MVP | implemented | OrganizationController |
+Status checked against `main` on 2026-11-15.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W1-01 | Any logged-in user can list all organizations sorted by name and open one organization's details (name, description, contact email); an unknown organization returns 404. | Any logged-in user | R2 | MVP | implemented | `OrganizationController`, `OrganizationControllerIntegrationTest`; frontend `OrganizationsListPage`, `OrganizationDetailsPage` |
+| FR-W1-02 | A logged-in user can see the organizations they belong to and their role in each (sorted by organization name); a user with no memberships gets an empty list. The "Organizing" menu entry is shown only to users who are ORGANIZER or PRESIDENT somewhere. | Any logged-in user | R2 | MVP | implemented | `MyMembershipsController`, `MyMembershipsControllerIntegrationTest`, `AppLayout` (T-01, T-02) |
+| FR-W1-03 | A global ADMIN can create an organization and appoint an existing account, found by email, as its PRESIDENT. The organization and the president's membership are created together (both or nothing). The name is required, at most 150 characters and unique ignoring case (otherwise 409 `ORGANIZATION_NAME_TAKEN`); an unknown president email returns 404 `USER_NOT_FOUND`. | ADMIN | R2 | MVP | implemented | `OrganizationService.create`, `ux_organizations_name_lower` (`data-model.md`), `OrganizationCreateControllerIntegrationTest`; frontend `AdminPage`, `CreateOrganizationForm` (T-08, T-09) |
+| FR-W1-04 | The members of an organization and global ADMINs can see its member list (name, email, role, joined date), ordered PRESIDENT, ORGANIZER, MEMBER and then by name. Anyone else gets 403. | Member, Organizer, President (of that organization), ADMIN | R2 | MVP | implemented | `OrganizationController.members` (`@PreAuthorize`), `OrganizationMembersControllerIntegrationTest`; frontend `MembersSection` (T-03, T-06) |
+| FR-W1-05 | The PRESIDENT of an organization (or an ADMIN) can add an existing account, found by email ignoring case, with the role MEMBER or ORGANIZER. PRESIDENT cannot be assigned this way; a user can be in an organization at most once (409 `ALREADY_MEMBER`); an unknown email returns 404 `USER_NOT_FOUND`. Students do not join organizations by themselves in the MVP. | President (of that organization), ADMIN | R2 | MVP | implemented | `MembershipService.addMember`, `AddMemberRequest`, `uq_memberships_user_organization` (`data-model.md`), `OrganizationAddMemberControllerIntegrationTest`; frontend `MembersSection` (T-04, T-07; MVP decision in `docs/planning/midterm-tickets.md`, T-04) |
+| FR-W1-06 | The PRESIDENT of an organization (or an ADMIN) can remove a member. The PRESIDENT cannot be removed (409 `CANNOT_REMOVE_PRESIDENT`), and a membership of another organization returns 404. Tasks assigned to the removed member become unassigned. | President (of that organization), ADMIN | R2 | MVP | implemented | `MembershipService.removeMember`, `fk_event_tasks_assignee` (`data-model.md`), `OrganizationRemoveMemberControllerIntegrationTest`; frontend `MembersSection` (T-05, T-07) |
+| FR-W1-07 | Organization roles form a hierarchy PRESIDENT ⊃ ORGANIZER ⊃ MEMBER and apply per organization: a student can hold different roles in different organizations. A global ADMIN gets no automatic organization rights, only those an endpoint grants explicitly. | Member, Organizer, President, ADMIN | R2 | MVP | implemented | `OrgPermissionService`, `OrgPermissionServiceTest`, `OrgPermissionPreAuthorizeIntegrationTest` |
+| FR-W1-08 | A member's role can be changed between MEMBER and ORGANIZER; the membership row is updated, not duplicated. Who may do it is not decided yet (expected: the PRESIDENT). | To be confirmed (expected: President) | R2 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final"); `uq_memberships_user_organization` (`data-model.md`) |
+| FR-W1-09 | A member can leave an organization. Open question: how the PRESIDENT leaves or is replaced, since a president cannot be removed today (FR-W1-06). | Member, Organizer | R2 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
+| FR-W1-10 | The PRESIDENT can edit the details of their organization (name, description, contact email). | President | R2 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
 
 **Done when**
 - [ ] Every row names who may perform the action.
 - [ ] Role changes and leaving an organization are covered.
 - [ ] Status checked against `main`.
-
-> TODO (team): FR-W1 table here.
 
 ---
 
