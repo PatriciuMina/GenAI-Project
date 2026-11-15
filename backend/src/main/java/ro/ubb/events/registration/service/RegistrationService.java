@@ -41,6 +41,12 @@ public class RegistrationService {
         return registrationRepository.countByEventIdAndStatus(eventId, RegistrationStatus.CONFIRMED);
     }
 
+    /** True if the user has a CONFIRMED or CANCELLED registration for the event. */
+    @Transactional(readOnly = true)
+    public boolean hasRegistration(Long eventId, Long userId) {
+        return registrationRepository.existsByEventIdAndUserId(eventId, userId);
+    }
+
     /**
      * Participants of an event sorted by full name, optionally only those with the given status.
      * Only an ORGANIZER or PRESIDENT of the event's organization may call this (emails are personal data).
