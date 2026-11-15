@@ -38,24 +38,28 @@ The table below; "Covered by" lists IDs separated by commas.
 
 | ID | Title | Summary | Covered by | Status |
 |----|-------|---------|------------|--------|
-| R1 | Event Management | Authorized users create, modify, publish and manage events (title, description, date/time, location, organizing organization, capacity, registration information). | | |
-| R2 | Organization and User Management | Manage student organizations and their members; users have different responsibilities and permissions; authentication, authorization and access control. | | |
-| R3 | Participant Registration | Eligible users discover events and register; registration information is managed and business rules (capacity, registration status) are enforced. | | |
-| R4 | Event Lifecycle | Support the lifecycle from creation and planning, through publication and registration, to the event itself and post-event activities; workflows and rules defined by the team. | | |
-| R5 | Event Organization | Support organizers in preparing and managing events (responsibilities, event information, monitoring registrations, communication, attendance), justified by identified user needs. | | |
-| R6 | Search and Information Access | Users find relevant events and access the information needed to decide whether to participate. | | |
-| R7 | Data Persistence | Persistent storage; data model represents entities, relationships, constraints and business rules. | | |
-| R8 | Enterprise Architecture | Multi-layer system separating presentation, business logic, persistence and external interfaces; decisions and technologies documented and justified. | | |
-| R9 | APIs and Integration | Well-defined, documented APIs between components and, where appropriate, external systems. | | |
-| R10 | User Interface | Usable interface for the main user categories, matching the documented workflows and use cases; important workflows validated with users. | | |
-| R11 | Testing | Automated tests appropriate to the system: unit tests and, where appropriate, other test levels. | | |
-| R12 | Deployment | Deployable and runnable outside the development environment; documented deployment approach and demonstration. | | |
-| R13 | GenAI-Assisted Development | GenAI used throughout development as an engineering tool, with relevant uses documented. | | |
-| R14 | Human Oversight and Engineering Judgment | Visible human-in-the-loop process: context, prompts, evaluation, corrections, rejections, validation. | | |
-| R15 | Traceability | Requirements, use cases, workflows, architectural decisions, implementation and tests are connected. | | |
-| R16 | Team-Based Development | Developed collaboratively; each student owns specific artifacts and at least one cross-layer workflow. | | |
+| R1 | Event Management | Authorized users create, modify, publish and manage events (title, description, date/time, location, organizing organization, capacity, registration information). | FR-W2-01 to FR-W2-04, FR-W3-06 | partial (creating, editing and draft visibility are implemented; publishing and managing the status are planned) |
+| R2 | Organization and User Management | Manage student organizations and their members; users have different responsibilities and permissions; authentication, authorization and access control. | FR-AUTH-01 to FR-AUTH-08, FR-ADM-01 to FR-ADM-04, FR-W1-01 to FR-W1-10, NFR-01, NFR-02 | partial (accounts, administration and membership are implemented; changing roles, leaving and editing an organization are planned for the final delivery) |
+| R3 | Participant Registration | Eligible users discover events and register; registration information is managed and business rules (capacity, registration status) are enforced. | FR-W4-01 to FR-W4-08, FR-W3-04 | partial (registering, capacity, window and duplicates are implemented in the backend; cancelling and the web pages are planned) |
+| R4 | Event Lifecycle | Support the lifecycle from creation and planning, through publication and registration, to the event itself and post-event activities; workflows and rules defined by the team. | FR-W2-01, FR-W2-05 to FR-W2-10, FR-W3-05, FR-W4-03 | partial (the draft and registration window are implemented; the status transitions are planned) |
+| R5 | Event Organization | Support organizers in preparing and managing events (responsibilities, event information, monitoring registrations, communication, attendance), justified by identified user needs. | FR-W5-01 to FR-W5-10 | partial (participant list, tasks and announcements exist in the backend; check-in, task changes and the W5 screens are planned) |
+| R6 | Search and Information Access | Users find relevant events and access the information needed to decide whether to participate. | FR-W3-01 to FR-W3-08, FR-W2-04, FR-W4-07, FR-W5-09 | partial (event details exist; the search, its filters and the web pages are planned) |
+| R7 | Data Persistence | Persistent storage; data model represents entities, relationships, constraints and business rules. | NFR-07, `docs/data-model.md`, ADR-004 | implemented |
+| R8 | Enterprise Architecture | Multi-layer system separating presentation, business logic, persistence and external interfaces; decisions and technologies documented and justified. | NFR-01, NFR-06, ADR-001 to ADR-005 | implemented |
+| R9 | APIs and Integration | Well-defined, documented APIs between components and, where appropriate, external systems. | NFR-04, NFR-05, ADR-002 | implemented |
+| R10 | User Interface | Usable interface for the main user categories, matching the documented workflows and use cases; important workflows validated with users. | FR-AUTH-06 to FR-AUTH-08, FR-W3-07, FR-W3-08, FR-W4-08, NFR-11 | partial (login, register, organizations, admin and the event form exist; the events list, event details, registration and organizing screens are planned) |
+| R11 | Testing | Automated tests appropriate to the system: unit tests and, where appropriate, other test levels. | NFR-08, NFR-09 | implemented |
+| R12 | Deployment | Deployable and runnable outside the development environment; documented deployment approach and demonstration. | NFR-03, NFR-10 | implemented |
+| R13 | GenAI-Assisted Development | GenAI used throughout development as an engineering tool, with relevant uses documented. | NFR-12, `07-genai-report.md` (7.1, 7.2), `docs/genai/usage-log.md` | implemented |
+| R14 | Human Oversight and Engineering Judgment | Visible human-in-the-loop process: context, prompts, evaluation, corrections, rejections, validation. | NFR-12, `07-genai-report.md` (7.3, 7.4), `docs/genai/usage-log.md` | partial (the examples of human decisions come from one person's sessions) |
+| R15 | Traceability | Requirements, use cases, workflows, architectural decisions, implementation and tests are connected. | No FR or NFR: it is a property of the documents. The ID scheme in `README.md`, the Source columns of the FR and NFR tables and this table link requirements to the code, tests and course requirements | partial (the links from requirements to use cases and workflows are planned, tickets T-77 to T-87) |
+| R16 | Team-Based Development | Developed collaboratively; each student owns specific artifacts and at least one cross-layer workflow. | NFR-09, `CONTRIBUTING.md`, `08-individual-contributions.md` | partial (branches, pull requests and CI are in use; the individual declarations are planned) |
 
-> TODO (team): fill "Covered by" and "Status".
+Status is the overall status of the course requirement, worked out from the status of the FR and NFR rows that cover it in sections 2.2 to 2.8: `implemented` only when all of them are, `partial` when some are implemented and others planned, `planned` when none is implemented. Checked against `main` on 2026-11-15.
+
+**Open items for the team**
+- R15 has no FR or NFR of its own; the row names the documents that carry the links, and its status changes when the use cases (`04-use-cases.md`) and workflows (`05-workflows.md`) are written.
+- R16 depends on `08-individual-contributions.md`, which each student has to write.
 
 ---
 
