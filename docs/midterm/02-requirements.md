@@ -145,15 +145,25 @@ action. Listing and viewing organizations already exists (read-only).
 **Format**
 Common table, 5–10 rows.
 
-> **Example – replace:**
-> | FR-W1-01 | Any logged-in user can list all organizations sorted by name and open one organization's details. | Student | R2 | MVP | implemented | OrganizationController |
+Status checked against `main` on 2026-11-15.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W1-01 | Any logged-in user can list all organizations sorted by name and open one organization's details (name, description, contact email); an unknown organization returns 404. | Any logged-in user | R2 | MVP | implemented | `OrganizationController`, `OrganizationControllerIntegrationTest`; frontend `OrganizationsListPage`, `OrganizationDetailsPage` |
+| FR-W1-02 | A logged-in user can see the organizations they belong to and their role in each (sorted by organization name); a user with no memberships gets an empty list. The "Organizing" menu entry is shown only to users who are ORGANIZER or PRESIDENT somewhere. | Any logged-in user | R2 | MVP | implemented | `MyMembershipsController`, `MyMembershipsControllerIntegrationTest`, `AppLayout` (T-01, T-02) |
+| FR-W1-03 | A global ADMIN can create an organization and appoint an existing account, found by email, as its PRESIDENT. The organization and the president's membership are created together (both or nothing). The name is required, at most 150 characters and unique ignoring case (otherwise 409 `ORGANIZATION_NAME_TAKEN`); an unknown president email returns 404 `USER_NOT_FOUND`. | ADMIN | R2 | MVP | implemented | `OrganizationService.create`, `ux_organizations_name_lower` (`data-model.md`), `OrganizationCreateControllerIntegrationTest`; frontend `AdminPage`, `CreateOrganizationForm` (T-08, T-09) |
+| FR-W1-04 | The members of an organization and global ADMINs can see its member list (name, email, role, joined date), ordered PRESIDENT, ORGANIZER, MEMBER and then by name. Anyone else gets 403. | Member, Organizer, President (of that organization), ADMIN | R2 | MVP | implemented | `OrganizationController.members` (`@PreAuthorize`), `OrganizationMembersControllerIntegrationTest`; frontend `MembersSection` (T-03, T-06) |
+| FR-W1-05 | The PRESIDENT of an organization (or an ADMIN) can add an existing account, found by email ignoring case, with the role MEMBER or ORGANIZER. PRESIDENT cannot be assigned this way; a user can be in an organization at most once (409 `ALREADY_MEMBER`); an unknown email returns 404 `USER_NOT_FOUND`. Students do not join organizations by themselves in the MVP. | President (of that organization), ADMIN | R2 | MVP | implemented | `MembershipService.addMember`, `AddMemberRequest`, `uq_memberships_user_organization` (`data-model.md`), `OrganizationAddMemberControllerIntegrationTest`; frontend `MembersSection` (T-04, T-07; MVP decision in `docs/planning/midterm-tickets.md`, T-04) |
+| FR-W1-06 | The PRESIDENT of an organization (or an ADMIN) can remove a member. The PRESIDENT cannot be removed (409 `CANNOT_REMOVE_PRESIDENT`), and a membership of another organization returns 404. Tasks assigned to the removed member become unassigned. | President (of that organization), ADMIN | R2 | MVP | implemented | `MembershipService.removeMember`, `fk_event_tasks_assignee` (`data-model.md`), `OrganizationRemoveMemberControllerIntegrationTest`; frontend `MembersSection` (T-05, T-07) |
+| FR-W1-07 | Organization roles form a hierarchy PRESIDENT ⊃ ORGANIZER ⊃ MEMBER and apply per organization: a student can hold different roles in different organizations. A global ADMIN gets no automatic organization rights, only those an endpoint grants explicitly. | Member, Organizer, President, ADMIN | R2 | MVP | implemented | `OrgPermissionService`, `OrgPermissionServiceTest`, `OrgPermissionPreAuthorizeIntegrationTest` |
+| FR-W1-08 | A member's role can be changed between MEMBER and ORGANIZER; the membership row is updated, not duplicated. Who may do it is not decided yet (expected: the PRESIDENT). | To be confirmed (expected: President) | R2 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final"); `uq_memberships_user_organization` (`data-model.md`) |
+| FR-W1-09 | A member can leave an organization. Open question: how the PRESIDENT leaves or is replaced, since a president cannot be removed today (FR-W1-06). | Member, Organizer | R2 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
+| FR-W1-10 | The PRESIDENT can edit the details of their organization (name, description, contact email). | President | R2 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
 
 **Done when**
 - [ ] Every row names who may perform the action.
 - [ ] Role changes and leaving an organization are covered.
 - [ ] Status checked against `main`.
-
-> TODO (team): FR-W1 table here.
 
 ---
 
@@ -235,14 +245,25 @@ event, no waitlist. Say what the user sees when a rule blocks them.
 **Format**
 Common table, 5–8 rows.
 
-> **Example – replace:**
-> | FR-W4-02 | Registration is rejected with a clear message when the event already has as many confirmed registrations as its capacity. | Student | R3 | MVP | planned | data-model.md rule 1 |
+Status checked against `main` on 2026-11-15. The backend for registering and for "my registrations" exists; cancelling does not exist yet, and the W4 pages of the web app are still placeholders ("Coming soon"), so most rows are `partial` or `planned`.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W4-01 | A logged-in user can register for a published event; the registration is created as CONFIRMED and the event's free places drop by one. A draft or unknown event returns 404. | Student | R3 | MVP | partial (backend implemented; the Register button is planned) | `RegistrationService.register`, `RegistrationController`, `RegistrationRegisterControllerIntegrationTest` (T-21); button: T-24 |
+| FR-W4-02 | The system never confirms more registrations than the event's capacity. When the confirmed registrations already equal the capacity, registration is rejected with 409 `EVENT_FULL`. There is no waitlist. Requests for the same event are processed one after another (the event row is locked), so two students cannot take the last place. | Student | R3 | MVP | partial (rule and lock implemented; the test with simultaneous requests is planned) | `docs/data-model.md` rule 1 and D1, `RegistrationService.register`, `RegistrationServiceRegisterTest`; concurrency test: T-35 |
+| FR-W4-03 | Registration is open only while the event is PUBLISHED and the current time is not after the registration deadline, or after the start when the event has no deadline. Otherwise registration is rejected with 409 `REGISTRATION_CLOSED`. | Student | R3, R4 | MVP | implemented | `docs/data-model.md` rule 2, `RegistrationService.register`, `RegistrationServiceRegisterTest`, `RegistrationRegisterControllerIntegrationTest` |
+| FR-W4-04 | A user has at most one CONFIRMED registration per event. Registering again while already confirmed is rejected with 409 `ALREADY_REGISTERED`; the database also enforces this, and a violation of that rule gives the same answer. | Student | R3 | MVP | implemented | `ux_registrations_confirmed_once` (`docs/data-model.md`), `RegistrationService.register`, `RegistrationRegisterControllerIntegrationTest` |
+| FR-W4-05 | A user can cancel their own CONFIRMED registration while the event is PUBLISHED or REGISTRATION_CLOSED and has not started. The registration becomes CANCELLED (the row is kept as history) and the place is free again. A checked-in registration cannot be cancelled (409 `CANCEL_NOT_ALLOWED`, also for an event that is ongoing, completed, cancelled or already started); without a confirmed registration the answer is 404 `NOT_REGISTERED`. | Student | R3 | MVP | planned | Agreed behaviour of ticket T-22 (#30) in `docs/planning/midterm-tickets.md`; `docs/data-model.md` (cancelled rows stay as history, `ck_registrations_checkin_confirmed`) |
+| FR-W4-06 | A user who cancelled can register again while the registration rules (FR-W4-02 to FR-W4-04) allow it; this creates a new CONFIRMED registration and the CANCELLED row stays as history. | Student | R3 | MVP | partial (re-registering works at the API level; cancelling itself is planned, see FR-W4-05) | `docs/data-model.md` (`ux_registrations_confirmed_once`), `RegistrationRegisterControllerIntegrationTest` |
+| FR-W4-07 | A logged-in user can see only their own registrations, CONFIRMED and CANCELLED, newest first, each with the event's title, start, location and status; a user with none gets an empty list. | Student | R3, R6 | MVP | partial (backend implemented; the "My registrations" page is a placeholder) | `RegistrationController` (`GET /api/v1/users/me/registrations`), `MyRegistrationsControllerIntegrationTest` (T-23); page: T-25 |
+| FR-W4-08 | When a rule blocks a registration, the user gets a clear answer: the API returns 409 with the code `EVENT_FULL`, `REGISTRATION_CLOSED` or `ALREADY_REGISTERED` and a readable message in the standard error body. The web app shows that message and, on the event page, the state of the button: Register, "You are registered" with Cancel, Full, or Registration closed. | Student | R3, R10 | MVP | partial (codes and messages implemented; the event page UI is planned) | Shared conventions and ticket T-24 in `docs/planning/midterm-tickets.md`, `RegistrationService.register`; UI: T-24 |
 
 **Done when**
 - [ ] Capacity, window, duplicate and cancel/re-register rules each have a row.
 - [ ] The "what the user sees" part is stated for rejected registrations.
 
-> TODO (team): FR-W4 table here.
+**Open questions for the team**
+- The course text says "eligible users" can register (R3). The code lets any logged-in user register, including members, organizers and ADMINs, for any published event. Is that the intended rule, or do we want eligibility rules?
 
 ---
 
