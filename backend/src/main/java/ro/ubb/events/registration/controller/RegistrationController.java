@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ro.ubb.events.auth.dto.AuthenticatedUser;
 import ro.ubb.events.common.dto.ApiError;
+import ro.ubb.events.registration.dto.MyRegistrationResponse;
 import ro.ubb.events.registration.dto.ParticipantResponse;
 import ro.ubb.events.registration.dto.RegistrationResponse;
 import ro.ubb.events.registration.entity.RegistrationStatus;
@@ -51,6 +52,15 @@ public class RegistrationController {
             @PathVariable Long eventId,
             @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
         return registrationService.register(eventId, me.id());
+    }
+
+    @GetMapping("/users/me/registrations")
+    @Operation(summary = "List my registrations, newest first",
+            description = "Only the caller's own registrations, CONFIRMED and CANCELLED, with the event details.")
+    @ApiResponse(responseCode = "200", description = "My registrations; an empty list if there are none")
+    public List<MyRegistrationResponse> listMine(
+            @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        return registrationService.listMine(me.id());
     }
 
     @GetMapping("/events/{eventId}/registrations")

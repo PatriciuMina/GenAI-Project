@@ -23,6 +23,11 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
 
     List<Registration> findByUserIdOrderByRegisteredAtDesc(Long userId);
 
+    /** A user's registrations, newest first, with the events fetched in the same query. */
+    @Query("select r from Registration r join fetch r.event where r.user.id = :userId "
+            + "order by r.registeredAt desc, r.id desc")
+    List<Registration> findMine(@Param("userId") Long userId);
+
     /** Participant list of an event, users fetched in the same query, sorted by full name. */
     @Query("select r from Registration r join fetch r.user u where r.event.id = :eventId order by u.fullName, r.id")
     List<Registration> findParticipants(@Param("eventId") Long eventId);
