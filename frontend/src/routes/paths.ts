@@ -7,5 +7,7 @@ export const paths = {
   events: '/events',
   myRegistrations: '/my-registrations',
   organizing: '/organizing',
+  organizingNewEvent: '/organizing/events/new',
+  organizingEditEvent: (id: number | string) => `/organizing/events/${id}/edit`,
   admin: '/admin',
 } as const;

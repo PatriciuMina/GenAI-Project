@@ -5,7 +5,9 @@ import { errorStatus } from '../../api/errors';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
 import { paths } from '../../routes/paths';
-import { useOrganization } from './queries';
+import { useAuth } from '../auth/useAuth';
+import { MembersSection } from './MembersSection';
+import { useMyMemberships, useOrganization } from './queries';
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' });
 
@@ -13,7 +15,17 @@ export function OrganizationDetailsPage() {
   const { id: idParam } = useParams();
   const id = Number(idParam);
   const validId = Number.isInteger(id) && id > 0;
+  const { user } = useAuth();
+  const { data: memberships } = useMyMemberships();
   const { data: org, isPending, isError, error, refetch } = useOrganization(id);
+  const canViewMembers =
+    user?.role === 'ADMIN' ||
+    memberships?.some((membership) => membership.organizationId === id) === true;
+  const canManageMembers =
+    user?.role === 'ADMIN' ||
+    memberships?.some(
+      (membership) => membership.organizationId === id && membership.role === 'PRESIDENT',
+    ) === true;
 
   const back = (
     <Button component={RouterLink} to={paths.organizations} startIcon={<ArrowBackIcon />}>
@@ -56,8 +68,10 @@ export function OrganizationDetailsPage() {
               Created {dateFormat.format(new Date(org.createdAt))}
             </Typography>
           </Stack>
-          {/* TODO(W1): members list, join/leave, edit for PRESIDENT. */}
         </Paper>
+      )}
+      {org && validId && (
+        <MembersSection orgId={id} enabled={canViewMembers} canManage={canManageMembers} />
       )}
     </Stack>
   );

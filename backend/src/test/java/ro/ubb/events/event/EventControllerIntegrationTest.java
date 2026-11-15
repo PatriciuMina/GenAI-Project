@@ -2,7 +2,9 @@ package ro.ubb.events.event;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.nullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -182,6 +184,121 @@ class EventControllerIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(post(URL, organization.getId()).contentType(MediaType.APPLICATION_JSON).content(json(validBody())))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
+    }
+
+    @Test
+    void organizerCanEditDraftAndPublishedButNotCompleted() throws Exception {
+        long draftId = createEvent();
+        Map<String, Object> edit = updateBody(0);
+        mockMvc.perform(put("/api/v1/events/{id}", draftId).header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content(json(edit)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.title").value("Updated event"))
+                .andExpect(jsonPath("$.version").value(1));
+
+        long publishedId = createEvent();
+        jdbcTemplate.update("UPDATE events SET status = 'PUBLISHED' WHERE id = ?", publishedId);
+        Map<String, Object> publishedEdit = updateBody(0);
+        mockMvc.perform(put("/api/v1/events/{id}", publishedId).header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content(json(publishedEdit)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("PUBLISHED"));
+
+        long completedId = createEvent();
+        jdbcTemplate.update("UPDATE events SET status = 'COMPLETED' WHERE id = ?", completedId);
+        mockMvc.perform(put("/api/v1/events/{id}", completedId).header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content(json(updateBody(0))))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("EVENT_NOT_EDITABLE"));
+    }
+
+    @Test
+    void staleVersionAndCapacityBelowConfirmedCountAreRejected() throws Exception {
+        long id = createEvent();
+        mockMvc.perform(put("/api/v1/events/{id}", id).header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content(json(updateBody(0))))
+                .andExpect(status().isOk());
+        mockMvc.perform(put("/api/v1/events/{id}", id).header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content(json(updateBody(0))))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("CONCURRENT_UPDATE"));
+
+        long registeredEvent = createEvent();
+        jdbcTemplate.update("INSERT INTO registrations (event_id, user_id, status, registered_at) VALUES (?, ?, 'CONFIRMED', now())",
+                registeredEvent, organizer.getId());
+        jdbcTemplate.update("INSERT INTO registrations (event_id, user_id, status, registered_at) VALUES (?, ?, 'CONFIRMED', now())",
+                registeredEvent, president.getId());
+        Map<String, Object> tooSmall = updateBody(0);
+        tooSmall.put("capacity", 1);
+        mockMvc.perform(put("/api/v1/events/{id}", registeredEvent).header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content(json(tooSmall)))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.fieldErrors[0].field").value("capacity"));
+    }
+
+    private long createEvent() throws Exception {
+        String body = create(organization.getId(), token(organizer), validBody()).andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        return objectMapper.readTree(body).get("id").asLong();
+    }
+
+    private static Map<String, Object> updateBody(long version) {
+        Map<String, Object> body = validBody();
+        body.put("title", "Updated event");
+        body.put("version", version);
+        return body;
+    }
+
+    @Test
+    void nonOrganizerCannotEditAndUnknownEventIs404() throws Exception {
+        long id = createEvent();
+        mockMvc.perform(put("/api/v1/events/{id}", id).header(HttpHeaders.AUTHORIZATION, bearer(token(member)))
+                        .contentType(MediaType.APPLICATION_JSON).content(json(updateBody(0))))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(put("/api/v1/events/{id}", 999999L).header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content(json(updateBody(0))))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void draftIsVisibleToOrganizerAndHiddenFromOtherUsers() throws Exception {
+        long id = createEvent();
+        mockMvc.perform(get("/api/v1/events/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(organizer))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("DRAFT"));
+        mockMvc.perform(get("/api/v1/events/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(member))))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+    }
+
+    @Test
+    void eventDetailsIncludeConfirmedCountAndReturnCancelledAndCompletedEvents() throws Exception {
+        long id = createEvent();
+        jdbcTemplate.update("UPDATE events SET capacity = 30 WHERE id = ?", id);
+        jdbcTemplate.update("UPDATE events SET status = 'CANCELLED' WHERE id = ?", id);
+        jdbcTemplate.update("INSERT INTO registrations (event_id, user_id, status, registered_at) VALUES (?, ?, 'CONFIRMED', now())",
+                id, organizer.getId());
+        jdbcTemplate.update("INSERT INTO registrations (event_id, user_id, status, registered_at) VALUES (?, ?, 'CONFIRMED', now())",
+                id, president.getId());
+
+        mockMvc.perform(get("/api/v1/events/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(member))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.confirmedCount").value(2))
+                .andExpect(jsonPath("$.freePlaces").value(28))
+                .andExpect(jsonPath("$.status").value("CANCELLED"));
+
+        jdbcTemplate.update("UPDATE events SET status = 'COMPLETED' WHERE id = ?", id);
+        mockMvc.perform(get("/api/v1/events/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(member))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("COMPLETED"));
+    }
+
+    @Test
+    void eventDetailsReturn404ForUnknownIdAnd401WithoutToken() throws Exception {
+        mockMvc.perform(get("/api/v1/events/{id}", 999999L)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(organizer))))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/events/{id}", 999999L))
+                .andExpect(status().isUnauthorized());
     }
 
     private ResultActions create(long orgId, String token, Map<String, Object> body) throws Exception {

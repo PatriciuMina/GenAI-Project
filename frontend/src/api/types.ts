@@ -4,8 +4,29 @@
 /** Application-wide role (backend `GlobalRole`). */
 export type GlobalRole = 'STUDENT' | 'ADMIN';
 
-/** Role inside one organization (backend `OrganizationRole`). Not exposed per user yet. */
+/** Role inside one organization (backend `OrganizationRole`). */
 export type OrganizationRole = 'PRESIDENT' | 'ORGANIZER' | 'MEMBER';
+
+/** Backend `MembershipResponse` (GET /users/me/memberships). */
+export interface Membership {
+  membershipId: number;
+  organizationId: number;
+  organizationName: string;
+  role: OrganizationRole;
+  /** ISO-8601 instant. */
+  joinedAt: string;
+}
+
+/** Backend `MemberResponse` (GET /organizations/{id}/members). */
+export interface Member {
+  membershipId: number;
+  userId: number;
+  fullName: string;
+  email: string;
+  role: OrganizationRole;
+  /** ISO-8601 instant. */
+  joinedAt: string;
+}
 
 /** Body of POST /auth/login. */
 export interface LoginRequest {
@@ -44,6 +65,48 @@ export interface Organization {
   description: string | null;
   contactEmail: string | null;
   createdAt: string;
+}
+
+/** Backend EventCategory. */
+export type EventCategory =
+  'ACADEMIC' | 'CAREER' | 'CULTURAL' | 'SOCIAL' | 'SPORTS' | 'VOLUNTEERING' | 'WORKSHOP' | 'OTHER';
+
+export type EventStatus =
+  'DRAFT' | 'PUBLISHED' | 'REGISTRATION_CLOSED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
+
+/** EventResponse. */
+export interface Event {
+  id: number;
+  organizationId: number;
+  organizationName: string;
+  title: string;
+  description: string | null;
+  location: string;
+  category: EventCategory;
+  startAt: string;
+  endAt: string;
+  capacity: number;
+  registrationDeadline: string | null;
+  status: EventStatus;
+  confirmedCount: number;
+  freePlaces: number;
+  version: number;
+}
+
+/** EventRequest / editable fields of UpdateEventRequest. */
+export interface EventRequest {
+  title: string;
+  description: string | null;
+  location: string;
+  category: EventCategory;
+  startAt: string;
+  endAt: string;
+  capacity: number;
+  registrationDeadline: string | null;
+}
+
+export interface UpdateEventRequest extends EventRequest {
+  version: number;
 }
 
 /** Body of POST /organizations (ADMIN only). Optional fields may be null. */

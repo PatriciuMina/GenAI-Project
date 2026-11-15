@@ -26,6 +26,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiError> handleApi(ApiException ex) {
+        if (ex instanceof ValidationException validation) {
+            return build(ex.getStatus(), ex.getCode(), ex.getMessage(), validation.getFieldErrors());
+        }
         return build(ex.getStatus(), ex.getCode(), ex.getMessage(), List.of());
     }
 

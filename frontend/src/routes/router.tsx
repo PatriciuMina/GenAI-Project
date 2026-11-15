@@ -8,6 +8,7 @@ import { EventsPage } from '../features/events/EventsPage';
 import { OrganizationDetailsPage } from '../features/organizations/OrganizationDetailsPage';
 import { OrganizationsListPage } from '../features/organizations/OrganizationsListPage';
 import { OrganizingPage } from '../features/organizing/OrganizingPage';
+import { EventFormPage } from '../features/organizing/EventFormPage';
 import { MyRegistrationsPage } from '../features/registrations/MyRegistrationsPage';
 import { paths } from './paths';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -30,6 +31,8 @@ export const router = createBrowserRouter([
           { path: paths.events, element: <EventsPage /> },
           { path: paths.myRegistrations, element: <MyRegistrationsPage /> },
           { path: paths.organizing, element: <OrganizingPage /> },
+          { path: paths.organizingNewEvent, element: <EventFormPage /> },
+          { path: '/organizing/events/:id/edit', element: <EventFormPage /> },
           {
             path: paths.admin,
             element: (
