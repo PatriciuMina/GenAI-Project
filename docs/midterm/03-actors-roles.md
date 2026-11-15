@@ -34,18 +34,37 @@ logged in) is also an actor.
 Table: `Actor | Kind (global / org role / external) | Description | Example seed account`. 6–8 rows.
 Optionally a small Mermaid diagram showing the role hierarchy.
 
-> **Example – replace:**
->
-> | Actor | Kind | Description | Example seed account |
-> |-------|------|-------------|----------------------|
-> | Organizer | Org role | Member of an organization who prepares its events | elena.marin@stud.ubbcluj.ro |
+There are two levels of roles. The **global role** is stored on the account and is `STUDENT` or `ADMIN`; every account has exactly one. The **organization role** is stored in a membership and is `MEMBER`, `ORGANIZER` or `PRESIDENT`; it belongs to one organization, so the same student can be a president in one organization, a member in another and have no role in a third. A visitor, who is not logged in, is also an actor. The system has no external systems it talks to: it issues its own tokens (no external identity provider) and sends no email (`docs/architecture/ADR-003-jwt-auth-spring-security.md`, section 1.4 of `01-problem-statement.md`).
+
+| Actor | Kind | Description | Example seed account |
+|-------|------|-------------|----------------------|
+| Visitor | Not logged in | Anyone who has not logged in. Can only create an account and log in | none |
+| Student | Global role `STUDENT` | Every registered account starts as a student. Can browse organizations, open events, register for events and see their registrations. A student who has registered for an event is its participant, which is not a separate role | andrei.toma@stud.ubbcluj.ro (no organization role) |
+| Administrator | Global role `ADMIN` | Platform administrator, created only from the seed. Creates organizations and appoints their president, and can see, add and remove members of any organization. Has no organizer or president rights by being an administrator | admin@ubbevents.ro |
+| Member | Organization role `MEMBER` | Belongs to an organization. Sees the list of its members and the announcements of its events | ioana.rusu@stud.ubbcluj.ro (UBB Computer Science Society) |
+| Organizer | Organization role `ORGANIZER` | Member who prepares the organization's events: creates and edits events, manages tasks, sees the participants and posts announcements | elena.marin@stud.ubbcluj.ro (UBB Computer Science Society) |
+| President | Organization role `PRESIDENT` | Leads the organization. Can do everything an organizer can, and adds and removes the organization's members | ana.popescu@stud.ubbcluj.ro (UBB Computer Science Society) |
+
+An organization role includes the roles below it: a president can do what an organizer can, and an organizer what a member can (`OrgPermissionService`). The global role is separate from this: an administrator gets no organization rights automatically.
+
+```mermaid
+flowchart LR
+    subgraph Global["Global role (on the account)"]
+        S["STUDENT"]
+        A["ADMIN"]
+    end
+    subgraph Org["Organization role (in one organization)"]
+        P["PRESIDENT"] -->|includes| O["ORGANIZER"] -->|includes| M["MEMBER"]
+    end
+```
 
 **Done when**
 - [ ] Both role levels are explained with one sentence each.
 - [ ] Every value of `GlobalRole` and `OrganizationRole` appears, plus Visitor.
 - [ ] Consistent with stakeholders in `01-problem-statement.md`.
 
-> TODO (team): actors table here.
+**Open items for the team**
+- What each actor may do, action by action, is the permission matrix (section 3.2); the descriptions above only summarise it.
 
 ---
 
