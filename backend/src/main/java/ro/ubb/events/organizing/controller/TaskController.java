@@ -11,6 +11,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import ro.ubb.events.auth.dto.AuthenticatedUser;
 import ro.ubb.events.common.dto.ApiError;
 import ro.ubb.events.organizing.dto.TaskRequest;
 import ro.ubb.events.organizing.dto.TaskResponse;
+import ro.ubb.events.organizing.dto.TaskUpdateRequest;
 import ro.ubb.events.organizing.service.TaskService;
 
 /** Organizer tasks of an event (W5). */
@@ -49,6 +51,28 @@ public class TaskController {
             @PathVariable Long eventId,
             @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
         return taskService.list(eventId, me.id());
+    }
+
+    @PatchMapping("/{taskId}")
+    @Operation(summary = "Change a task's status and/or assignee (organizer or president of the event's organization)",
+            description = "Every field is optional and only the ones sent are changed. `unassign: true` removes the "
+                    + "assignee and cannot be combined with `assigneeMembershipId`. Any status can follow any other. "
+                    + "Editing the title, description or due date is not part of this endpoint.")
+    @ApiResponse(responseCode = "200", description = "The updated task")
+    @ApiResponse(responseCode = "400",
+            description = "MALFORMED_REQUEST (unknown status), VALIDATION_FAILED (`unassign` together with an assignee) "
+                    + "or ASSIGNEE_NOT_IN_ORGANIZATION",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "403", description = "Not an organizer or president of the event's organization",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Event not found, or the task belongs to another event",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public TaskResponse update(
+            @PathVariable Long eventId,
+            @PathVariable Long taskId,
+            @RequestBody TaskUpdateRequest request,
+            @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        return taskService.update(eventId, taskId, request, me.id());
     }
 
     @PostMapping

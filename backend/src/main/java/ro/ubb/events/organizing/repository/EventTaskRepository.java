@@ -1,6 +1,7 @@
 package ro.ubb.events.organizing.repository;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +12,9 @@ public interface EventTaskRepository extends JpaRepository<EventTask, Long> {
     List<EventTask> findByEventIdOrderByDueAtAsc(Long eventId);
 
     List<EventTask> findByAssigneeId(Long membershipId);
+
+    /** A task of this event; empty when the id belongs to a task of another event or does not exist. */
+    Optional<EventTask> findByIdAndEventId(Long id, Long eventId);
 
     /**
      * Tasks of an event by due date (tasks without a due date last), the assignee and their user fetched in
