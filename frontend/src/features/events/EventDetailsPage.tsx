@@ -7,6 +7,7 @@ import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
 import { paths } from '../../routes/paths';
 import { useEvent } from '../organizing/eventQueries';
+import { EventAnnouncements } from './EventAnnouncements';
 import {
   categoryLabel,
   formatDateTime,
@@ -91,7 +92,7 @@ export function EventDetailsPage() {
         </Paper>
       )}
       {/* TODO(T-24): the Register / Cancel registration button goes here (ticket "Register / Cancel button"). */}
-      {/* TODO(T-34): the announcements of the event go here (ticket "show announcements on the event page"). */}
+      {event && <EventAnnouncements eventId={event.id} />}
     </Stack>
   );
 }

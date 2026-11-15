@@ -93,6 +93,15 @@ export interface Event {
   version: number;
 }
 
+/** Backend `AnnouncementResponse` (GET /events/{id}/announcements). */
+export interface Announcement {
+  id: number;
+  title: string;
+  body: string;
+  authorName: string;
+  createdAt: string;
+}
+
 /** EventRequest / editable fields of UpdateEventRequest. */
 export interface EventRequest {
   title: string;
