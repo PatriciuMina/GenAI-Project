@@ -2,6 +2,7 @@ package ro.ubb.events.organization.service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -129,6 +130,16 @@ public class MembershipService {
             throw new ConflictException("CANNOT_REMOVE_PRESIDENT", "The president of an organization cannot be removed");
         }
         membershipRepository.delete(membership);
+    }
+
+    /**
+     * For other features' services (the entity must not reach controllers): the membership with this id, only
+     * if it belongs to the given organization. Empty if it does not exist or belongs to another organization.
+     */
+    @Transactional(readOnly = true)
+    public Optional<OrganizationMembership> findEntityInOrganization(Long organizationId, Long membershipId) {
+        return membershipRepository.findById(membershipId)
+                .filter(m -> m.getOrganization().getId().equals(organizationId));
     }
 
     private static ConflictException alreadyMember() {
