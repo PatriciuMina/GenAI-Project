@@ -35,17 +35,24 @@ usage log. Say briefly why that tool was chosen for that purpose.
 **Format**
 Table: `Tool / model | Used by | Purpose(s) | Why this tool`. One row per tool/model.
 
-> **Example – replace:**
->
-> | Tool / model | Used by | Purpose(s) | Why this tool |
-> |--------------|---------|------------|---------------|
-> | Claude Code (Claude Opus 5.5) | Patriciu Mina | Project foundations, backend skeleton, data model, auth, frontend scaffold, Docker/CI | Works directly in the repository and follows `CLAUDE.md` rules |
+Built from `docs/genai/usage-log.md` on `main` as of 2026-11-15 (35 rows, 4 distinct tool/model values, 4 people). Names are exactly as written in the log.
+
+| Tool / model | Used by | Purpose(s) | Why this tool |
+|--------------|---------|------------|---------------|
+| Claude Code (Claude Opus 5.5) | Patriciu Mina | Project foundations, backend skeleton, data model, authentication and organization permissions, frontend scaffold, Docker and CI, mid-term documentation drafts, ticket planning and the script that creates the issues and board, review and merge rules | Works directly in the repository and is given the project rules in `CLAUDE.md` (for example, session `P10-team-rules.txt` starts by reading it) |
+| Claude Code (Claude Opus 5.5) | Andrei Gota | Onboarding (read-only), W1 and W2 backend endpoints (my memberships, organization members list, add and remove member, create organization, create event) and the Admin page for creating an organization | Same workflow as above; the reason for choosing it is not recorded in the log (to be added by Andrei Gota) |
+| Claude Code (Claude Sonnet 5.5) | Vlad-Ștefan Uleia | W4 and W5 backend endpoints (participant list, register with capacity limit, my registrations, announcements, organizer tasks) and sections of the mid-term requirements document | Same Claude Code workflow in the repository; the reason for choosing this model is not recorded in the log (to be added by Vlad-Ștefan Uleia) |
+| Codex (GPT-6) | Portik Márk-Krisztián | Frontend features (Organizing menu by role, members list and add/remove members, create and edit event form), backend event editing with optimistic locking and the event details endpoint | The reason for choosing it is not recorded in the log (to be added by Portik Márk-Krisztián) |
+| Claude Opus 5.5 (claude.ai chat) | Patriciu Mina | One small task: a summary of the course project statement and mid-term deliverables (`docs/course/course-requirements.md`) | A chat tool used for a one-off summary of a document; the reason is not recorded in the log |
 
 **Done when**
 - [ ] Every distinct Tool/Model value in `usage-log.md` appears.
 - [ ] Every team member who used GenAI is listed.
 
-> TODO (team): tools table here.
+**Open items for the team**
+- The log has entries from four people. If the fifth team member used GenAI, their uses must first be added to `docs/genai/usage-log.md` (CONTRIBUTING §6) and then listed here; if they did not, say so in this section.
+- The "Why this tool" cell is filled only where the repository shows a reason. The people named above should add their own reasons.
+- Update this table before submission: new log rows may add people, tools or purposes.
 
 ---
 
