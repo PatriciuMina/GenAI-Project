@@ -1,12 +1,14 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as announcementsApi from '../../api/announcements';
 import * as eventsApi from '../../api/events';
 import type { Event } from '../../api/types';
 import { apiError, withQueryClient } from '../../test/utils';
 import { EventDetailsPage } from './EventDetailsPage';
 
 vi.mock('../../api/events');
+vi.mock('../../api/announcements');
 
 const event: Event = {
   id: 2,
@@ -41,6 +43,42 @@ function renderPage(path = '/events/2') {
 describe('EventDetailsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(announcementsApi.getAnnouncements).mockResolvedValue([]);
+  });
+
+  it('shows the announcements of the event below the details', async () => {
+    vi.mocked(eventsApi.getEvent).mockResolvedValue(event);
+    vi.mocked(announcementsApi.getAnnouncements).mockResolvedValue([
+      {
+        id: 1,
+        title: 'Bring your laptop',
+        body: 'Please install JDK 21 and an IDE before the workshop.',
+        authorName: 'Elena Marin',
+        createdAt: '2026-11-06T12:00:00Z',
+      },
+    ]);
+
+    renderPage();
+
+    expect(await screen.findByRole('heading', { name: 'Bring your laptop' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Announcements' })).toBeInTheDocument();
+    expect(announcementsApi.getAnnouncements).toHaveBeenCalledWith(2);
+  });
+
+  it('shows no announcements section for a user who may not read them', async () => {
+    vi.mocked(eventsApi.getEvent).mockResolvedValue(event);
+    vi.mocked(announcementsApi.getAnnouncements).mockRejectedValue(
+      apiError(403, 'FORBIDDEN', 'Not allowed'),
+    );
+
+    renderPage();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Intro to Spring Boot Workshop' }),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(announcementsApi.getAnnouncements).toHaveBeenCalledWith(2));
+    expect(screen.queryByRole('heading', { name: 'Announcements' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('shows what a student needs to decide: place, free places, deadline and status', async () => {
