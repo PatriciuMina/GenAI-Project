@@ -99,15 +99,44 @@ part of the mid-term MVP. This list should match the functional requirement grou
 **Format**
 Bullet list grouped by workflow, 10–20 bullets in total; tag MVP items with **(MVP)**.
 
-> **Example – replace:**
-> - **W4 Registration:** students register for a published event until it is full **(MVP)**
+By the end of the project the system will let users do the following. **(MVP)** marks what is in the mid-term plan agreed by the team (the mid-term tickets in `docs/planning/midterm-tickets.md`); the rest is planned for the final delivery (its "Deferred to final" list). The groups are the functional requirement groups of `02-requirements.md`.
+
+**Accounts and administration (FR-AUTH, FR-ADM)**
+- Visitors create an account and log in; every new account is a student **(MVP)**
+- Platform administrators create student organizations and appoint each one's president **(MVP)**
+
+**W1 Organizations and membership**
+- Any logged-in user browses the organizations and sees their details, and sees their own organizations and roles **(MVP)**
+- A president (or an administrator) adds members to an organization and removes them, and members see who belongs to their organization **(MVP)**
+- A president changes a member's role, a member leaves an organization and a president edits the organization's details (final delivery)
+
+**W2 Event creation and lifecycle**
+- Organizers create and edit events with title, description, date and time, place, category, capacity and an optional registration deadline **(MVP)**
+- Organizers move an event through its lifecycle by publishing it, closing registration, starting it, completing it or cancelling it **(MVP)**
+
+**W3 Event discovery and search**
+- Students list upcoming events, filter them by category, organization and date, and search them by title **(MVP)**
+- Students open an event and see what they need to decide: date, place, description, free places, registration deadline and status **(MVP)**
+- Organizers see all events of their organization, drafts included **(MVP)**
+
+**W4 Participant registration**
+- Students register for a published event until it is full, without the event ever being overbooked **(MVP)**
+- Students see their registrations, cancel one and register again **(MVP)**
+
+**W5 Event organization**
+- Organizers create tasks for an event, assign them to members of the organization and follow their status **(MVP)**
+- Organizers see who registered and record who attended **(MVP)**
+- Organizers post announcements that participants and members read in the application **(MVP)**
+- Organizers edit and delete tasks and announcements (final delivery)
 
 **Done when**
 - [ ] Every workflow W1–W5 has at least one bullet.
 - [ ] MVP items are marked and agreed with the team.
 - [ ] Matches the FR groups in `02-requirements.md`.
 
-> TODO (team): in-scope list here.
+**Open items for the team**
+- The "(MVP)" tags follow the mid-term plan, not what is already built: parts of W2 (status changes), W3, W4 (cancelling) and W5 (check-in) are still planned. `02-requirements.md` gives the status of each requirement.
+- The team should confirm the list before submission. The out-of-scope list (section 1.4) must not contradict it.
 
 ---
 
