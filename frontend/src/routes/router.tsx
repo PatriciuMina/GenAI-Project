@@ -4,6 +4,7 @@ import { NotFoundPage } from '../components/NotFoundPage';
 import { AdminPage } from '../features/admin/AdminPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
+import { EventDetailsPage } from '../features/events/EventDetailsPage';
 import { EventsPage } from '../features/events/EventsPage';
 import { OrganizationDetailsPage } from '../features/organizations/OrganizationDetailsPage';
 import { OrganizationsListPage } from '../features/organizations/OrganizationsListPage';
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
           { path: paths.organizations, element: <OrganizationsListPage /> },
           { path: '/organizations/:id', element: <OrganizationDetailsPage /> },
           { path: paths.events, element: <EventsPage /> },
+          { path: '/events/:id', element: <EventDetailsPage /> },
           { path: paths.myRegistrations, element: <MyRegistrationsPage /> },
           { path: paths.organizing, element: <OrganizingPage /> },
           { path: paths.organizingNewEvent, element: <EventFormPage /> },

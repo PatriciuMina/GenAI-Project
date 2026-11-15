@@ -5,6 +5,7 @@ export const paths = {
   organizations: '/organizations',
   organization: (id: number | string) => `/organizations/${id}`,
   events: '/events',
+  event: (id: number | string) => `/events/${id}`,
   myRegistrations: '/my-registrations',
   organizing: '/organizing',
   organizingNewEvent: '/organizing/events/new',
