@@ -179,6 +179,38 @@ is guaranteed when two students register for the last place at the same time.
 - [ ] Steps, diagram, business rules and traceability line are present.
 - [ ] The concurrency/capacity rule and the rejection paths are shown.
 
+### Sequence diagram: register with a capacity check, and cancel
+
+Registering exists on `main` (`POST /api/v1/events/{id}/registrations`). Cancelling (`DELETE /api/v1/events/{id}/registrations/me`, ticket T-22) is **planned**: the diagram shows the agreed contract. The event row is locked first, so two students taking the last place are handled one after the other (`docs/data-model.md`, rules 1 and 2).
+
+```mermaid
+sequenceDiagram
+    actor S as Student
+    participant FE as Frontend
+    participant API as Backend API
+    participant DB as PostgreSQL
+    S->>FE: Click "Register"
+    FE->>API: POST /api/v1/events/{id}/registrations
+    API->>DB: lock the event row (SELECT ... FOR UPDATE)
+    alt event not found or still a DRAFT
+        API-->>FE: 404 NOT_FOUND
+    else event is not PUBLISHED or the deadline has passed
+        API-->>FE: 409 REGISTRATION_CLOSED
+    else the student already has a CONFIRMED registration
+        API-->>FE: 409 ALREADY_REGISTERED
+    else CONFIRMED registrations equal the capacity
+        API-->>FE: 409 EVENT_FULL
+    else a place is free
+        API->>DB: insert registration with status CONFIRMED
+        API-->>FE: 201 Created
+    end
+    FE-->>S: "You are registered" or the error message
+    S->>FE: Click "Cancel registration" (planned)
+    FE->>API: DELETE /api/v1/events/{id}/registrations/me (planned)
+    API->>DB: set the registration status to CANCELLED
+    API-->>FE: 204 No Content
+```
+
 > TODO (team): W4 workflow here.
 
 ---
