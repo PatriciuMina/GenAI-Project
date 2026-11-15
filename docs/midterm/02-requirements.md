@@ -97,17 +97,32 @@ account gets, what happens with a wrong password).
 **Format**
 Common table (above), 3–8 rows.
 
-> **Example – replace:**
->
-> | ID | Requirement | Actor(s) | R | Priority | Status | Source |
-> |----|-------------|----------|---|----------|--------|--------|
-> | FR-AUTH-01 | A visitor can create an account with email, full name and password; the new account always has the STUDENT role and the email must not already be used (case-insensitive). | Visitor | R2 | MVP | implemented | ADR-003, AuthService |
+Status checked against `main` on 2026-11-15.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-AUTH-01 | A visitor can create an account with an email (valid, at most 255 characters), a full name (at most 150 characters) and a password (8 to 72 characters). The new account always has the STUDENT role, even if a role is sent, and the email must not already be used, ignoring case (otherwise 409 `EMAIL_ALREADY_USED`). Invalid input returns 400 with field errors. | Visitor | R2 | MVP | implemented | ADR-003, `AuthService.register`, `RegisterRequest`, `AuthControllerIntegrationTest` |
+| FR-AUTH-02 | The system stores only a hash of the password (BCrypt), never the password itself, and never returns the hash to a client. | Visitor, Student, ADMIN | R2 | MVP | implemented | ADR-003, `AuthServiceTest`, `UserResponse` |
+| FR-AUTH-03 | A user can log in with email and password and receives a bearer access token valid for 2 hours. There are no refresh tokens. A wrong password and an unknown email give the same answer, 401 `INVALID_CREDENTIALS`. | Visitor | R2 | MVP | implemented | ADR-003 ("Implementation notes"), `AuthService.login`, `AuthControllerIntegrationTest`, `AuthServiceTest` |
+| FR-AUTH-04 | Every endpoint except health, the Swagger/OpenAPI pages, register and login requires a valid token; a missing, tampered or expired token returns 401 with the standard error body. | Visitor, Student, ADMIN | R2 | MVP | implemented | `SecurityConfig`, `AuthControllerIntegrationTest` |
+| FR-AUTH-05 | A logged-in user can read their own account (id, email, full name, global role, creation time). | Student, ADMIN | R2 | MVP | implemented | `UserController` (`GET /api/v1/users/me`), `AuthControllerIntegrationTest` |
+| FR-AUTH-06 | In the web app a visitor can register and is logged in straight away, and can log in with email and password; validation messages and the backend's error message are shown on the form. | Visitor | R2, R10 | MVP | implemented | `RegisterPage`, `LoginForm`, `AuthContext`, `LoginForm.test.tsx` |
+| FR-AUTH-07 | In the web app the session survives a page reload while the token is valid. The user is logged out automatically when the token expires or a request returns 401, and then sees a "session expired" notice; a user can also log out. | Student, ADMIN | R2, R10 | MVP | implemented | `AuthContext`, `tokenStorage` (decision D1), `AuthContext.test.tsx`, `api/client.test.ts` |
+| FR-AUTH-08 | In the web app pages other than login and register need a logged-in user, and ADMIN-only pages are blocked for a STUDENT. | Visitor, Student | R2, R10 | MVP | implemented | `ProtectedRoute`, `routes/router.tsx`, `AuthContext.test.tsx` |
+| FR-ADM-01 | Accounts with the ADMIN role cannot be created through registration. They come only from the seed data. | ADMIN | R2 | MVP | implemented | ADR-003 ("Registration"), `AuthControllerIntegrationTest` (role in the request is ignored), `docs/data-model.md` (seed accounts) |
+| FR-ADM-02 | Only an ADMIN sees the Admin menu entry and page, where they create an organization and appoint its president (details in FR-W1-03). The backend rejects anyone else with 403. | ADMIN | R2 | MVP | implemented | `AdminPage`, `AppLayout`, `routes/router.tsx`, `OrganizationController` (`@PreAuthorize`), `OrganizationCreateControllerIntegrationTest` |
+| FR-ADM-03 | An ADMIN can see the member list of any organization and add or remove its members, besides the organization's PRESIDENT (see FR-W1-04, FR-W1-05, FR-W1-06). | ADMIN | R2 | MVP | implemented | `OrganizationController` (`@PreAuthorize("hasRole('ADMIN') or ...")`), the organization integration tests |
+| FR-ADM-04 | A global ADMIN has no organizer or president rights by being ADMIN: creating or managing events and organizing work needs an ORGANIZER or PRESIDENT membership of that organization. | ADMIN | R2 | MVP | implemented | `OrgPermissionService`, `OrgPermissionPreAuthorizeIntegrationTest`, ADR-003 |
 
 **Done when**
 - [ ] Status of each row checked against the auth tests.
 - [ ] Admin rows agreed with the team (what an ADMIN may do is not fully decided yet).
 
-> TODO (team): FR-AUTH / FR-ADM table here.
+**Not in the MVP and not planned yet** (no source in the repository, so they are not requirements): password reset, email verification, editing your own profile or password, and listing or managing user accounts as an ADMIN.
+
+**Open questions for the team**
+- How is an ADMIN account created outside the dev seed? The seed is loaded only with the `dev` profile (`docs/data-model.md`), so a deployment without it has no ADMIN until someone creates one.
+- Should an ADMIN be able to do anything else, for example edit organizations or manage user accounts? The FR-ADM rows above describe only what the code allows today.
 
 ---
 
