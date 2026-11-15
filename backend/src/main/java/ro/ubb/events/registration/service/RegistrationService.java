@@ -14,6 +14,7 @@ import ro.ubb.events.event.entity.Event;
 import ro.ubb.events.event.entity.EventStatus;
 import ro.ubb.events.event.service.EventService;
 import ro.ubb.events.organization.service.OrgPermissionService;
+import ro.ubb.events.registration.dto.MyRegistrationResponse;
 import ro.ubb.events.registration.dto.ParticipantResponse;
 import ro.ubb.events.registration.dto.RegistrationResponse;
 import ro.ubb.events.registration.entity.Registration;
@@ -87,6 +88,13 @@ public class RegistrationService {
             // ux_registrations_confirmed_once: a duplicate that slipped past the check above
             throw alreadyRegistered();
         }
+    }
+
+    /** The caller's own registrations (CONFIRMED and CANCELLED), newest first. Empty if there are none. */
+    @Transactional(readOnly = true)
+    public List<MyRegistrationResponse> listMine(Long userId) {
+        return registrationRepository.findMine(userId).stream()
+                .map(registrationMapper::toMyResponse).toList();
     }
 
     @Transactional(readOnly = true)
