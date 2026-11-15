@@ -185,15 +185,29 @@ events with registrations are cancelled, never deleted.
 **Format**
 Common table, 6–10 rows.
 
-> **Example – replace:**
-> | FR-W2-03 | An organizer of the event's organization can publish a DRAFT event; publishing is rejected if required fields are missing. | Organizer | R1, R4 | MVP | planned | data-model.md lifecycle |
+Status checked against `main` on 2026-11-15. Creating and editing events, and hiding drafts, are implemented. Changing an event's status has no endpoint yet (ticket T-12), so every transition is `planned`, as are the organizer's event overview and status buttons (tickets T-14, T-15). "Organizer" means an ORGANIZER or PRESIDENT of the organization that owns the event; a global ADMIN has no organizer rights by being ADMIN. The lifecycle is `DRAFT → PUBLISHED → REGISTRATION_CLOSED → ONGOING → COMPLETED`, and `CANCELLED` is reachable from every status except `COMPLETED`.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W2-01 | An organizer of an organization can create an event for it. The event always starts as DRAFT. A plain member, an organizer of another organization and a global ADMIN without a membership get 403. | Organizer | R1, R4 | MVP | implemented | `EventController.create`, `EventService.create`, `EventControllerIntegrationTest` (T-10); form: `EventForm` (T-13) |
+| FR-W2-02 | The event fields follow these rules, and a violation returns 400 `VALIDATION_FAILED` with the field named: title required, at most 200 characters; location required, at most 255; category one of ACADEMIC, CAREER, CULTURAL, SOCIAL, SPORTS, VOLUNTEERING, WORKSHOP, OTHER; start required and in the future; end required and after the start; capacity a whole number greater than 0; description optional; registration deadline optional and not after the start (no deadline means registration stays open until the start). | Organizer | R1 | MVP | implemented | `EventRequest`, `EventDatesValidator`, `ck_events_capacity_positive`, `ck_events_end_after_start`, `ck_events_deadline_before_start` and D3 (`docs/data-model.md`), `EventControllerIntegrationTest`, `EventRequestValidationTest`, `EventForm.test.tsx` |
+| FR-W2-03 | An organizer can edit the fields of a DRAFT or PUBLISHED event; an event in any other status is rejected with 409 `EVENT_NOT_EDITABLE`. The request carries the version the organizer last read: if the event changed meanwhile, it is rejected with 409 `CONCURRENT_UPDATE` (D11). The capacity cannot be set below the number of confirmed registrations. The rules of FR-W2-02 apply. | Organizer | R1 | MVP | implemented | `EventService.update`, `UpdateEventRequest`, D11 (`docs/data-model.md`), `EventControllerIntegrationTest`, `EventServiceTest` (T-11); form: `EventForm` (T-13) |
+| FR-W2-04 | A DRAFT event is visible only to organizers of its organization; for everyone else it does not exist (404). Events in any other status can be opened by any logged-in user and show the confirmed registrations and the free places. | Organizer, any logged-in user | R1, R6 | MVP | implemented (the event details page of the web app is planned, ticket T-20) | `EventService.getById`, `EventControllerIntegrationTest` (T-18) |
+| FR-W2-05 | An organizer can publish a DRAFT event (DRAFT → PUBLISHED) as long as its start is in the future. | Organizer | R4 | MVP | planned | Ticket T-12 (#20) in `docs/planning/midterm-tickets.md`; `docs/data-model.md` "Status lifecycle" |
+| FR-W2-06 | An organizer can close registration of a PUBLISHED event (PUBLISHED → REGISTRATION_CLOSED). | Organizer | R4 | MVP | planned | Ticket T-12 (#20); `docs/data-model.md` "Status lifecycle" |
+| FR-W2-07 | An organizer can start an event (PUBLISHED or REGISTRATION_CLOSED → ONGOING) from one hour before its start. | Organizer | R4 | MVP | planned | Ticket T-12 (#20); `docs/data-model.md` rule 4 |
+| FR-W2-08 | An organizer can complete an event (ONGOING → COMPLETED) once its end time has passed. | Organizer | R4 | MVP | planned | Ticket T-12 (#20); `docs/data-model.md` rule 4 |
+| FR-W2-09 | An organizer can cancel an event in any status except COMPLETED (and CANCELLED). A cancelled event keeps its registrations as history and participants see its status. An event with registrations is never deleted, only cancelled. | Organizer | R4 | MVP | planned | Ticket T-12 (#20); D4 and `fk_registrations_event` (`docs/data-model.md`) |
+| FR-W2-10 | Every other status change, for example DRAFT → ONGOING, any change out of COMPLETED or CANCELLED, or back to DRAFT, is rejected with 409 `INVALID_STATUS_TRANSITION`. Status changes are made by an organizer pressing a button; no scheduler changes them automatically. | Organizer | R4 | MVP | planned | Ticket T-12 (#20), transition table; test of the full matrix: ticket T-37 |
 
 **Done when**
 - [ ] Every status transition in `EventStatus` is covered by a requirement.
 - [ ] Field validation rules are listed.
 - [ ] Consistent with the W2 state machine in `05-workflows.md`.
 
-> TODO (team): FR-W2 table here.
+**Open items for the team**
+- `05-workflows.md` has not been written yet, so the consistency check with the W2 state machine has to be done when that section exists (tickets T-84 and T-49).
+- Who can see the list of an organization's events, drafts included, is part of ticket T-17 (#25) and is not written as a requirement here.
 
 ---
 
