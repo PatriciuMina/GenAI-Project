@@ -230,14 +230,26 @@ participate (free places, deadline, location). State which events are visible to
 **Format**
 Common table, 4–8 rows.
 
-> **Example – replace:**
-> | FR-W3-02 | A student can filter upcoming published events by category. | Student | R6 | MVP | planned | data-model.md D3 |
+Status checked against `main` on 2026-11-15. Only the event details endpoint exists for W3; the search, an organization's event list and both web pages ("Events" and event details, which are still placeholders or missing) are planned. All filters below use fields that already exist in the data model (`events.category`, `events.organization_id`, `events.start_at`, `events.title`), so no schema change is needed. "Organizer" means an ORGANIZER or PRESIDENT of the organization that owns the event.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W3-01 | A logged-in user can list upcoming events. The list shows only events that are PUBLISHED, REGISTRATION_CLOSED or ONGOING and have not ended yet (end time not in the past), never DRAFT, COMPLETED or CANCELLED ones. It is sorted by start time, earliest first, and paged (at most 50 events per page). | Student, any logged-in user | R6 | MVP | planned | Ticket T-16 (#24) and its "Event visibility" convention in `docs/planning/midterm-tickets.md`; index `ix_events_status_start_at` (`docs/data-model.md`) |
+| FR-W3-02 | The list can be filtered by category (one of the fixed categories), by organization and by a start-time range (from, to), and the filters can be combined. A category or date that is not valid is rejected with 400 `INVALID_PARAMETER`. | Student | R6 | MVP | planned | Ticket T-16 (#24); D3, `ix_events_category`, `ix_events_organization_id` (`docs/data-model.md`) |
+| FR-W3-03 | The list can be searched by text: an event matches when its title contains the text, ignoring case. The description is not searched. | Student | R6 | MVP | planned | Ticket T-16 (#24) |
+| FR-W3-04 | A logged-in user can open one event and see what is needed to decide whether to take part: title, organization, category, start and end, location, description, capacity, confirmed registrations and free places, registration deadline (none means registration stays open until the start) and status. An unknown event returns 404. | Student, any logged-in user | R6, R3 | MVP | partial (backend implemented; the details page of the web app is planned, FR-W3-08) | `EventService.getById`, `EventController` (`GET /api/v1/events/{id}`), `EventControllerIntegrationTest` (T-18) |
+| FR-W3-05 | Visibility by status. DRAFT: only organizers of the event's organization can open it (404 for everyone else), and it is never in the search list. PUBLISHED, REGISTRATION_CLOSED, ONGOING: any logged-in user can open them and they appear in the search list. COMPLETED, CANCELLED: any logged-in user can open them, with the status visible, but they are not in the search list. | Organizer, any logged-in user | R6, R4 | MVP | partial (details visibility implemented; the search list is planned, FR-W3-01) | `EventService.getById`, `EventControllerIntegrationTest` (`draftIsVisibleToOrganizerAndHiddenFromOtherUsers`, `eventDetailsIncludeConfirmedCountAndReturnCancelledAndCompletedEvents`); "Event visibility" in `docs/planning/midterm-tickets.md` |
+| FR-W3-06 | A logged-in user can list the events of one organization sorted by start time. An organizer of that organization sees all statuses including DRAFT; anyone else sees all statuses except DRAFT. An unknown organization returns 404. | Organizer, any logged-in user | R6, R1 | MVP | planned | Ticket T-17 (#25) in `docs/planning/midterm-tickets.md`; `ix_events_organization_id (organization_id, start_at)` |
+| FR-W3-07 | In the web app the "Events" page shows the list as cards (title, organization, date and time, location, category and "x places left", "Full" or "Registration closed"), with the filters and the text search, pagination, a message "No events match your filters" when nothing matches, and the filters kept in the address so a link can be shared. | Student | R6, R10 | MVP | planned | Ticket T-19 (#27); `EventsPage` is a "Coming soon" placeholder |
+| FR-W3-08 | In the web app a user can open an event's page with everything listed in FR-W3-04; a draft the user may not see, or an unknown event, shows "Event not found". | Student | R6, R10 | MVP | planned | Ticket T-20 (#28) |
 
 **Done when**
 - [ ] Visibility of each event status is stated.
 - [ ] Filters match fields that exist in the data model (or a schema change is noted).
 
-> TODO (team): FR-W3 table here.
+**Open items for the team**
+- `06-ux-research.md` has no findings yet, so how students look for events today is not reflected; revisit the filters and the search after the interviews.
+- Sorting is fixed to start time, earliest first; no other sort order is planned.
 
 ---
 
@@ -345,15 +357,29 @@ check, maintainability (feature packages). Each NFR must say how it is verified.
 **Format**
 Table: `ID | Category | Requirement | How it is verified | R | Status`. 6–12 rows.
 
-> **Example – replace:**
->
-> | ID | Category | Requirement | How it is verified | R | Status |
-> |----|----------|-------------|--------------------|---|--------|
-> | NFR-01 | Security | Every endpoint except health, Swagger, register and login requires a valid JWT; requests without one get 401 with the standard error body. | `AuthControllerIntegrationTest`, `SecurityConfig` | R2, R8 | implemented |
+Status checked against `main` on 2026-11-15.
+
+| ID | Category | Requirement | How it is verified | R | Status |
+|----|----------|-------------|--------------------|---|--------|
+| NFR-01 | Security | Every endpoint except health, the Swagger/OpenAPI pages, register and login requires a valid JWT; a request without a valid token gets 401, and an authenticated user without permission gets 403, both with the standard error body. | `AuthControllerIntegrationTest` (missing and tampered token), `OrgPermissionPreAuthorizeIntegrationTest` (403), `SecurityConfig` | R2, R8 | implemented |
+| NFR-02 | Security | Passwords are stored only as BCrypt hashes (8 to 72 characters accepted) and are never returned. Access tokens are signed (HS256) with the secret from `JWT_SECRET`, which must be at least 32 characters (the application refuses to start otherwise), and expire after 2 hours. | `AuthServiceTest`, `AuthControllerIntegrationTest` (token valid for two hours), `JwtProperties` (start-up validation), ADR-003 | R2 | implemented |
+| NFR-03 | Security | No secrets are committed: real values live in the git-ignored `.env`, and only `.env.example` with placeholders is committed. | `git ls-files .env` prints nothing; `.gitignore` (`.env`, `.env.*`, `!.env.example`); Definition of Done in `CONTRIBUTING.md` §4 checked in review | R12 | implemented |
+| NFR-04 | API | The REST API lives under `/api/v1`, uses plural resource names and the status codes 201, 204, 400, 401, 403, 404 and 409 as appropriate, and every failure returns the same body (`timestamp`, `status`, `code`, `message`, `fieldErrors`). | Controller integration tests assert status and `code`; `GlobalExceptionHandler`, `ApiError`; ADR-002 | R9 | implemented |
+| NFR-05 | API | Every endpoint is documented in the generated OpenAPI description, with its possible error responses, and can be tried in Swagger UI at `/swagger-ui.html`. | Open Swagger UI (Definition of Done: "API changes are visible in Swagger") and check `/v3/api-docs`; there is no automated check | R9 | implemented |
+| NFR-06 | Architecture | The backend is organised by feature package with controller, service and repository layers; controllers never use repositories, entities never leave the service layer, and one feature reads another feature's data only through its service. | Code review against `CLAUDE.md` and ADR-001; there is no automated architecture test | R8 | implemented |
+| NFR-07 | Data integrity | The schema changes only through Flyway migrations (an applied migration is never edited) and Hibernate runs with `ddl-auto=validate`. Business rules that the database can express are constraints (foreign keys, unique and partial unique indexes, CHECKs), and the capacity limit is enforced with a row lock inside one transaction. | `DataModelConstraintsTest`; the application fails to start when entities and schema differ; `V1__initial_schema.sql`, ADR-004, `docs/data-model.md`; concurrent registration test planned (T-35) | R7 | implemented |
+| NFR-08 | Testing | Backend services have unit tests (JUnit 5 and Mockito) and endpoints have integration tests (MockMvc against PostgreSQL 16 in Testcontainers); frontend code has lint, component tests and a production build. Test class names end with `Test` so Maven runs them. | `cd backend && ./mvnw verify` and `cd frontend && npm run lint && npm test && npm run build` all succeed | R11 | implemented |
+| NFR-09 | Testing, CI | On every pull request and every push to `main`, CI runs the backend `./mvnw verify` (Java 21) and the frontend lint (no warnings allowed), tests and build (Node 24). The team merges only when both checks are green. | `.github/workflows/ci.yml`; the checks shown on each pull request; `CONTRIBUTING.md` §2 and §4 | R11, R16 | implemented |
+| NFR-10 | Deployment | `docker compose up --build` starts PostgreSQL 16, the backend and the frontend (served by nginx) with health checks; configuration comes from environment variables in `.env`, so the system runs outside a developer's machine setup. | Run `docker compose up --build`, then open http://localhost:3000 and http://localhost:8080/swagger-ui.html and call `/api/v1/health`; CI does not build the images | R12 | implemented |
+| NFR-11 | Usability | Every form checks its required fields before sending, and shows the backend's validation errors next to the matching field and any other error message on the form. | Component tests `LoginForm.test.tsx`, `CreateOrganizationForm.test.tsx`, `EventForm.test.tsx`; loading, empty and error states for all pages are planned (T-44, T-45) | R10 | partial |
+| NFR-12 | Process | Every GenAI-assisted change has a row in `docs/genai/usage-log.md` and is reviewed by a person who checks the result before merging; no ticket marked `no-genai` is done with GenAI. | Pull request review against the Definition of Done (`CONTRIBUTING.md` §4); `docs/genai/usage-log.md` | R13, R14 | implemented |
 
 **Done when**
 - [ ] Every NFR has a concrete "How it is verified".
 - [ ] R7, R8, R9, R11, R12 are each covered by at least one NFR.
 - [ ] No vague wording ("fast", "user-friendly") without a measure.
 
-> TODO (team): NFR table here.
+**Open items for the team**
+- No performance targets exist yet (for example a response time for the event search under a stated load). None are written here because nothing measures them; decide whether the team wants one and how to test it.
+- Accessibility (keyboard use, contrast, screen readers) has no requirement or check yet.
+- `docker compose up --build` is the documented way to run the whole system (`README.md`); `ADR-005` still describes a Compose file with PostgreSQL only, so the ADR should be updated to match.
