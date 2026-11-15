@@ -56,18 +56,27 @@ what they want from the system. Keep it consistent with the actors in `03-actors
 **Format**
 Table: `Stakeholder | Uses the system? | Main interest / goal`. 5–8 rows.
 
-> **Example – replace:**
->
-> | Stakeholder | Uses the system? | Main interest / goal |
-> |-------------|------------------|----------------------|
-> | Student (participant) | Yes | Find interesting events and get a guaranteed place |
+The roles below are the ones in the code (global role `STUDENT` or `ADMIN` in `GlobalRole`, organization role `MEMBER`, `ORGANIZER` or `PRESIDENT` in `OrganizationRole`), plus the visitor who is not logged in. Each goal follows from what the course statement expects the system to cover (R2, R3, R5, R6) and from what the role can do in the application today or in the agreed plan. These goals are the team's design assumptions: no interviews have been done yet, so they are not yet confirmed by users (see `06-ux-research.md` when it is written).
+
+| Stakeholder | Uses the system? | Main interest / goal |
+|-------------|------------------|----------------------|
+| Visitor (not logged in) | Yes | Create an account and log in, to reach the events of student organizations |
+| Student (participant, global role STUDENT) | Yes | Find events that suit them and the information needed to decide (date, place, free places, deadline), get a guaranteed place without overbooking, see and, in the plan, cancel their registrations, and read announcements about the events they registered for (R3, R6) |
+| Organization member (MEMBER) | Yes | Belong to an organization, see who else is in it, and follow the announcements of its events (R2) |
+| Organizer (ORGANIZER) | Yes | Prepare and run the organization's events: create, edit and publish events, share the preparation work in tasks, see who registered, record who attended and announce changes to participants (R1, R5) |
+| President (PRESIDENT) | Yes | Everything an organizer does, and keep the organization's member list up to date by adding and removing members (R2) |
+| Platform administrator (ADMIN) | Yes | Set up student organizations on the platform and appoint each one's president, so that organizations can start using the system (R2) |
+| Course staff (instructors and graders) | No, they review the result | Check that the project covers R1 to R16 and that the use of GenAI is documented and visibly overseen by the students (R13, R14, R15) |
 
 **Done when**
 - [ ] Every actor from `03-actors-roles.md` appears as a stakeholder.
 - [ ] At least one stakeholder who does not use the system directly is listed.
 - [ ] Each row has a concrete goal (not "use the app").
 
-> TODO (team): stakeholders table here.
+**Open items for the team**
+- `03-actors-roles.md` is not written yet, so the first box has to be checked against it once it exists; every value of `GlobalRole` and `OrganizationRole`, and the visitor, is already in the table.
+- No other people or bodies are named in any repository document (for example the university or its faculties, or sponsors). Add them only if the interviews show that they matter.
+- The goals of the students, members, organizers and presidents should be confirmed or corrected with the interviews.
 
 ---
 
