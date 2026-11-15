@@ -160,14 +160,24 @@ later, say "not in this project" or "later, if time allows".
 **Format**
 Table: `Out of scope | Reason | Source`. 5–10 rows.
 
-> **Example – replace:**
->
-> | Out of scope | Reason | Source |
-> |--------------|--------|--------|
-> | Waitlist for full events | Keeps W4 simple for the MVP | data-model.md D1 |
+Every item below was decided by the team and is written down in the source named in the last column. Where a source says "for the mid-term" the item may be reconsidered for the final delivery; the capabilities that are only postponed (changing roles, leaving or editing an organization, editing and deleting tasks and announcements) are in the scope list (section 1.3), not here.
+
+| Out of scope | Reason | Source |
+|--------------|--------|--------|
+| Waitlist for full events | Keeps registration simple: when an event is full, new registrations are rejected. A waitlist could be added later with a new migration | `docs/data-model.md` D1 |
+| Login through an external identity provider or a university single sign-on | Heavy to set up and outside the external services the course allows; the application issues its own tokens | `docs/architecture/ADR-003-jwt-auth-spring-security.md` |
+| Refresh tokens | An access token lasts 2 hours and the user then logs in again, which keeps authentication simple for the mid-term | ADR-003 "Implementation notes" |
+| Splitting the backend into microservices | Unnecessary operational complexity for this scope; the backend is one application organised by feature | `docs/architecture/ADR-001-layered-architecture-feature-packages.md` |
+| Automatic, time-based changes of an event's status | An organizer changes the status by pressing a button; there is no scheduler | Ticket T-12 and "Deferred to final" in `docs/planning/midterm-tickets.md` |
+| Students joining an organization on their own | For the MVP the president, or an admin, adds an existing account by email and chooses its role | Ticket T-04 ("Decision for the MVP") in `docs/planning/midterm-tickets.md` |
+| Email or push notifications to participants | Announcements are shown only inside the application | Ticket T-30 (assumption A-08) in `docs/planning/midterm-tickets.md` |
+| Permanently deleting events that have registrations, users or organizations | Keeps the participation history: an event is cancelled instead of deleted | `docs/data-model.md` D4 |
+| A separate table or map for locations | A free-text location is enough: no workflow needs a location table, and a table would add joins | `docs/data-model.md` D2 |
+| Event categories created by users | The categories are a fixed list; adding one needs a database migration and a code change | `docs/data-model.md` D3 |
 
 **Done when**
 - [ ] Each item has a reason and a source.
 - [ ] No item contradicts the in-scope list or `02-requirements.md`.
 
-> TODO (team): out-of-scope table here.
+**Open items for the team**
+- Payments and ticket sales, and an account profile or password reset, are not mentioned in any repository document, so they are not listed as decisions here. Add them if the team wants them written down as out of scope.
