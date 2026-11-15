@@ -73,17 +73,40 @@ one function" are both fine, but must be distinguished.
 **Format**
 Table: `Area | Artifact (file/package) | Generated / modified / assisted | Usage-log row (date + purpose) | Session file`. 8–20 rows.
 
-> **Example – replace:**
->
-> | Area | Artifact | Generated / modified / assisted | Usage-log row | Session |
-> |------|----------|---------------------------------|---------------|---------|
-> | Database | `V1__initial_schema.sql` | Generated after human design decisions D1–D12 | 2026-11-06 Data model | `P3-data-model.txt` |
+Built from the "What was generated" and "Human changes" columns of `docs/genai/usage-log.md` on `main` as of 2026-11-15 (35 rows). In every row below the AI produced the artifact. The log records a person's review for all rows except T-02 (Portik Márk-Krisztián), whose "Human changes" cell still says "Pending human review"; where the log records a human change to the result, it is listed in section 7.4. "Generated" means the AI wrote it from the person's prompt; "modified" means the AI changed an existing file. The log does not say how many lines a person edited by hand, so this table does not claim a percentage. Only the sessions of the first rows were saved in `docs/genai/sessions/`; later work has no saved transcript.
+
+| Area | Artifact | Generated / modified / assisted | Usage-log row (date, purpose) | Session |
+|------|----------|---------------------------------|-------------------------------|---------|
+| Project setup | `CLAUDE.md`, `.gitignore`, `docs/architecture/ADR-001` to `ADR-005`, first `docker-compose.yml` (PostgreSQL), `.env.example`, `docs/genai/usage-log.md` | Generated after the plan was approved by a person | 2026-11-06, project setup / foundations | `P1-foundations.txt` |
+| Project setup | `CLAUDE.md`: `mapper` sub-package and the test naming rule | Modified | 2026-11-06, update project conventions in `CLAUDE.md` | `P4-auth-organizations.txt` |
+| Backend | Spring Boot skeleton: `pom.xml`, Maven wrapper, `EventsApplication`, `common` (error body, exceptions, global handler, health), `config` (security, OpenAPI), `application*.yml`, `ApplicationSmokeTest` | Generated | 2026-11-06, backend skeleton | `P2-backend.txt` |
+| Database | `V1__initial_schema.sql`, entities, enums and repositories of all features, dev seed `R__dev_seed.sql`, `DataModelConstraintsTest`, `docs/data-model.md` | Generated after a person answered design decisions D1 to D12 | 2026-11-06, data model | `P3-data-model.txt` |
+| Backend | JWT authentication, `OrgPermissionService`, organizations endpoints (the worked example), their tests, `ADR-003` implementation notes, `docs/dev-guide/how-to-add-a-feature.md` | Generated after a person answered the authentication decisions | 2026-11-06, JWT auth, org permissions, example feature, Swagger auth, dev guide | `P4-auth-organizations.txt` |
+| Frontend | `frontend/` scaffold: API client, token storage, login and register, layout and routes, organizations pages, placeholders, tests, `docs/dev-guide/frontend-guide.md` | Generated after a person answered decisions D1 to D4 | 2026-11-07, frontend scaffold | `P5-frontend.txt` |
+| Infrastructure | Dockerfiles, nginx config, `docker-compose.yml` with backend and frontend, `.github/workflows/ci.yml`, `README.md`, `CONTRIBUTING.md`, issue and pull request templates | Generated after a person answered decisions D1 to D7 | 2026-11-07, Dockerized full stack, CI, README, CONTRIBUTING, templates | `P6-docker-ci.txt` |
+| Documentation | `docs/midterm/` drafts (`README.md`, `01` to `08`, interview notes template): instructions, structure and the interview guide, no content | Generated | 2026-11-07, mid-term documentation drafts | `P7-midterm-docs.txt` |
+| Documentation | `docs/course/course-requirements.md` (summary of the course statement) | Generated (summary, not verbatim) | 2026-11-07, course requirements summary | none (claude.ai chat) |
+| Planning | `docs/planning/midterm-tickets.md`: 99 tickets with contracts, shared conventions and the "Deferred to final" list | Generated after a person answered the open decisions | 2026-11-07, mid-term ticket planning | `P8-ticket-plan.txt` |
+| Infrastructure | `scripts/create-issues.sh` (creates the labels, milestone, issues and board), `docs/planning/README.md` | Generated after a person answered the open decisions | 2026-11-07, script to create the mid-term issues and board | `P9-board-issues.txt` |
+| Infrastructure | `scripts/fix-good-first-labels.sh`, the `good-first-ticket` rule in the parser and in `midterm-tickets.md`, `CONTRIBUTING.md` §1 | Generated and modified, for a problem a person found | 2026-11-07, fix the good-first-ticket rule | `P9-board-issues.txt`, `P10-team-rules.txt` |
+| Documentation | `CONTRIBUTING.md` §2 (review and merge rules), `CLAUDE.md` Git rule, checklist line in the feature guide | Modified | 2026-11-07, review and merge rules | `P10-team-rules.txt` |
+| Backend (W1) | `MembershipService`, `MyMembershipsController`, organization members list, add and remove member, create organization, with their tests | Generated | 2026-11-10 to 2026-11-11, T-01, T-03, T-04, T-05, T-08 (Andrei Gota) | none saved |
+| Backend (W2) | Create event (`EventRequest`, date validator, `EventService.create`), edit event with optimistic locking, event details with free places, with their tests | Generated | 2026-11-11, T-10 (Andrei Gota); 2026-11-14, T-11 and T-12 (Portik Márk-Krisztián) | none saved |
+| Frontend | Admin page to create an organization; Organizing menu by role; members list with add and remove; create and edit event form, with their tests | Generated | 2026-11-11, T-09 (Andrei Gota); 2026-11-12 and 2026-11-14, T-02, T-06, T-07, T-13 (Portik Márk-Krisztián) | none saved |
+| Backend (W4) | Participant list, register with capacity limit and row lock, "my registrations", with their tests | Generated | 2026-11-15, T-28, T-21, T-23 (Vlad-Ștefan Uleia) | none saved |
+| Backend (W5) | Announcements (list and post) and organizer tasks (list and create), with their tests | Generated | 2026-11-15, T-30, T-26 (Vlad-Ștefan Uleia) | none saved |
+| Documentation | Mid-term requirements sections `FR-AUTH` and `FR-ADM` (2.2), `FR-W1` (2.3) and `FR-W4` (2.6) in `docs/midterm/02-requirements.md` | Generated (tables), checked against the code by a person | 2026-11-15, T-67, T-68 and T-71 (Vlad-Ștefan Uleia) | none saved |
+| (no files) | Onboarding summary shown in the chat; nothing in the repository changed except the log row | Assisted | 2026-11-10, onboarding, read-only (Andrei Gota) | none saved |
 
 **Done when**
 - [ ] Every usage-log row is represented by at least one artifact.
 - [ ] Each artifact links to its usage-log row and, where it exists, a session file.
 
-> TODO (team): artifacts table here.
+**Open items for the team**
+- The log row for T-02 (Portik Márk-Krisztián) still says "Pending human review"; the person concerned should complete it.
+- The table must be extended when new rows are added to the log (the requirements sections and report sections written after 2026-11-15 are not in it).
+- If the course expects a share of AI output versus human work for each artifact, the people concerned have to add it: the log records generation, review and changes, not line counts.
+- Save session transcripts of the later work in `docs/genai/sessions/` if they should be cited as evidence.
 
 ---
 
