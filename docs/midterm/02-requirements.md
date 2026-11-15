@@ -287,14 +287,28 @@ do each, and rules such as "assignee must be a member of the event's organizatio
 **Format**
 Common table, 5–10 rows.
 
-> **Example – replace:**
-> | FR-W5-04 | An organizer can mark a confirmed participant as checked in; the check-in time is stored. | Organizer | R5 | MVP | planned | data-model.md rule 5 |
+Status checked against `main` on 2026-11-15. "Organizer" always means an ORGANIZER or PRESIDENT of the organization that owns the event; a global ADMIN has no organizer rights by being ADMIN. The backend for the participant list, tasks (list and create) and announcements exists; check-in, changing tasks and all W5 screens of the web app (the Organizing page still shows a "Coming soon" placeholder for them) are planned, so most rows are `partial` or `planned`. No interviews are available yet, so the Source column cites the data model and the agreed ticket contracts.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W5-01 | An organizer can see the participants of an event: name, email, registration status (CONFIRMED or CANCELLED), registration time and check-in time, sorted by name, optionally filtered by status. Anyone else gets 403, because the email is personal data. | Organizer | R5 | MVP | partial (backend implemented; the participants panel is planned) | `RegistrationController` (`GET /api/v1/events/{eventId}/registrations`), `RegistrationListControllerIntegrationTest` (T-28); panel: T-32 |
+| FR-W5-02 | An organizer can create a task for an event with a title (1 to 200 characters) and optionally a description, a due date and an assignee. A new task starts as TODO. | Organizer | R5 | MVP | partial (backend implemented; the tasks panel is planned) | `TaskController`, `TaskService`, `TaskControllerIntegrationTest` (T-26); panel: T-31 |
+| FR-W5-03 | The assignee of a task must be a member of the event's organization; otherwise the request is rejected with 400 `ASSIGNEE_NOT_IN_ORGANIZATION`. The assignee is a membership, and removing the member from the organization leaves their tasks unassigned. | Organizer | R5 | MVP | partial (enforced when creating a task; changing the assignee is planned, see FR-W5-05) | `docs/data-model.md` rule 3 and `fk_event_tasks_assignee`, `TaskService`, `TaskServiceTest` |
+| FR-W5-04 | An organizer can list the tasks of an event ordered by due date, tasks without a due date last, each with its status and assignee. Anyone else gets 403. | Organizer | R5 | MVP | partial (backend implemented; the tasks panel is planned) | `TaskController` (`GET /api/v1/events/{eventId}/tasks`), `TaskControllerIntegrationTest` (T-26); panel: T-31 |
+| FR-W5-05 | An organizer can change a task's status between TODO, IN_PROGRESS and DONE, in any direction, and can assign, change or remove its assignee. | Organizer | R5 | MVP | planned | Ticket T-27 (#35) in `docs/planning/midterm-tickets.md`; `ck_event_tasks_status` (`docs/data-model.md`) |
+| FR-W5-06 | An organizer can edit a task's title, description and due date, and delete a task. | Organizer | R5 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
+| FR-W5-07 | An organizer can mark a CONFIRMED participant as checked in, and the check-in time is stored. This is allowed only while the event is REGISTRATION_CLOSED or ONGOING (otherwise 409 `CHECK_IN_NOT_ALLOWED`); a CANCELLED registration cannot be checked in (409 `CHECK_IN_NOT_ALLOWED`); a registration already checked in is rejected with 409 `ALREADY_CHECKED_IN`. There is no undo in the MVP. | Organizer | R5 | MVP | planned | `docs/data-model.md` rule 5 and `ck_registrations_checkin_confirmed`; ticket T-29 (#37) in `docs/planning/midterm-tickets.md`; panel: T-32 |
+| FR-W5-08 | An organizer can post an announcement (title 1 to 200 characters, body not blank) to an event; the author is the organizer who posts it. Announcements cannot be posted on a DRAFT or COMPLETED event (409 `ANNOUNCEMENT_NOT_ALLOWED`). Announcements are shown only inside the app. | Organizer | R5 | MVP | partial (backend implemented; the posting form is planned) | `AnnouncementController`, `AnnouncementService`, `AnnouncementControllerIntegrationTest` (T-30); form: T-33; assumption A-08 in ticket T-30 |
+| FR-W5-09 | The announcements of an event, newest first, can be read by the members of the event's organization and by users with a CONFIRMED or CANCELLED registration for the event; anyone else gets 403. | Organizer, Member, Participant | R5, R6 | MVP | partial (backend implemented; showing them on the event page is planned) | `AnnouncementController` (`GET /api/v1/events/{eventId}/announcements`), `AnnouncementControllerIntegrationTest` (T-30); page: T-34 |
+| FR-W5-10 | An organizer can edit and delete announcements. | Organizer | R5 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
 
 **Done when**
 - [ ] Tasks, check-in, participant list and announcements are each covered.
 - [ ] Each row is justified by a user need or a data-model rule (Source column).
 
-> TODO (team): FR-W5 table here.
+**Open items for the team**
+- The "user need" justification for the W5 rows should be added from the organizer interviews once they exist (`06-ux-research.md`); until then the rows rest on the data model and the agreed ticket contracts.
+- Notifying participants by email or push is not part of the plan: announcements are shown only inside the app (assumption A-08). Confirm this is what the team wants for the final delivery.
 
 ---
 
