@@ -129,17 +129,23 @@ cases where verification found a problem.
 Short prose (100–200 words) for the process, then a table:
 `Artifact | Verification done | Result | Evidence`.
 
-> **Example – replace:**
->
-> | Artifact | Verification done | Result | Evidence |
-> |----------|-------------------|--------|----------|
-> | Data model (V1 + seed) | `./mvnw verify`; applied seed twice and compared row counts in psql | 16 tests passed; seed idempotent | usage-log 2026-11-06, `P3-data-model.txt` |
+**The process.** In the saved sessions, work starts in plan mode: the AI proposes a plan and lists the open decisions, and a person answers them before any code is written (the decisions are recorded in the usage log and in the sessions). After the AI has written the change, the person reads the diff, then checks it in two ways. Automated: backend `./mvnw verify` (unit tests with Mockito and integration tests against PostgreSQL 16 in Testcontainers) and frontend `npm run lint`, `npm test` and `npm run build`; the same checks run in CI on every pull request (`.github/workflows/ci.yml`). Manual: the person calls the endpoints in Swagger UI or with curl, uses the application in the browser, and looks at the database with psql or runs `docker compose up --build`. Features are meant to be looked at by a teammate before merging (`CONTRIBUTING.md` §2 and §4), and the person records what they checked and changed in the "How it was verified" and "Human changes" columns of `docs/genai/usage-log.md`.
+
+| Artifact | Verification done | Result | Evidence |
+|----------|-------------------|--------|----------|
+| Data model (V1 migration and dev seed), Patriciu Mina | Design decisions D1 to D12 answered before code; `./mvnw verify`; applied the migration and the seed to PostgreSQL and counted rows in psql; ran the seed twice | 3 smoke and 13 constraint tests passed (16); psql showed 8 users, 2 organizations, 7 events and 14 registrations; the second run changed no row counts, so the seed is idempotent | Usage log 2026-11-06, data model; `P3-data-model.txt` |
+| Dockerized stack (Dockerfiles, Compose, CI), Patriciu Mina | `docker compose up --build --wait`; login, organizations, health and Swagger checked through ports 3000 and 8080; `down` and `up` again | **Found a problem:** the first image build had a corrupted dependency jar (checksum different from Maven Central), which failed at start-up with `ClassFormatError`. Fixed by rebuilding without cache and adding `--strict-checksums` to the Dockerfile; afterwards all three services were healthy | Usage log 2026-11-07, Dockerized full stack; `P6-docker-ci.txt` |
+| "My memberships" endpoint (T-01), Andrei Gota | `./mvnw verify` (53 tests, 6 new); calls with seed accounts (a president, an organizer, a user with none, no token); the path checked in `/v3/api-docs`; then the person logged in as the president in the browser | Passed; the browser showed the same membership as the API | Usage log 2026-11-10, T-01 |
+| Event create and edit form (T-13), Portik Márk-Krisztián | Backend `./mvnw verify` (149 tests); frontend lint, 33 tests and build; rebuilt Docker Compose; browser flow as an organizer: empty form, create, edit (the log says this full verification and browser flow were performed by Codex, and the person approved the plan and the merge) | Passed: required-field errors shown, create returned 201 with status DRAFT, local time sent as UTC, edit returned 200 and the version went from 0 to 1 | Usage log 2026-11-14, T-13 |
+| "My registrations" endpoint (T-23), Vlad-Ștefan Uleia | `./mvnw verify`; the endpoint called in Swagger with a seed student and with a user without registrations | **Found a problem:** one new integration test failed because Java time values carry nanoseconds while PostgreSQL stores microseconds. The cause was in the test, which was fixed by truncating to seconds like the existing event tests; afterwards all 214 tests passed and the endpoint returned the 5 seed registrations and an empty list | Usage log 2026-11-15, T-23 |
 
 **Done when**
 - [ ] The process covers automated (tests/CI) and manual checks.
 - [ ] At least 3 concrete examples with evidence links.
 
-> TODO (team): verification section here.
+**Open items for the team**
+- Only the first rows have a saved session transcript; the others are evidenced by their usage-log row alone. Save the sessions or screenshots for the later examples under `docs/genai/sessions/` or `docs/genai/evidence/` if they should be cited as proof.
+- The "looked at by a teammate" step is a team rule; the usage log does not record who reviewed each pull request. Add the pull request numbers if the course expects that evidence.
 
 ---
 
