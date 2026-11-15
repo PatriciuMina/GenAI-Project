@@ -23,16 +23,26 @@ which one it is. End with one or two sentences on what the system will change.
 **Format**
 Prose, 150–300 words. Optionally a short bullet list of 3–5 pain points.
 
-> **Example – replace:**
-> *Pain point:* "Registrations are collected in a Google Form, so organizers find out only
-> after the deadline that more people signed up than the room holds." (source: I-02)
+Student organizations at Babeș-Bolyai University run events such as workshops, career fairs and cultural evenings, but each organization handles an event on its own. Students hear about events through the organizations' social media accounts, messaging channels and word of mouth. Organizers collect sign-ups themselves, take attendance with a shared link where people write their names, and share the preparation work through links or inside the announcement. Every step happens in a different place.
+
+**Pain points**
+- Information about events is scattered over several channels, and events are sometimes announced late or not at all. *(Source: team experience, and a conversation with one person.)*
+- Sign-ups are collected separately for each event, as far as we know with an online form, and counting the places is manual. *(Source: team experience, second-hand. That the counting is manual is an assumption.)*
+- Some of the people who are expected do not come. *(Source: a conversation with one person.)*
+- Attendance is taken by sharing a link where people write their own names, and the record is kept only sometimes. *(Source: a conversation with one person, and team experience.)*
+- Preparation work is shared through links or announcements, so no single place shows who is doing what. *(Source: team experience. The missing overview is an assumption.)*
+
+The system aims to bring the announcement, sign-up, attendance and preparation of an event into one place, so that students can find events and organizers can run them with less manual work.
 
 **Done when**
 - [ ] The problem is described without naming technologies or features.
 - [ ] Each pain point names its source (interview ID or team experience).
 - [ ] 150–300 words.
 
-> TODO (team): write the problem here.
+**Open items for the team**
+- "Team experience" here is what one team member knows, partly second-hand. Other members should add their own experience, or correct it.
+- "A conversation with one person" is an informal talk, not an interview: the person's role (a student or an organizer) is not recorded here. The interviews (tickets T-52 to T-56) should confirm these points, and the sources should then become interview IDs (`I-NN`).
+- The statements still marked "assumption" are what we expect to go wrong; nobody has confirmed them yet.
 
 ---
 
