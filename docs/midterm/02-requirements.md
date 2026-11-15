@@ -185,15 +185,29 @@ events with registrations are cancelled, never deleted.
 **Format**
 Common table, 6–10 rows.
 
-> **Example – replace:**
-> | FR-W2-03 | An organizer of the event's organization can publish a DRAFT event; publishing is rejected if required fields are missing. | Organizer | R1, R4 | MVP | planned | data-model.md lifecycle |
+Status checked against `main` on 2026-11-15. Creating and editing events, and hiding drafts, are implemented. Changing an event's status has no endpoint yet (ticket T-12), so every transition is `planned`, as are the organizer's event overview and status buttons (tickets T-14, T-15). "Organizer" means an ORGANIZER or PRESIDENT of the organization that owns the event; a global ADMIN has no organizer rights by being ADMIN. The lifecycle is `DRAFT → PUBLISHED → REGISTRATION_CLOSED → ONGOING → COMPLETED`, and `CANCELLED` is reachable from every status except `COMPLETED`.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W2-01 | An organizer of an organization can create an event for it. The event always starts as DRAFT. A plain member, an organizer of another organization and a global ADMIN without a membership get 403. | Organizer | R1, R4 | MVP | implemented | `EventController.create`, `EventService.create`, `EventControllerIntegrationTest` (T-10); form: `EventForm` (T-13) |
+| FR-W2-02 | The event fields follow these rules, and a violation returns 400 `VALIDATION_FAILED` with the field named: title required, at most 200 characters; location required, at most 255; category one of ACADEMIC, CAREER, CULTURAL, SOCIAL, SPORTS, VOLUNTEERING, WORKSHOP, OTHER; start required and in the future; end required and after the start; capacity a whole number greater than 0; description optional; registration deadline optional and not after the start (no deadline means registration stays open until the start). | Organizer | R1 | MVP | implemented | `EventRequest`, `EventDatesValidator`, `ck_events_capacity_positive`, `ck_events_end_after_start`, `ck_events_deadline_before_start` and D3 (`docs/data-model.md`), `EventControllerIntegrationTest`, `EventRequestValidationTest`, `EventForm.test.tsx` |
+| FR-W2-03 | An organizer can edit the fields of a DRAFT or PUBLISHED event; an event in any other status is rejected with 409 `EVENT_NOT_EDITABLE`. The request carries the version the organizer last read: if the event changed meanwhile, it is rejected with 409 `CONCURRENT_UPDATE` (D11). The capacity cannot be set below the number of confirmed registrations. The rules of FR-W2-02 apply. | Organizer | R1 | MVP | implemented | `EventService.update`, `UpdateEventRequest`, D11 (`docs/data-model.md`), `EventControllerIntegrationTest`, `EventServiceTest` (T-11); form: `EventForm` (T-13) |
+| FR-W2-04 | A DRAFT event is visible only to organizers of its organization; for everyone else it does not exist (404). Events in any other status can be opened by any logged-in user and show the confirmed registrations and the free places. | Organizer, any logged-in user | R1, R6 | MVP | implemented (the event details page of the web app is planned, ticket T-20) | `EventService.getById`, `EventControllerIntegrationTest` (T-18) |
+| FR-W2-05 | An organizer can publish a DRAFT event (DRAFT → PUBLISHED) as long as its start is in the future. | Organizer | R4 | MVP | planned | Ticket T-12 (#20) in `docs/planning/midterm-tickets.md`; `docs/data-model.md` "Status lifecycle" |
+| FR-W2-06 | An organizer can close registration of a PUBLISHED event (PUBLISHED → REGISTRATION_CLOSED). | Organizer | R4 | MVP | planned | Ticket T-12 (#20); `docs/data-model.md` "Status lifecycle" |
+| FR-W2-07 | An organizer can start an event (PUBLISHED or REGISTRATION_CLOSED → ONGOING) from one hour before its start. | Organizer | R4 | MVP | planned | Ticket T-12 (#20); `docs/data-model.md` rule 4 |
+| FR-W2-08 | An organizer can complete an event (ONGOING → COMPLETED) once its end time has passed. | Organizer | R4 | MVP | planned | Ticket T-12 (#20); `docs/data-model.md` rule 4 |
+| FR-W2-09 | An organizer can cancel an event in any status except COMPLETED (and CANCELLED). A cancelled event keeps its registrations as history and participants see its status. An event with registrations is never deleted, only cancelled. | Organizer | R4 | MVP | planned | Ticket T-12 (#20); D4 and `fk_registrations_event` (`docs/data-model.md`) |
+| FR-W2-10 | Every other status change, for example DRAFT → ONGOING, any change out of COMPLETED or CANCELLED, or back to DRAFT, is rejected with 409 `INVALID_STATUS_TRANSITION`. Status changes are made by an organizer pressing a button; no scheduler changes them automatically. | Organizer | R4 | MVP | planned | Ticket T-12 (#20), transition table; test of the full matrix: ticket T-37 |
 
 **Done when**
 - [ ] Every status transition in `EventStatus` is covered by a requirement.
 - [ ] Field validation rules are listed.
 - [ ] Consistent with the W2 state machine in `05-workflows.md`.
 
-> TODO (team): FR-W2 table here.
+**Open items for the team**
+- `05-workflows.md` has not been written yet, so the consistency check with the W2 state machine has to be done when that section exists (tickets T-84 and T-49).
+- Who can see the list of an organization's events, drafts included, is part of ticket T-17 (#25) and is not written as a requirement here.
 
 ---
 
@@ -216,14 +230,26 @@ participate (free places, deadline, location). State which events are visible to
 **Format**
 Common table, 4–8 rows.
 
-> **Example – replace:**
-> | FR-W3-02 | A student can filter upcoming published events by category. | Student | R6 | MVP | planned | data-model.md D3 |
+Status checked against `main` on 2026-11-15. Only the event details endpoint exists for W3; the search, an organization's event list and both web pages ("Events" and event details, which are still placeholders or missing) are planned. All filters below use fields that already exist in the data model (`events.category`, `events.organization_id`, `events.start_at`, `events.title`), so no schema change is needed. "Organizer" means an ORGANIZER or PRESIDENT of the organization that owns the event.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W3-01 | A logged-in user can list upcoming events. The list shows only events that are PUBLISHED, REGISTRATION_CLOSED or ONGOING and have not ended yet (end time not in the past), never DRAFT, COMPLETED or CANCELLED ones. It is sorted by start time, earliest first, and paged (at most 50 events per page). | Student, any logged-in user | R6 | MVP | planned | Ticket T-16 (#24) and its "Event visibility" convention in `docs/planning/midterm-tickets.md`; index `ix_events_status_start_at` (`docs/data-model.md`) |
+| FR-W3-02 | The list can be filtered by category (one of the fixed categories), by organization and by a start-time range (from, to), and the filters can be combined. A category or date that is not valid is rejected with 400 `INVALID_PARAMETER`. | Student | R6 | MVP | planned | Ticket T-16 (#24); D3, `ix_events_category`, `ix_events_organization_id` (`docs/data-model.md`) |
+| FR-W3-03 | The list can be searched by text: an event matches when its title contains the text, ignoring case. The description is not searched. | Student | R6 | MVP | planned | Ticket T-16 (#24) |
+| FR-W3-04 | A logged-in user can open one event and see what is needed to decide whether to take part: title, organization, category, start and end, location, description, capacity, confirmed registrations and free places, registration deadline (none means registration stays open until the start) and status. An unknown event returns 404. | Student, any logged-in user | R6, R3 | MVP | partial (backend implemented; the details page of the web app is planned, FR-W3-08) | `EventService.getById`, `EventController` (`GET /api/v1/events/{id}`), `EventControllerIntegrationTest` (T-18) |
+| FR-W3-05 | Visibility by status. DRAFT: only organizers of the event's organization can open it (404 for everyone else), and it is never in the search list. PUBLISHED, REGISTRATION_CLOSED, ONGOING: any logged-in user can open them and they appear in the search list. COMPLETED, CANCELLED: any logged-in user can open them, with the status visible, but they are not in the search list. | Organizer, any logged-in user | R6, R4 | MVP | partial (details visibility implemented; the search list is planned, FR-W3-01) | `EventService.getById`, `EventControllerIntegrationTest` (`draftIsVisibleToOrganizerAndHiddenFromOtherUsers`, `eventDetailsIncludeConfirmedCountAndReturnCancelledAndCompletedEvents`); "Event visibility" in `docs/planning/midterm-tickets.md` |
+| FR-W3-06 | A logged-in user can list the events of one organization sorted by start time. An organizer of that organization sees all statuses including DRAFT; anyone else sees all statuses except DRAFT. An unknown organization returns 404. | Organizer, any logged-in user | R6, R1 | MVP | planned | Ticket T-17 (#25) in `docs/planning/midterm-tickets.md`; `ix_events_organization_id (organization_id, start_at)` |
+| FR-W3-07 | In the web app the "Events" page shows the list as cards (title, organization, date and time, location, category and "x places left", "Full" or "Registration closed"), with the filters and the text search, pagination, a message "No events match your filters" when nothing matches, and the filters kept in the address so a link can be shared. | Student | R6, R10 | MVP | planned | Ticket T-19 (#27); `EventsPage` is a "Coming soon" placeholder |
+| FR-W3-08 | In the web app a user can open an event's page with everything listed in FR-W3-04; a draft the user may not see, or an unknown event, shows "Event not found". | Student | R6, R10 | MVP | planned | Ticket T-20 (#28) |
 
 **Done when**
 - [ ] Visibility of each event status is stated.
 - [ ] Filters match fields that exist in the data model (or a schema change is noted).
 
-> TODO (team): FR-W3 table here.
+**Open items for the team**
+- `06-ux-research.md` has no findings yet, so how students look for events today is not reflected; revisit the filters and the search after the interviews.
+- Sorting is fixed to start time, earliest first; no other sort order is planned.
 
 ---
 
@@ -287,14 +313,28 @@ do each, and rules such as "assignee must be a member of the event's organizatio
 **Format**
 Common table, 5–10 rows.
 
-> **Example – replace:**
-> | FR-W5-04 | An organizer can mark a confirmed participant as checked in; the check-in time is stored. | Organizer | R5 | MVP | planned | data-model.md rule 5 |
+Status checked against `main` on 2026-11-15. "Organizer" always means an ORGANIZER or PRESIDENT of the organization that owns the event; a global ADMIN has no organizer rights by being ADMIN. The backend for the participant list, tasks (list and create) and announcements exists; check-in, changing tasks and all W5 screens of the web app (the Organizing page still shows a "Coming soon" placeholder for them) are planned, so most rows are `partial` or `planned`. No interviews are available yet, so the Source column cites the data model and the agreed ticket contracts.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W5-01 | An organizer can see the participants of an event: name, email, registration status (CONFIRMED or CANCELLED), registration time and check-in time, sorted by name, optionally filtered by status. Anyone else gets 403, because the email is personal data. | Organizer | R5 | MVP | partial (backend implemented; the participants panel is planned) | `RegistrationController` (`GET /api/v1/events/{eventId}/registrations`), `RegistrationListControllerIntegrationTest` (T-28); panel: T-32 |
+| FR-W5-02 | An organizer can create a task for an event with a title (1 to 200 characters) and optionally a description, a due date and an assignee. A new task starts as TODO. | Organizer | R5 | MVP | partial (backend implemented; the tasks panel is planned) | `TaskController`, `TaskService`, `TaskControllerIntegrationTest` (T-26); panel: T-31 |
+| FR-W5-03 | The assignee of a task must be a member of the event's organization; otherwise the request is rejected with 400 `ASSIGNEE_NOT_IN_ORGANIZATION`. The assignee is a membership, and removing the member from the organization leaves their tasks unassigned. | Organizer | R5 | MVP | partial (enforced when creating a task; changing the assignee is planned, see FR-W5-05) | `docs/data-model.md` rule 3 and `fk_event_tasks_assignee`, `TaskService`, `TaskServiceTest` |
+| FR-W5-04 | An organizer can list the tasks of an event ordered by due date, tasks without a due date last, each with its status and assignee. Anyone else gets 403. | Organizer | R5 | MVP | partial (backend implemented; the tasks panel is planned) | `TaskController` (`GET /api/v1/events/{eventId}/tasks`), `TaskControllerIntegrationTest` (T-26); panel: T-31 |
+| FR-W5-05 | An organizer can change a task's status between TODO, IN_PROGRESS and DONE, in any direction, and can assign, change or remove its assignee. | Organizer | R5 | MVP | planned | Ticket T-27 (#35) in `docs/planning/midterm-tickets.md`; `ck_event_tasks_status` (`docs/data-model.md`) |
+| FR-W5-06 | An organizer can edit a task's title, description and due date, and delete a task. | Organizer | R5 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
+| FR-W5-07 | An organizer can mark a CONFIRMED participant as checked in, and the check-in time is stored. This is allowed only while the event is REGISTRATION_CLOSED or ONGOING (otherwise 409 `CHECK_IN_NOT_ALLOWED`); a CANCELLED registration cannot be checked in (409 `CHECK_IN_NOT_ALLOWED`); a registration already checked in is rejected with 409 `ALREADY_CHECKED_IN`. There is no undo in the MVP. | Organizer | R5 | MVP | planned | `docs/data-model.md` rule 5 and `ck_registrations_checkin_confirmed`; ticket T-29 (#37) in `docs/planning/midterm-tickets.md`; panel: T-32 |
+| FR-W5-08 | An organizer can post an announcement (title 1 to 200 characters, body not blank) to an event; the author is the organizer who posts it. Announcements cannot be posted on a DRAFT or COMPLETED event (409 `ANNOUNCEMENT_NOT_ALLOWED`). Announcements are shown only inside the app. | Organizer | R5 | MVP | partial (backend implemented; the posting form is planned) | `AnnouncementController`, `AnnouncementService`, `AnnouncementControllerIntegrationTest` (T-30); form: T-33; assumption A-08 in ticket T-30 |
+| FR-W5-09 | The announcements of an event, newest first, can be read by the members of the event's organization and by users with a CONFIRMED or CANCELLED registration for the event; anyone else gets 403. | Organizer, Member, Participant | R5, R6 | MVP | partial (backend implemented; showing them on the event page is planned) | `AnnouncementController` (`GET /api/v1/events/{eventId}/announcements`), `AnnouncementControllerIntegrationTest` (T-30); page: T-34 |
+| FR-W5-10 | An organizer can edit and delete announcements. | Organizer | R5 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
 
 **Done when**
 - [ ] Tasks, check-in, participant list and announcements are each covered.
 - [ ] Each row is justified by a user need or a data-model rule (Source column).
 
-> TODO (team): FR-W5 table here.
+**Open items for the team**
+- The "user need" justification for the W5 rows should be added from the organizer interviews once they exist (`06-ux-research.md`); until then the rows rest on the data model and the agreed ticket contracts.
+- Notifying participants by email or push is not part of the plan: announcements are shown only inside the app (assumption A-08). Confirm this is what the team wants for the final delivery.
 
 ---
 
@@ -317,15 +357,29 @@ check, maintainability (feature packages). Each NFR must say how it is verified.
 **Format**
 Table: `ID | Category | Requirement | How it is verified | R | Status`. 6–12 rows.
 
-> **Example – replace:**
->
-> | ID | Category | Requirement | How it is verified | R | Status |
-> |----|----------|-------------|--------------------|---|--------|
-> | NFR-01 | Security | Every endpoint except health, Swagger, register and login requires a valid JWT; requests without one get 401 with the standard error body. | `AuthControllerIntegrationTest`, `SecurityConfig` | R2, R8 | implemented |
+Status checked against `main` on 2026-11-15.
+
+| ID | Category | Requirement | How it is verified | R | Status |
+|----|----------|-------------|--------------------|---|--------|
+| NFR-01 | Security | Every endpoint except health, the Swagger/OpenAPI pages, register and login requires a valid JWT; a request without a valid token gets 401, and an authenticated user without permission gets 403, both with the standard error body. | `AuthControllerIntegrationTest` (missing and tampered token), `OrgPermissionPreAuthorizeIntegrationTest` (403), `SecurityConfig` | R2, R8 | implemented |
+| NFR-02 | Security | Passwords are stored only as BCrypt hashes (8 to 72 characters accepted) and are never returned. Access tokens are signed (HS256) with the secret from `JWT_SECRET`, which must be at least 32 characters (the application refuses to start otherwise), and expire after 2 hours. | `AuthServiceTest`, `AuthControllerIntegrationTest` (token valid for two hours), `JwtProperties` (start-up validation), ADR-003 | R2 | implemented |
+| NFR-03 | Security | No secrets are committed: real values live in the git-ignored `.env`, and only `.env.example` with placeholders is committed. | `git ls-files .env` prints nothing; `.gitignore` (`.env`, `.env.*`, `!.env.example`); Definition of Done in `CONTRIBUTING.md` §4 checked in review | R12 | implemented |
+| NFR-04 | API | The REST API lives under `/api/v1`, uses plural resource names and the status codes 201, 204, 400, 401, 403, 404 and 409 as appropriate, and every failure returns the same body (`timestamp`, `status`, `code`, `message`, `fieldErrors`). | Controller integration tests assert status and `code`; `GlobalExceptionHandler`, `ApiError`; ADR-002 | R9 | implemented |
+| NFR-05 | API | Every endpoint is documented in the generated OpenAPI description, with its possible error responses, and can be tried in Swagger UI at `/swagger-ui.html`. | Open Swagger UI (Definition of Done: "API changes are visible in Swagger") and check `/v3/api-docs`; there is no automated check | R9 | implemented |
+| NFR-06 | Architecture | The backend is organised by feature package with controller, service and repository layers; controllers never use repositories, entities never leave the service layer, and one feature reads another feature's data only through its service. | Code review against `CLAUDE.md` and ADR-001; there is no automated architecture test | R8 | implemented |
+| NFR-07 | Data integrity | The schema changes only through Flyway migrations (an applied migration is never edited) and Hibernate runs with `ddl-auto=validate`. Business rules that the database can express are constraints (foreign keys, unique and partial unique indexes, CHECKs), and the capacity limit is enforced with a row lock inside one transaction. | `DataModelConstraintsTest`; the application fails to start when entities and schema differ; `V1__initial_schema.sql`, ADR-004, `docs/data-model.md`; concurrent registration test planned (T-35) | R7 | implemented |
+| NFR-08 | Testing | Backend services have unit tests (JUnit 5 and Mockito) and endpoints have integration tests (MockMvc against PostgreSQL 16 in Testcontainers); frontend code has lint, component tests and a production build. Test class names end with `Test` so Maven runs them. | `cd backend && ./mvnw verify` and `cd frontend && npm run lint && npm test && npm run build` all succeed | R11 | implemented |
+| NFR-09 | Testing, CI | On every pull request and every push to `main`, CI runs the backend `./mvnw verify` (Java 21) and the frontend lint (no warnings allowed), tests and build (Node 24). The team merges only when both checks are green. | `.github/workflows/ci.yml`; the checks shown on each pull request; `CONTRIBUTING.md` §2 and §4 | R11, R16 | implemented |
+| NFR-10 | Deployment | `docker compose up --build` starts PostgreSQL 16, the backend and the frontend (served by nginx) with health checks; configuration comes from environment variables in `.env`, so the system runs outside a developer's machine setup. | Run `docker compose up --build`, then open http://localhost:3000 and http://localhost:8080/swagger-ui.html and call `/api/v1/health`; CI does not build the images | R12 | implemented |
+| NFR-11 | Usability | Every form checks its required fields before sending, and shows the backend's validation errors next to the matching field and any other error message on the form. | Component tests `LoginForm.test.tsx`, `CreateOrganizationForm.test.tsx`, `EventForm.test.tsx`; loading, empty and error states for all pages are planned (T-44, T-45) | R10 | partial |
+| NFR-12 | Process | Every GenAI-assisted change has a row in `docs/genai/usage-log.md` and is reviewed by a person who checks the result before merging; no ticket marked `no-genai` is done with GenAI. | Pull request review against the Definition of Done (`CONTRIBUTING.md` §4); `docs/genai/usage-log.md` | R13, R14 | implemented |
 
 **Done when**
 - [ ] Every NFR has a concrete "How it is verified".
 - [ ] R7, R8, R9, R11, R12 are each covered by at least one NFR.
 - [ ] No vague wording ("fast", "user-friendly") without a measure.
 
-> TODO (team): NFR table here.
+**Open items for the team**
+- No performance targets exist yet (for example a response time for the event search under a stated load). None are written here because nothing measures them; decide whether the team wants one and how to test it.
+- Accessibility (keyboard use, contrast, screen readers) has no requirement or check yet.
+- `docker compose up --build` is the documented way to run the whole system (`README.md`); `ADR-005` still describes a Compose file with PostgreSQL only, so the ADR should be updated to match.

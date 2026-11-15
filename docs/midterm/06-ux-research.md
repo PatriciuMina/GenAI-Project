@@ -29,12 +29,14 @@ Prose, 100–200 words + the consent note.
 
 **Consent note (read to each participant before starting):**
 > "We are students at UBB building an event management app for student organizations as a
-> course project. We would like to ask you some questions about how you find, attend or
-> organize events. The interview takes about 20–30 minutes. We will take written notes but
-> will not record audio unless you agree. We will **not** store your name, email or any
-> information that identifies you; your answers are stored anonymously as 'Interview I-NN'
-> in our project repository and may be quoted anonymously in our report. You can skip any
-> question or stop at any time. Do you agree to participate?"
+> course project. We would like to ask about your experience finding, attending or
+> organizing events. The interview takes about 20–30 minutes. We will take written notes
+> and will not record audio unless you separately agree. Please do not share your name,
+> contact details, student ID or other identifying details; we will leave identifying
+> details out of the notes. Notes will be stored under an interview ID in our project
+> repository. Anyone with access to that repository may read them, and we may use
+> anonymised quotations in our report. You can skip any question or stop at any time. Do
+> you agree to participate?"
 
 **Done when**
 - [ ] Number and type of participants stated (aim: at least 3 students and 2 organizers).
@@ -55,36 +57,36 @@ them **open** (no yes/no, no leading "Would you like feature X?"). Ask about pas
 ("Why?", "What happened next?").
 
 **Done when**
-- [ ] The team agreed on the final questions before the first interview.
-- [ ] Every assumption in 6.5 is covered by at least one question.
+- [x] The team agreed on the final questions before the first interview.
+- [x] Every assumption in 6.5 is covered by at least one question.
 
 ### Students (participants)
-1. Tell me about the last student event you attended. How did you find out about it?
-2. Where do you usually look when you want to know what events are happening at UBB?
-3. What information do you need about an event before you decide to go?
-4. Describe how you signed up for the last event that required registration. What was easy or annoying?
-5. Tell me about a time you wanted to attend an event but could not. What happened?
-6. What do you do when you registered for an event but then cannot go?
-7. How do you keep track of the events you signed up for?
-8. How did you receive updates or changes about an event (time, room, cancellation)? How did that work for you?
-9. What happens when you arrive at an event? How is attendance taken, if at all?
-10. Are you a member of any student organization? How did you join, and what is your role?
-11. In which language(s) do you prefer to use university-related apps and websites, and why?
-12. If you could change one thing about how student events work today, what would it be?
+1. Think about the most recent student event you attended. How did you first hear about it, and what did you do next? *(covers A-13)*
+2. The last time you looked for a UBB event, where did you look, and how did you narrow down what you wanted? *(covers A-02, A-13)*
+3. Recall the last event you considered attending. What did you need to know about its location, and how did you find that out? *(covers A-03)*
+4. Walk me through the last time you registered for a student event that required sign-up. What information did the form ask for, and what requirements, if any, did it place on the account or email? Please do not share the actual email address. *(covers A-04)*
+5. Tell me about a time you wanted to attend a student event but could not register. What happened, and what did you learn about availability or timing? *(covers A-01, A-05)*
+6. Tell me about the last time you changed or cancelled a registration. What happened afterward? If you later wanted to attend, what did you do? *(covers A-06)*
+7. After registering for a student event, how did you keep track of the event details and any updates? Tell me about the most recent time. *(covers A-08)*
+8. If an event you registered for has changed or been cancelled, tell me about the most recent example. How did you find out, and what did you do next? *(covers A-08)*
+9. Tell me about your most recent arrival at a student event. What happened at check-in, if anything? *(covers A-07)*
+10. Tell me how you joined your current or most recent student organization and what responsibilities or roles you took on over time. *(covers A-10)*
+11. Think about the last university-related app or website you used. What language was it in, and how, if at all, did that affect what you did? *(covers A-11)*
+12. Recall a recent event you decided not to attend. What information about the event, if any, affected that decision? *(covers A-02, A-03, A-05)*
 
 ### Event organizers (organizers / presidents)
-1. Walk me through how your organization planned its most recent event, from idea to the day after.
-2. Who in your organization is allowed to create or announce an event? How is that decided?
-3. How do you collect registrations today? What tools do you use?
-4. Tell me about a time when more people wanted to attend than you had places. What did you do?
-5. How do you split the preparation work among members, and how do you follow up on it?
-6. How do you communicate with registered participants before the event (reminders, changes)?
-7. How do you check who actually attended? What do you do with that information afterwards?
-8. Tell me about an event that was cancelled or postponed. How did you handle it?
-9. How do new members join your organization, and how do roles change over time?
-10. What information about an event (category, location, deadline, …) do you always publish? What is often missing?
-11. What is the most time-consuming or frustrating part of organizing an event?
-12. Where do students mostly find out about your events today?
+1. Walk me through the most recent event your organization planned, from idea through follow-up. Who was involved at each stage? *(covers A-09, A-12)*
+2. For your most recent event, who created and announced it, and how was that responsibility decided? *(covers A-12)*
+3. Tell me how participants registered for your most recent event. What steps and requirements did they encounter? *(covers A-04, A-05)*
+4. Tell me about the most recent time an event filled up or registration closed before it started. What happened next? *(covers A-01, A-05)*
+5. For your last event, how were preparation tasks assigned and followed up? What happened when a task involved more than one person? *(covers A-09)*
+6. How did you communicate with participants before your most recent event? What updates did you send and how? *(covers A-08)*
+7. Describe what happened when participants arrived at your last event. How did you record attendance, if you did? *(covers A-07)*
+8. Tell me about the last event your organization postponed or cancelled. How did you notify people and handle registrations? *(covers A-06, A-08)*
+9. Tell me how new members joined or took on responsibilities in your organization most recently. What changed over time? *(covers A-10)*
+10. For your latest event, what information did you publish, and how did you decide how to describe its type, venue and registration timing? *(covers A-02, A-03, A-05)*
+11. Think about the last event you organized. How did your team divide the work, and what part was hardest to coordinate? *(covers A-09)*
+12. How did students first hear about your most recent event, as far as you know? What makes you think that? *(covers A-13)*
 
 ---
 
