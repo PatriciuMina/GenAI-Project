@@ -67,6 +67,13 @@ public class EventService {
         return eventMapper.toResponse(saved, 0);
     }
 
+    /** For other features' services (e.g. registration); entities must not leave the service layer. */
+    @Transactional(readOnly = true)
+    public Event getEntityById(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event " + eventId + " not found"));
+    }
+
     /** Returns a published or later event to any authenticated user; drafts are organizer-only. */
     @Transactional(readOnly = true)
     public EventResponse getById(Long eventId, Long userId) {
