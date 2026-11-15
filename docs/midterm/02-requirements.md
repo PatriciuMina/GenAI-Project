@@ -216,14 +216,26 @@ participate (free places, deadline, location). State which events are visible to
 **Format**
 Common table, 4–8 rows.
 
-> **Example – replace:**
-> | FR-W3-02 | A student can filter upcoming published events by category. | Student | R6 | MVP | planned | data-model.md D3 |
+Status checked against `main` on 2026-11-15. Only the event details endpoint exists for W3; the search, an organization's event list and both web pages ("Events" and event details, which are still placeholders or missing) are planned. All filters below use fields that already exist in the data model (`events.category`, `events.organization_id`, `events.start_at`, `events.title`), so no schema change is needed. "Organizer" means an ORGANIZER or PRESIDENT of the organization that owns the event.
+
+| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
+|----|-------------|----------|---|------------------------|--------|--------|
+| FR-W3-01 | A logged-in user can list upcoming events. The list shows only events that are PUBLISHED, REGISTRATION_CLOSED or ONGOING and have not ended yet (end time not in the past), never DRAFT, COMPLETED or CANCELLED ones. It is sorted by start time, earliest first, and paged (at most 50 events per page). | Student, any logged-in user | R6 | MVP | planned | Ticket T-16 (#24) and its "Event visibility" convention in `docs/planning/midterm-tickets.md`; index `ix_events_status_start_at` (`docs/data-model.md`) |
+| FR-W3-02 | The list can be filtered by category (one of the fixed categories), by organization and by a start-time range (from, to), and the filters can be combined. A category or date that is not valid is rejected with 400 `INVALID_PARAMETER`. | Student | R6 | MVP | planned | Ticket T-16 (#24); D3, `ix_events_category`, `ix_events_organization_id` (`docs/data-model.md`) |
+| FR-W3-03 | The list can be searched by text: an event matches when its title contains the text, ignoring case. The description is not searched. | Student | R6 | MVP | planned | Ticket T-16 (#24) |
+| FR-W3-04 | A logged-in user can open one event and see what is needed to decide whether to take part: title, organization, category, start and end, location, description, capacity, confirmed registrations and free places, registration deadline (none means registration stays open until the start) and status. An unknown event returns 404. | Student, any logged-in user | R6, R3 | MVP | partial (backend implemented; the details page of the web app is planned, FR-W3-08) | `EventService.getById`, `EventController` (`GET /api/v1/events/{id}`), `EventControllerIntegrationTest` (T-18) |
+| FR-W3-05 | Visibility by status. DRAFT: only organizers of the event's organization can open it (404 for everyone else), and it is never in the search list. PUBLISHED, REGISTRATION_CLOSED, ONGOING: any logged-in user can open them and they appear in the search list. COMPLETED, CANCELLED: any logged-in user can open them, with the status visible, but they are not in the search list. | Organizer, any logged-in user | R6, R4 | MVP | partial (details visibility implemented; the search list is planned, FR-W3-01) | `EventService.getById`, `EventControllerIntegrationTest` (`draftIsVisibleToOrganizerAndHiddenFromOtherUsers`, `eventDetailsIncludeConfirmedCountAndReturnCancelledAndCompletedEvents`); "Event visibility" in `docs/planning/midterm-tickets.md` |
+| FR-W3-06 | A logged-in user can list the events of one organization sorted by start time. An organizer of that organization sees all statuses including DRAFT; anyone else sees all statuses except DRAFT. An unknown organization returns 404. | Organizer, any logged-in user | R6, R1 | MVP | planned | Ticket T-17 (#25) in `docs/planning/midterm-tickets.md`; `ix_events_organization_id (organization_id, start_at)` |
+| FR-W3-07 | In the web app the "Events" page shows the list as cards (title, organization, date and time, location, category and "x places left", "Full" or "Registration closed"), with the filters and the text search, pagination, a message "No events match your filters" when nothing matches, and the filters kept in the address so a link can be shared. | Student | R6, R10 | MVP | planned | Ticket T-19 (#27); `EventsPage` is a "Coming soon" placeholder |
+| FR-W3-08 | In the web app a user can open an event's page with everything listed in FR-W3-04; a draft the user may not see, or an unknown event, shows "Event not found". | Student | R6, R10 | MVP | planned | Ticket T-20 (#28) |
 
 **Done when**
 - [ ] Visibility of each event status is stated.
 - [ ] Filters match fields that exist in the data model (or a schema change is noted).
 
-> TODO (team): FR-W3 table here.
+**Open items for the team**
+- `06-ux-research.md` has no findings yet, so how students look for events today is not reflected; revisit the filters and the search after the interviews.
+- Sorting is fixed to start time, earliest first; no other sort order is planned.
 
 ---
 
