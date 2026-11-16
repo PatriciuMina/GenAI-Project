@@ -109,19 +109,19 @@ Legend: ✅ allowed · ❌ not allowed · 🔸 only own (e.g. own registration).
 | Create account | FR-AUTH-01 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | `SecurityConfig` (`.requestMatchers(HttpMethod.POST, PUBLIC_POST_PATHS).permitAll()`) |
 | Log in | FR-AUTH-03 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | `SecurityConfig` (`PUBLIC_POST_PATHS` includes `/api/v1/auth/login`) |
 | View my account | FR-AUTH-05 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `SecurityConfig` (authenticated) + `UserController` uses `AuthenticatedUser me` |
-| Create organization | FR-ADM-02, FR-W1-03 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | `@PreAuthorize("hasRole('ADMIN')")` on `OrganizationController.create` |
+| Create organization | FR-ADM-02, FR-W1-03 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | `@PreAuthorize("hasRole('ADMIN')")` on `OrganizationController.create`; `PermissionMatrixIntegrationTest.createOrganizationPermissionMatrix` |
 | List organizations | FR-W1-01 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `SecurityConfig` (authenticated) |
 | View my memberships | FR-W1-02 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `SecurityConfig` (authenticated); `MyMembershipsController` filters by the caller |
 | View member list | FR-W1-04 | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | `@PreAuthorize("hasRole('ADMIN') or @orgPermissions.isMember(principal.id, #orgId)")` |
-| Add member | FR-W1-05 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | `@PreAuthorize("hasRole('ADMIN') or @orgPermissions.isPresident(principal.id, #orgId)")` |
-| Remove member | FR-W1-06 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | `@PreAuthorize("hasRole('ADMIN') or @orgPermissions.isPresident(principal.id, #orgId)")` |
+| Add member | FR-W1-05 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | `@PreAuthorize("hasRole('ADMIN') or @orgPermissions.isPresident(principal.id, #orgId)")`; `PermissionMatrixIntegrationTest.addMemberPermissionMatrix` |
+| Remove member | FR-W1-06 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | `@PreAuthorize("hasRole('ADMIN') or @orgPermissions.isPresident(principal.id, #orgId)")`; `PermissionMatrixIntegrationTest.removeMemberPermissionMatrix` |
 | Edit organization details | FR-W1-10 | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | `planned` |
 | Change member role | FR-W1-08 | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | `planned` |
 | Leave an organization | FR-W1-09 | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | `planned` |
-| Create event for an organization | FR-W2-01 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `@PreAuthorize("@orgPermissions.isOrganizer(principal.id, #orgId)")` on `EventController.create` |
+| Create event for an organization | FR-W2-01 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `@PreAuthorize("@orgPermissions.isOrganizer(principal.id, #orgId)")` on `EventController.create`; `PermissionMatrixIntegrationTest.createEventPermissionMatrix` |
 | Edit a draft or published event | FR-W2-03 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `EventService.update`: `orgPermissionService.isOrganizer(userId, event.getOrganization().getId())` |
 | Open a DRAFT event | FR-W2-04, FR-W3-05 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `EventService.getById`: if `status == DRAFT` and not organizer, throw `NotFoundException` |
-| Change event lifecycle status | FR-W2-05–10 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `planned` (`/api/v1/events/{id}/status` exists but no organizer-only transition endpoint is implemented yet) |
+| Change event lifecycle status | FR-W2-05–10 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `EventService.changeStatus(...)` checks `orgPermissionService.isOrganizer(...)`; `PermissionMatrixIntegrationTest.changeStatusPermissionMatrix` |
 | Search / browse upcoming events | FR-W3-01–03 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `EventService.search(...)` with authenticated access and status filters |
 | Open event details (non-draft) | FR-W3-04, FR-W3-05 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `EventService.getById(...)` (DRAFT hidden from non-organizers; all other logged-in users can open visible events) |
 | List an organization's events | FR-W3-06 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `EventService.findByOrganization(...)` (filters DRAFTs for non-organizers; endpoint exists) |
@@ -129,9 +129,9 @@ Legend: ✅ allowed · ❌ not allowed · 🔸 only own (e.g. own registration).
 | Cancel my registration | FR-W4-05 | ❌ | 🔸 | 🔸 | 🔸 | 🔸 | 🔸 | `planned` |
 | View my registrations | FR-W4-07 | ❌ | 🔸 | 🔸 | 🔸 | 🔸 | 🔸 | `RegistrationController.listMine(...)` using caller identity |
 | View participant list | FR-W5-01 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `RegistrationService.listParticipants(...)`: `orgPermissionService.isOrganizer(callerId, event.getOrganization().getId())` |
-| Create task | FR-W5-02, FR-W5-03 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `TaskService.create(...)`: `loadEventForOrganizer(...)` + `ASSIGNEE_NOT_IN_ORGANIZATION` check |
+| Create task | FR-W5-02, FR-W5-03 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `TaskService.create(...)`: `loadEventForOrganizer(...)` + `ASSIGNEE_NOT_IN_ORGANIZATION` check; `PermissionMatrixIntegrationTest.createTaskPermissionMatrix` |
 | List tasks | FR-W5-04 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `TaskService.list(...)`: `loadEventForOrganizer(...)` |
 | Change task status / assignee | FR-W5-05 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `TaskService.update(...)`: `loadEventForOrganizer(...)` |
-| Check in a participant | FR-W5-07 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `RegistrationService.checkIn(...)`: organizer check + `CHECK_IN_NOT_ALLOWED` / `ALREADY_CHECKED_IN` rules |
-| Post announcement | FR-W5-08 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `AnnouncementService.create(...)`: `isOrganizer(...)`; rejects DRAFT or COMPLETED |
+| Check in a participant | FR-W5-07 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `RegistrationService.checkIn(...)`: organizer check + `CHECK_IN_NOT_ALLOWED` / `ALREADY_CHECKED_IN` rules; `PermissionMatrixIntegrationTest.checkInPermissionMatrix` |
+| Post announcement | FR-W5-08 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `AnnouncementService.create(...)`: `isOrganizer(...)`; rejects DRAFT or COMPLETED; `PermissionMatrixIntegrationTest.postAnnouncementPermissionMatrix` |
 | Read announcements for an event | FR-W5-09 | ❌ | 🔸 | ✅ | ✅ | ✅ | ❌ | `AnnouncementService.list(...)`: `orgPermissionService.isMember(...) || registrationService.hasRegistration(...)` |
