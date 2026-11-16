@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Event, EventRequest, PageResponse, UpdateEventRequest } from './types';
+import type { Event, EventRequest, EventStatus, PageResponse, UpdateEventRequest } from './types';
 
 export interface EventSearchParams {
   q?: string;
@@ -33,5 +33,10 @@ export async function updateEvent(id: number, body: UpdateEventRequest): Promise
 
 export async function getEvent(id: number): Promise<Event> {
   const { data } = await apiClient.get<Event>(`/events/${id}`);
+  return data;
+}
+
+export async function changeEventStatus(id: number, status: EventStatus): Promise<Event> {
+  const { data } = await apiClient.post<Event>(`/events/${id}/status`, { status });
   return data;
 }
