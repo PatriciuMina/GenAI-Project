@@ -39,12 +39,15 @@ export function OrganizerEventPage() {
           <Typography><strong>Places:</strong> {event.confirmedCount} confirmed · {event.freePlaces} free of {event.capacity}</Typography>
         </Stack>
       </Paper>
-      <Stack direction="row" spacing={1}>
-        {(event.status === 'DRAFT' || event.status === 'PUBLISHED') && (
-          <Button component={RouterLink} to={paths.organizingEditEvent(event.id)}>Edit</Button>
-        )}
-        <StatusActions eventId={event.id} status={event.status} />
-      </Stack>
+      <StatusActions
+        eventId={event.id}
+        status={event.status}
+        editPath={
+          event.status === 'DRAFT' || event.status === 'PUBLISHED'
+            ? paths.organizingEditEvent(event.id)
+            : undefined
+        }
+      />
       <Divider />
       {['Tasks', 'Participants', 'Announcements'].map((section) => (
         <Paper key={section} variant="outlined" sx={{ p: 2 }}>

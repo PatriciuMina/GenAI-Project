@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import { describe, expect, it, vi } from 'vitest';
 import type { Event } from '../../api/types';
 import * as eventsApi from '../../api/events';
@@ -39,8 +40,19 @@ describe('StatusActions', () => {
 
   it('shows the backend transition message', async () => {
     vi.mocked(eventsApi.changeEventStatus).mockRejectedValue(new Error('cannot complete before end'));
-    renderActions('ONGOING');
-    await userEvent.click(screen.getByRole('button', { name: 'Complete' }));
-    expect(await screen.findByText('cannot complete before end')).toBeInTheDocument();
+    const { container } = render(
+      withQueryClient(
+        <MemoryRouter>
+          <StatusActions eventId={event.id} status="PUBLISHED" editPath="/organizing/events/14/edit" />
+        </MemoryRouter>,
+      ),
+    );
+    const actionRow = screen.getByTestId('status-action-buttons');
+    expect(actionRow).toContainElement(screen.getByRole('link', { name: 'Edit' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Start' }));
+    const errorAlert = await screen.findByRole('alert');
+    expect(errorAlert).toHaveTextContent('cannot complete before end');
+    expect(actionRow).not.toContainElement(errorAlert);
+    expect(container.firstChild).toContainElement(errorAlert);
   });
 });
