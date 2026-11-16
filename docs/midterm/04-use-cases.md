@@ -608,4 +608,128 @@ Extra sources: `organizing/` package, `Registration.checkedInAt`, data-model.md 
 - [ ] One section per W5 use case in the list.
 - [ ] Every use case is linked to at least one FR-W5 ID.
 
-> TODO (team): UC-50 … here.
+### UC-50: Manage organizer tasks
+
+| Field | Value |
+|-------|-------|
+| Workflow | W5 |
+| Primary actor | Organizer |
+| Linked FR | FR-W5-02, FR-W5-03, FR-W5-04, FR-W5-05 |
+| Preconditions | Caller is an ORGANIZER or PRESIDENT of the event’s organization; the event exists |
+| Postconditions (success) | The event has a task list ordered by due date, any new task starts as `TODO`, and any valid assignee belongs to the event’s organization |
+
+**Main flow**
+1. Organizer opens the event’s organizing page and starts the Tasks panel.
+2. System validates that the caller is an organizer of the event’s organization.
+3. System loads the event’s tasks sorted by due date, with tasks without a due date last, and shows each task’s title, status, due date and assignee.
+4. Organizer creates a new task with a title, optional description, optional due date and an optional assignee membership.
+5. System checks the assignee membership belongs to the same organization, creates the task with status `TODO`, and saves it.
+
+**Alternative / error flows**
+- 3a. Caller is not an organizer or president of the event’s organization: the service rejects the request with 403 `FORBIDDEN`.
+- 4a. The assignee membership belongs to another organization: the task creation request is rejected with 400 `ASSIGNEE_NOT_IN_ORGANIZATION`.
+- 4b. The title is empty or longer than 200 characters: the request is rejected by validation before the task is saved.
+- 5a. The task update flow for status/assignee changes is not fully complete in the web UI on `main` even though the backend update endpoint exists; this is why the use case remains `partial` rather than fully implemented.
+
+**Status:** partial
+
+### UC-51: View the participant list
+
+| Field | Value |
+|-------|-------|
+| Workflow | W5 |
+| Primary actor | Organizer |
+| Linked FR | FR-W5-01 |
+| Preconditions | Caller is an ORGANIZER or PRESIDENT of the event’s organization; the event exists |
+| Postconditions (success) | Organizer sees the event participants, with each row showing registration status, registration time and check-in time, sorted by full name |
+
+**Main flow**
+1. Organizer opens the Participants panel for an event.
+2. System verifies that the caller is allowed to view the event’s participant data.
+3. System loads the registration rows for the event, sorted by participant full name.
+4. System shows each participant’s name, email, registration status (`CONFIRMED` or `CANCELLED`), `registeredAt` and `checkedInAt` values.
+5. Organizer optionally filters the list by registration status before reviewing attendance.
+
+**Alternative / error flows**
+- 2a. Caller is not an organizer of this event’s organization: the endpoint rejects the request with 403 `FORBIDDEN` because email and attendance data are personal data.
+- 3a. The event id is unknown: the service throws `NotFoundException`, so no participant list is shown.
+- 5a. No registrations exist yet: the system shows an empty list because the query returns zero rows instead of an error.
+
+**Status:** partial
+
+### UC-52: Check in a participant
+
+| Field | Value |
+|-------|-------|
+| Workflow | W5 |
+| Primary actor | Organizer |
+| Linked FR | FR-W5-07 |
+| Preconditions | Caller is an ORGANIZER or PRESIDENT of the event’s organization; the event exists and is `REGISTRATION_CLOSED` or `ONGOING`; the target registration belongs to the same event |
+| Postconditions (success) | The participant’s registration is marked as checked in and `checkedInAt` is set to the current time |
+
+**Main flow**
+1. Organizer selects a participant from the participant list and clicks “Check in”.
+2. System checks that the caller is an organizer of the event’s organization.
+3. System finds the registration for the selected event and confirms it belongs to that event.
+4. System verifies the event status is `REGISTRATION_CLOSED` or `ONGOING` and that the registration is `CONFIRMED` and has not been checked in yet.
+5. System sets `checkedInAt = now` and returns the updated participant record.
+
+**Alternative / error flows**
+- 3a. The registration id belongs to another event or does not exist: the API responds with 404, so the organizer cannot inspect or mutate another event’s registration.
+- 4a. The event is `DRAFT`, `PUBLISHED`, `COMPLETED` or `CANCELLED`: the check-in request is rejected with 409 `CHECK_IN_NOT_ALLOWED`.
+- 4b. The registration status is `CANCELLED`: the request is rejected with 409 `CHECK_IN_NOT_ALLOWED` because `checked_in_at` is only valid for `CONFIRMED` registrations (`ck_registrations_checkin_confirmed`).
+- 4c. The participant is already checked in: the request is rejected with 409 `ALREADY_CHECKED_IN` and no second check-in is recorded.
+- 2a. A non-organizer tries to check in: the service rejects the request with 403 `FORBIDDEN`.
+
+**Status:** planned
+
+### UC-53: Post and read announcements
+
+| Field | Value |
+|-------|-------|
+| Workflow | W5 |
+| Primary actor | Organizer |
+| Linked FR | FR-W5-08, FR-W5-09, FR-W5-10 |
+| Preconditions | Caller is logged in; the event exists; organizer is allowed to post, readers are event members or have a registration for the event |
+| Postconditions (success) | New announcements are stored for the event with the posting organizer as author, and readers see the newest announcements first |
+
+**Main flow**
+1. Organizer opens the event’s announcements section and submits a title and body.
+2. System checks that the caller is an organizer or president of the event’s organization.
+3. System rejects posting when the event is `DRAFT` or `COMPLETED`; otherwise it saves the announcement with the current user as author.
+4. Event members and participants load the announcements for the event in reverse chronological order.
+5. The page shows only the event’s valid announcements and hides them from unrelated users.
+
+**Alternative / error flows**
+- 2a. A non-organizer tries to create an announcement: the request is rejected with 403 `FORBIDDEN`.
+- 3a. The event is `DRAFT` or `COMPLETED`: the request is rejected with 409 `ANNOUNCEMENT_NOT_ALLOWED`.
+- 4a. A user is neither a member of the event’s organization nor a participant with a `CONFIRMED` or `CANCELLED` registration: the request is rejected with 403 `FORBIDDEN`.
+- 4b. The event id does not exist: the system returns 404 instead of exposing a non-existent announcement list.
+- 5a. The announcement edit/delete flow (`FR-W5-10`) is deferred to the final delivery; the MVP includes creation and reading but not announcement editing or deletion.
+
+**Status:** partial
+
+### UC-54: Read announcements of my events
+
+| Field | Value |
+|-------|-------|
+| Workflow | W5 |
+| Primary actor | Student / Organizer |
+| Linked FR | FR-W5-09 |
+| Preconditions | User is logged in; the event exists; the user is either a member of the event’s organization or has a `CONFIRMED` or `CANCELLED` registration for the event |
+| Postconditions (success) | User sees the event’s announcements ordered newest first and can understand the latest organizer updates |
+
+**Main flow**
+1. User opens an event page or the organizing view for one of their events.
+2. System checks whether the user is allowed to read the event’s announcements.
+3. System loads the announcements for the event and sorts them by creation time descending.
+4. System displays the announcements in the event page, showing title, author and message body.
+
+**Alternative / error flows**
+- 2a. User is not a member of the event’s organization and does not have a registration for that event: the service returns 403 `FORBIDDEN`.
+- 3a. The event has no announcements yet: the system shows an empty list rather than an error.
+- 3b. The event does not exist: the service returns 404, so no announcement data is displayed.
+
+**Status:** partial
+
+---
