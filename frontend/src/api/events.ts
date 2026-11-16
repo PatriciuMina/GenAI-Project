@@ -16,6 +16,11 @@ export async function searchEvents(params: EventSearchParams = {}): Promise<Page
   return data;
 }
 
+export async function getOrganizationEvents(orgId: number): Promise<Event[]> {
+  const { data } = await apiClient.get<Event[]>(`/organizations/${orgId}/events`);
+  return data;
+}
+
 export async function createEvent(orgId: number, body: EventRequest): Promise<Event> {
   const { data } = await apiClient.post<Event>(`/organizations/${orgId}/events`, body);
   return data;
