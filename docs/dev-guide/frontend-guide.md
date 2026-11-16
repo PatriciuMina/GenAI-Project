@@ -58,7 +58,7 @@ frontend/src
 ├── features/              one folder per feature (same split as the backend)
 │   ├── auth/              AuthContext, useAuth, LoginForm, LoginPage, RegisterPage
 │   ├── organizations/     queries.ts (hooks), list + details pages        (W1)
-│   ├── events/            Coming soon                                     (W2, W3)
+│   ├── events/            event discovery list + details (W3)
 │   ├── registrations/     Coming soon                                     (W4)
 │   ├── organizing/        Coming soon                                     (W5)
 │   └── admin/             Coming soon, ADMIN only
@@ -144,6 +144,18 @@ export interface EventSummary {
 }
 ```
 
+Paged endpoints use the shared `PageResponse<T>` shape:
+
+```ts
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+```
+
 **Step 2: one function per endpoint** in `src/api/events.ts`. Paths are relative to
 `/api/v1`:
 
@@ -161,6 +173,11 @@ export async function createEvent(body: CreateEventRequest): Promise<EventSummar
   return data;
 }
 ```
+
+For event discovery, `searchEvents` sends optional `q`, `category`, `organizationId`, `from`,
+`to`, `page`, and `size` parameters to `GET /events`. The Events page keeps its filters and
+one-based page number in the URL; the API page number is zero-based. Date inputs are interpreted
+in the browser's local time zone and sent as inclusive ISO instant bounds.
 
 **Step 3: hooks** in `src/features/events/queries.ts`:
 
@@ -248,6 +265,8 @@ would (label, role, text). Examples:
 - `features/auth/LoginForm.test.tsx`: component test (typing, validation, backend errors).
 - `features/auth/AuthContext.test.tsx`: login/logout, expired token, 401, `ProtectedRoute`.
 - `api/client.test.ts`: Bearer header and 401 handling.
+- `features/events/EventCard.test.tsx` and `EventsPage.test.tsx`: event availability and URL-backed
+  search filters.
 
 Mock the API module instead of the network:
 
@@ -271,5 +290,9 @@ values in components.
 
 ## 10. Placeholder pages
 
-`Events`, `My registrations`, `Organizing` and `Admin` show "Coming soon". Each file has a
-`TODO(Wn)` comment naming its workflow. To find them all, run `grep -rn "TODO(W" frontend/src`.
+`My registrations`, `Organizing` and `Admin` still show "Coming soon". Event discovery and event
+details are implemented under `features/events` for W3; event creation and lifecycle are handled
+in the organizing feature. Each remaining placeholder has a `TODO(Wn)` comment naming its
+workflow. To find them all, run `grep -rn "TODO(W" frontend/src`.
+
+W3 event discovery guide update, 2026-11-16 — Portik Márk-Krisztián.
