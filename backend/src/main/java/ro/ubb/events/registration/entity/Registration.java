@@ -90,6 +90,11 @@ public class Registration {
         return checkedInAt;
     }
 
+    /** Records attendance. The service checks the rules (confirmed, not yet checked in) before calling this. */
+    public void checkIn(Instant at) {
+        this.checkedInAt = at;
+    }
+
     public void setCheckedInAt(Instant checkedInAt) {
         this.checkedInAt = checkedInAt;
     }

@@ -54,6 +54,24 @@ public class RegistrationController {
         return registrationService.register(eventId, me.id());
     }
 
+    @PostMapping("/events/{eventId}/registrations/{registrationId}/check-in")
+    @Operation(summary = "Check a participant in at the door (organizer or president of the organization)",
+            description = "The event must be REGISTRATION_CLOSED or ONGOING and the registration CONFIRMED. "
+                    + "No undo in the MVP.")
+    @ApiResponse(responseCode = "200", description = "Checked in; the participant with checkedInAt set")
+    @ApiResponse(responseCode = "403", description = "Not an organizer or president of the event's organization",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Event or registration not found (or of another event)",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "CHECK_IN_NOT_ALLOWED or ALREADY_CHECKED_IN",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public ParticipantResponse checkIn(
+            @PathVariable Long eventId,
+            @PathVariable Long registrationId,
+            @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        return registrationService.checkIn(eventId, registrationId, me.id());
+    }
+
     @GetMapping("/users/me/registrations")
     @Operation(summary = "List my registrations, newest first",
             description = "Only the caller's own registrations, CONFIRMED and CANCELLED, with the event details.")

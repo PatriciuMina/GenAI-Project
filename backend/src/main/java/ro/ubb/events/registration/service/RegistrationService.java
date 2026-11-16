@@ -127,6 +127,40 @@ public class RegistrationService {
         return registrations.stream().map(registrationMapper::toParticipantResponse).toList();
     }
 
+    /**
+     * Records attendance of a participant at the door. Rules, in this order:
+     * <ol>
+     *   <li>the event exists (404);</li>
+     *   <li>the caller is ORGANIZER or PRESIDENT of the event's organization (403);</li>
+     *   <li>the registration exists and belongs to this event (404, so ids of other events do not leak);</li>
+     *   <li>the event is REGISTRATION_CLOSED or ONGOING, else 409 CHECK_IN_NOT_ALLOWED;</li>
+     *   <li>the registration is CONFIRMED, else 409 CHECK_IN_NOT_ALLOWED;</li>
+     *   <li>not checked in yet, else 409 ALREADY_CHECKED_IN (no undo in the MVP);</li>
+     *   <li>{@code checkedInAt = now}.</li>
+     * </ol>
+     */
+    @Transactional
+    public ParticipantResponse checkIn(Long eventId, Long registrationId, Long callerId) {
+        Event event = eventService.getEntityById(eventId);
+        if (!orgPermissionService.isOrganizer(callerId, event.getOrganization().getId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "Not an organizer of this event's organization");
+        }
+        Registration registration = registrationRepository.findByIdAndEventId(registrationId, eventId)
+                .orElseThrow(() -> new NotFoundException("Registration " + registrationId + " not found"));
+        if (event.getStatus() != EventStatus.REGISTRATION_CLOSED && event.getStatus() != EventStatus.ONGOING) {
+            throw new ConflictException("CHECK_IN_NOT_ALLOWED",
+                    "Check-in is only possible while the event is REGISTRATION_CLOSED or ONGOING");
+        }
+        if (registration.getStatus() != RegistrationStatus.CONFIRMED) {
+            throw new ConflictException("CHECK_IN_NOT_ALLOWED", "Only a CONFIRMED registration can be checked in");
+        }
+        if (registration.getCheckedInAt() != null) {
+            throw new ConflictException("ALREADY_CHECKED_IN", "This participant is already checked in");
+        }
+        registration.checkIn(Instant.now());
+        return registrationMapper.toParticipantResponse(registrationRepository.saveAndFlush(registration));
+    }
+
     private static ConflictException alreadyRegistered() {
         return new ConflictException("ALREADY_REGISTERED", "You are already registered for this event");
     }
