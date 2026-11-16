@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+<rect width="1200" height="900" fill="#f5f6fa"/><rect width="1200" height="64" fill="#3949ab"/>
+<text x="36" y="41" fill="white" font-family="Arial" font-size="22" font-weight="bold">UBB Events</text><text x="895" y="40" fill="white" font-family="Arial" font-size="16">Events　 Organizations　 Admin　 MK</text>
+<text x="64" y="126" fill="#212121" font-family="Arial" font-size="30" font-weight="bold">Admin</text>
+<rect x="64" y="158" width="1072" height="660" rx="8" fill="white" stroke="#c5cae9"/>
+<text x="96" y="207" fill="#212121" font-family="Arial" font-size="24" font-weight="bold">Create an organization</text>
+<text x="96" y="241" fill="#616161" font-family="Arial" font-size="15">Set up an organization and appoint an existing account as its president.</text>
+<text x="96" y="293" fill="#424242" font-family="Arial" font-size="14">Name *</text><rect x="96" y="304" width="1008" height="54" rx="4" fill="white" stroke="#757575"/><text x="114" y="338" fill="#212121" font-family="Arial" font-size="15">UBB Robotics Club</text><text x="96" y="381" fill="#616161" font-family="Arial" font-size="13">Required · Unique, at most 150 characters</text>
+<text x="96" y="423" fill="#424242" font-family="Arial" font-size="14">Description</text><rect x="96" y="434" width="1008" height="100" rx="4" fill="white" stroke="#757575"/><text x="114" y="468" fill="#757575" font-family="Arial" font-size="15">A short description of the organization…</text><text x="96" y="557" fill="#616161" font-family="Arial" font-size="13">Optional</text>
+<text x="96" y="599" fill="#424242" font-family="Arial" font-size="14">Contact email</text><rect x="96" y="610" width="1008" height="54" rx="4" fill="white" stroke="#757575"/><text x="114" y="644" fill="#757575" font-family="Arial" font-size="15">contact@ubbcluj.ro</text><text x="96" y="687" fill="#616161" font-family="Arial" font-size="13">Optional</text>
+<text x="96" y="729" fill="#424242" font-family="Arial" font-size="14">President email *</text><rect x="96" y="740" width="1008" height="54" rx="4" fill="white" stroke="#757575"/><text x="114" y="774" fill="#212121" font-family="Arial" font-size="15">student@stud.ubbcluj.ro</text>
+<rect x="96" y="824" width="230" height="52" rx="5" fill="#3949ab"/><text x="132" y="857" fill="white" font-family="Arial" font-size="15" font-weight="bold">Create organization</text>
+<text x="96" y="895" fill="#616161" font-family="Arial" font-size="13">Required · Account must already exist; the account becomes PRESIDENT. Creating… disables this action.</text>
+<rect x="760" y="824" width="344" height="52" rx="5" fill="#e8f5e9" stroke="#81c784"/><text x="778" y="846" fill="#1b5e20" font-family="Arial" font-size="13" font-weight="bold">Success: organization created.</text><text x="778" y="866" fill="#1b5e20" font-family="Arial" font-size="13">Open UBB Robotics Club →</text>
+<!-- Validation example can replace the success notice: show field errors inline and API errors above the form. -->
+</svg>
