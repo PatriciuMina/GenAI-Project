@@ -8,6 +8,7 @@ import { formatDateTime, registrationDeadlineText, statusLabel } from '../events
 import { useEvent } from './eventQueries';
 import { StatusActions } from './StatusActions';
 import { AnnouncementsPanel } from './AnnouncementsPanel';
+import { TasksPanel } from './TasksPanel';
 
 export function OrganizerEventPage() {
   const { id: idParam } = useParams();
@@ -50,7 +51,8 @@ export function OrganizerEventPage() {
         }
       />
       <Divider />
-      {['Tasks', 'Participants'].map((section) => (
+      <TasksPanel event={event} />
+      {['Participants'].map((section) => (
         <Paper key={section} variant="outlined" sx={{ p: 2 }}>
           <Typography component="h2" variant="h6">{section}</Typography>
           <Typography color="text.secondary">{section} will appear here.</Typography>

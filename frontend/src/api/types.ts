@@ -28,6 +28,32 @@ export interface Member {
   joinedAt: string;
 }
 
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
+
+/** Backend `TaskResponse` (GET/POST/PATCH /events/{id}/tasks). */
+export interface EventTask {
+  id: number;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  dueAt: string | null;
+  assignee: { membershipId: number; fullName: string } | null;
+  createdAt: string;
+}
+
+export interface CreateTaskRequest {
+  title: string;
+  description: string | null;
+  dueAt: string | null;
+  assigneeMembershipId: number | null;
+}
+
+export interface UpdateTaskRequest {
+  status?: TaskStatus;
+  assigneeMembershipId?: number;
+  unassign?: boolean;
+}
+
 /** Body of POST /auth/login. */
 export interface LoginRequest {
   email: string;

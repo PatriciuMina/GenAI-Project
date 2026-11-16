@@ -1,11 +1,20 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAnnouncements, postAnnouncement } from '../../api/announcements';
 import { getOrganizationEvents } from '../../api/events';
-import type { CreateAnnouncementRequest, Membership } from '../../api/types';
+import { getMembers } from '../../api/organizations';
+import { createEventTask, getEventTasks, updateEventTask } from '../../api/tasks';
+import type {
+  CreateAnnouncementRequest,
+  CreateTaskRequest,
+  Membership,
+  UpdateTaskRequest,
+} from '../../api/types';
 
 export const organizingKeys = {
   organizationEvents: (orgId: number) => ['organizations', orgId, 'events'] as const,
   announcements: (eventId: number) => ['events', eventId, 'announcements'] as const,
+  eventTasks: (eventId: number) => ['events', eventId, 'tasks'] as const,
+  organizationMembers: (orgId: number) => ['organizations', orgId, 'members'] as const,
 };
 
 export function useEventAnnouncements(eventId: number) {
@@ -16,11 +25,44 @@ export function useEventAnnouncements(eventId: number) {
   });
 }
 
+export function useEventTasks(eventId: number) {
+  return useQuery({
+    queryKey: organizingKeys.eventTasks(eventId),
+    queryFn: () => getEventTasks(eventId),
+    enabled: Number.isInteger(eventId) && eventId > 0,
+  });
+}
+
 export function usePostAnnouncement(eventId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request: CreateAnnouncementRequest) => postAnnouncement(eventId, request),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: organizingKeys.announcements(eventId) }),
+  });
+}
+
+export function useTaskAssignees(orgId: number) {
+  return useQuery({
+    queryKey: organizingKeys.organizationMembers(orgId),
+    queryFn: () => getMembers(orgId),
+    enabled: Number.isInteger(orgId) && orgId > 0,
+  });
+}
+
+export function useCreateEventTask(eventId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: CreateTaskRequest) => createEventTask(eventId, body),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: organizingKeys.eventTasks(eventId) }),
+  });
+}
+
+export function useUpdateEventTask(eventId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ taskId, body }: { taskId: number; body: UpdateTaskRequest }) =>
+      updateEventTask(eventId, taskId, body),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: organizingKeys.eventTasks(eventId) }),
   });
 }
 
