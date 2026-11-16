@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="790" viewBox="0 0 1000 790" role="img" aria-labelledby="title desc">
+  <title id="title">My registrations wireframe</title>
+  <desc id="desc">Student registration list grouped into upcoming and past or cancelled events.</desc>
+  <style>text{font-family:Arial,sans-serif;fill:#212121}.muted{fill:#616161}.box{fill:#fff;stroke:#9aa0ad;stroke-width:2}.primary{fill:#3949ab}.light{fill:#eef0fb}.cancel{fill:#fff3e0}</style>
+  <rect width="1000" height="790" fill="#f5f6fa"/><rect width="1000" height="70" class="primary"/><text x="40" y="45" fill="#fff" font-size="24" font-weight="bold">UBB Events</text><text x="730" y="43" fill="#fff" font-size="16">Events　 My registrations</text>
+  <text x="54" y="132" font-size="31" font-weight="bold">My registrations</text><text x="54" y="164" class="muted" font-size="16">Your confirmed and cancelled event sign-ups</text>
+  <text x="54" y="220" font-size="22" font-weight="bold">Upcoming</text>
+  <rect x="54" y="239" width="892" height="142" rx="8" class="box"/><text x="82" y="278" fill="#3949ab" font-size="20" font-weight="bold">Intro to Spring Boot Workshop</text><text x="82" y="309" class="muted" font-size="15">20 Nov · 16:00 · FMI, room 2/I</text><rect x="82" y="329" width="105" height="30" rx="15" class="light"/><text x="101" y="349" fill="#3949ab" font-size="14">Confirmed</text><rect x="789" y="323" width="126" height="42" rx="5" class="box"/><text x="823" y="350" font-size="15">Cancel</text>
+  <text x="54" y="434" font-size="22" font-weight="bold">Past and cancelled</text>
+  <rect x="54" y="453" width="892" height="142" rx="8" class="box"/><text x="82" y="492" fill="#3949ab" font-size="20" font-weight="bold">Board Games Evening</text><text x="82" y="523" class="muted" font-size="15">12 Nov · 18:00 · Student House</text><rect x="82" y="543" width="100" height="30" rx="15" class="cancel"/><text x="102" y="563" fill="#8a4b00" font-size="14">Cancelled</text>
+  <rect x="54" y="618" width="892" height="112" rx="8" class="box"/><text x="82" y="660" font-size="18" font-weight="bold">No registrations yet?</text><text x="82" y="692" class="muted" font-size="15">Your event sign-ups will appear here.　</text><text x="530" y="692" fill="#3949ab" font-size="15">Browse events →</text>
+</svg>

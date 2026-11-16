@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="880" viewBox="0 0 1000 880" role="img" aria-labelledby="title desc">
+  <title id="title">Student event details wireframe</title>
+  <desc id="desc">Event details with registration action, schedule, availability, and announcements.</desc>
+  <style>text{font-family:Arial,sans-serif;fill:#212121}.muted{fill:#616161}.box{fill:#fff;stroke:#9aa0ad;stroke-width:2}.primary{fill:#3949ab}.light{fill:#eef0fb}</style>
+  <rect width="1000" height="880" fill="#f5f6fa"/><rect width="1000" height="70" class="primary"/><text x="40" y="45" fill="#fff" font-size="24" font-weight="bold">UBB Events</text><text x="730" y="43" fill="#fff" font-size="16">Events　 My registrations</text>
+  <text x="54" y="118" fill="#3949ab" font-size="15">‹ Back to events</text>
+  <rect x="54" y="142" width="892" height="420" rx="10" class="box"/><text x="84" y="191" class="muted" font-size="16">UBB Computer Science Society · WORKSHOP</text><text x="84" y="239" font-size="32" font-weight="bold">Intro to Spring Boot Workshop</text>
+  <text x="84" y="289" font-size="17">20 November · 16:00–18:00</text><text x="84" y="320" font-size="17">FMI, room 2/I</text><text x="84" y="351" font-size="17">Registration deadline · 19 Nov, 22:00</text>
+  <rect x="84" y="377" width="808" height="1" fill="#c3c7d1"/><text x="84" y="415" font-size="17" font-weight="bold">About this event</text><text x="84" y="445" class="muted" font-size="16">Learn the fundamentals of building APIs with Spring Boot.</text><text x="84" y="471" class="muted" font-size="16">Bring a laptop with Java 21 and your preferred IDE installed.</text>
+  <rect x="84" y="494" width="220" height="38" rx="19" class="light"/><text x="103" y="519" fill="#3949ab" font-size="15">28 of 30 places available</text><rect x="716" y="489" width="176" height="48" rx="6" class="primary"/><text x="759" y="520" fill="#fff" font-size="17" font-weight="bold">Register</text>
+  <text x="54" y="615" font-size="24" font-weight="bold">Announcements</text><text x="54" y="642" class="muted" font-size="15">Updates from the event organizers</text>
+  <rect x="54" y="662" width="892" height="151" rx="8" class="box"/><text x="80" y="700" font-size="19" font-weight="bold">Bring your laptop</text><text x="80" y="728" class="muted" font-size="14">Elena Marin · 6 Nov, 10:00</text><text x="80" y="766" font-size="16">Please install JDK 21 and an IDE before the workshop.</text>
+  <text x="54" y="846" class="muted" font-size="14">Action varies by state: Register · You are registered / Cancel · Full · Registration closed</text>
+</svg>
