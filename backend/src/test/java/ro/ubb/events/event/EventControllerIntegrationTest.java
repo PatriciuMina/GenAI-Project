@@ -135,6 +135,42 @@ class EventControllerIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
+    void organizerCanPublishDraftAndMemberCannotChangeStatus() throws Exception {
+        long eventId = createEvent();
+        mockMvc.perform(post("/api/v1/events/{id}/status", eventId)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"PUBLISHED\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PUBLISHED"));
+
+        mockMvc.perform(post("/api/v1/events/{id}/status", eventId)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(member)))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"CANCELLED\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+    }
+
+    @Test
+    void invalidStatusTransitionReturns409WithCode() throws Exception {
+        long eventId = createEvent();
+        mockMvc.perform(post("/api/v1/events/{id}/status", eventId)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"ONGOING\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("INVALID_STATUS_TRANSITION"))
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("DRAFT to ONGOING")));
+    }
+
+    @Test
+    void unknownTargetStatusReturns400() throws Exception {
+        long eventId = createEvent();
+        mockMvc.perform(post("/api/v1/events/{id}/status", eventId)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"UNKNOWN\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void endBeforeStartReturns400OnEndAt() throws Exception {
         Map<String, Object> body = validBody();
         body.put("endAt", START.minus(Duration.ofHours(1)).toString());

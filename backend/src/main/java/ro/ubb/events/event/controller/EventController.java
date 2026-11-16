@@ -22,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ro.ubb.events.auth.dto.AuthenticatedUser;
 import ro.ubb.events.common.dto.ApiError;
 import ro.ubb.events.event.dto.EventRequest;
+import ro.ubb.events.event.dto.ChangeStatusRequest;
 import ro.ubb.events.event.dto.EventResponse;
 import ro.ubb.events.event.dto.UpdateEventRequest;
 import ro.ubb.events.event.service.EventService;
@@ -85,5 +86,21 @@ public class EventController {
     public EventResponse update(@PathVariable Long id, @Valid @RequestBody UpdateEventRequest request,
                                 @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
         return eventService.update(id, request, me.id());
+    }
+
+    @PostMapping("/events/{id}/status")
+    @Operation(summary = "Change an event's lifecycle status", description = "Requires an organizer or president of the event's organization.")
+    @ApiResponse(responseCode = "200", description = "Event status changed")
+    @ApiResponse(responseCode = "400", description = "Unknown status or malformed request",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "403", description = "Not an organizer of the event's organization",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "404", description = "Event not found",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "INVALID_STATUS_TRANSITION",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public EventResponse changeStatus(@PathVariable Long id, @Valid @RequestBody ChangeStatusRequest request,
+                                      @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        return eventService.changeStatus(id, request, me.id());
     }
 }
