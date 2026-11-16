@@ -10,6 +10,11 @@ import static org.mockito.Mockito.when;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.List;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +23,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import ro.ubb.events.common.exception.NotFoundException;
+import ro.ubb.events.common.exception.ApiException;
+import ro.ubb.events.common.dto.PageResponse;
 import ro.ubb.events.common.exception.ConflictException;
 import ro.ubb.events.common.exception.ValidationException;
 import ro.ubb.events.event.dto.EventRequest;
@@ -135,6 +142,32 @@ class EventServiceTest {
 
         assertThatThrownBy(() -> eventService.getById(99L, CREATOR_ID))
                 .isInstanceOf(NotFoundException.class).hasMessage("Event 99 not found");
+    }
+
+    @Test
+    void searchMapsPageAndConfirmedCountsAndCapsSize() {
+        Event event = existingEvent(EventStatus.PUBLISHED, 0L);
+        when(eventRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(event), PageRequest.of(0, 50), 1));
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(2L);
+
+        PageResponse<EventResponse> result = eventService.search("spring", EventCategory.WORKSHOP,
+                ORG_ID, START, END, 0, 100);
+
+        assertThat(result.page()).isZero();
+        assertThat(result.size()).isEqualTo(50);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.totalPages()).isEqualTo(1);
+        assertThat(result.content().getFirst().confirmedCount()).isEqualTo(2);
+        verify(eventRepository).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    @Test
+    void searchRejectsReversedDatesAndInvalidPageValues() {
+        assertThatThrownBy(() -> eventService.search(null, null, null, END, START, 0, 20))
+                .isInstanceOf(ApiException.class).hasMessageContaining("from must be");
+        assertThatThrownBy(() -> eventService.search(null, null, null, null, null, -1, 20))
+                .isInstanceOf(ApiException.class).hasMessageContaining("non-negative");
     }
 
     @Test

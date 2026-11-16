@@ -1,10 +1,18 @@
 package ro.ubb.events.event.service;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ro.ubb.events.common.dto.FieldErrorDto;
+import ro.ubb.events.common.dto.PageResponse;
 import ro.ubb.events.common.exception.ApiException;
 import ro.ubb.events.common.exception.ConflictException;
 import ro.ubb.events.common.exception.NotFoundException;
@@ -12,6 +20,7 @@ import ro.ubb.events.event.dto.EventRequest;
 import ro.ubb.events.event.dto.EventResponse;
 import ro.ubb.events.event.dto.UpdateEventRequest;
 import ro.ubb.events.event.entity.Event;
+import ro.ubb.events.event.entity.EventCategory;
 import ro.ubb.events.event.entity.EventStatus;
 import ro.ubb.events.event.mapper.EventMapper;
 import ro.ubb.events.event.repository.EventRepository;
@@ -28,6 +37,8 @@ import ro.ubb.events.user.service.UserService;
  */
 @Service
 public class EventService {
+
+    private static final int MAX_PAGE_SIZE = 50;
 
     private final EventRepository eventRepository;
     private final OrganizationService organizationService;
@@ -96,6 +107,49 @@ public class EventService {
         }
         long confirmedCount = registrationService.countConfirmedByEventId(eventId);
         return eventMapper.toResponse(event, confirmedCount);
+    }
+
+    /** Searches visible events, applying optional filters and paging them chronologically. */
+    @Transactional(readOnly = true)
+    public PageResponse<EventResponse> search(String q, EventCategory category, Long organizationId,
+                                               Instant from, Instant to, int page, int size) {
+        if (page < 0 || size < 1) {
+            throw invalidSearchParameter("Page must be non-negative and size must be positive");
+        }
+        if (from != null && to != null && from.isAfter(to)) {
+            throw invalidSearchParameter("from must be earlier than or equal to to");
+        }
+
+        int pageSize = Math.min(size, MAX_PAGE_SIZE);
+        Specification<Event> specification = (root, query, builder) -> builder.and(
+                root.get("status").in(EventStatus.PUBLISHED, EventStatus.REGISTRATION_CLOSED, EventStatus.ONGOING),
+                builder.greaterThanOrEqualTo(root.get("endAt"), Instant.now()),
+                q == null || q.isBlank() ? builder.conjunction()
+                        : builder.like(builder.lower(root.get("title")), likeContainsPattern(q), '\\'),
+                category == null ? builder.conjunction() : builder.equal(root.get("category"), category),
+                organizationId == null ? builder.conjunction()
+                        : builder.equal(root.get("organization").get("id"), organizationId),
+                from == null ? builder.conjunction() : builder.greaterThanOrEqualTo(root.get("startAt"), from),
+                to == null ? builder.conjunction() : builder.lessThanOrEqualTo(root.get("startAt"), to));
+        Page<Event> events = eventRepository.findAll(specification,
+                PageRequest.of(page, pageSize, Sort.by(Sort.Direction.ASC, "startAt")));
+        List<EventResponse> content = events.getContent().stream()
+                .map(event -> eventMapper.toResponse(event, registrationService.countConfirmedByEventId(event.getId())))
+                .toList();
+        return new PageResponse<>(content, events.getNumber(), events.getSize(),
+                events.getTotalElements(), events.getTotalPages());
+    }
+
+    private static ApiException invalidSearchParameter(String message) {
+        return new ApiException(HttpStatus.BAD_REQUEST, "INVALID_PARAMETER", message);
+    }
+
+    private static String likeContainsPattern(String value) {
+        String escaped = value.toLowerCase(Locale.ROOT)
+                .replace("\\", "\\\\")
+                .replace("%", "\\%")
+                .replace("_", "\\_");
+        return "%" + escaped + "%";
     }
 
     /** Updates editable event details, checking event-scoped permission and D11 versioning. */
