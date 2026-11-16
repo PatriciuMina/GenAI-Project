@@ -7,6 +7,7 @@ import { paths } from '../../routes/paths';
 import { formatDateTime, registrationDeadlineText, statusLabel } from '../events/eventFormat';
 import { useEvent } from './eventQueries';
 import { StatusActions } from './StatusActions';
+import { AnnouncementsPanel } from './AnnouncementsPanel';
 import { ParticipantsPanel } from './ParticipantsPanel';
 import { TasksPanel } from './TasksPanel';
 
@@ -52,7 +53,7 @@ export function OrganizerEventPage() {
       />
       <Divider />
       <TasksPanel event={event} />
-      {['Participants', 'Announcements'].map((section) => (
+      {['Participants'].map((section) => (
         <Paper key={section} variant="outlined" sx={{ p: 2 }}>
           <Typography component="h2" variant="h6">{section}</Typography>
           {section === 'Participants' ? (
@@ -67,6 +68,7 @@ export function OrganizerEventPage() {
           )}
         </Paper>
       ))}
+      <AnnouncementsPanel eventId={event.id} />
     </Stack>
   );
 }

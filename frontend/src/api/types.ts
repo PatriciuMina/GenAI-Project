@@ -137,6 +137,11 @@ export interface Announcement {
   createdAt: string;
 }
 
+/** Backend `AnnouncementRequest` (POST /events/{id}/announcements). */
+export interface CreateAnnouncementRequest {
+  title: string;
+  body: string;
+}
 /** Backend `ParticipantResponse` (GET /events/{eventId}/registrations). */
 export interface Participant {
   registrationId: number;
