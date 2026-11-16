@@ -14,6 +14,10 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
 
     Optional<Registration> findByEventIdAndUserIdAndStatus(Long eventId, Long userId, RegistrationStatus status);
 
+    /** Fetches the user too, because the participant DTO needs the name and email. */
+    @Query("select r from Registration r join fetch r.user where r.id = :id and r.event.id = :eventId")
+    Optional<Registration> findByIdAndEventId(@Param("id") Long id, @Param("eventId") Long eventId);
+
     boolean existsByEventId(Long eventId);
 
     /** True if the user has (or had) a registration of any status for the event. */
