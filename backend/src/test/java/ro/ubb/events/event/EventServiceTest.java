@@ -146,6 +146,48 @@ class EventServiceTest {
     }
 
     @Test
+    void findByOrganizationIncludesDraftsForOrganizersAndPreservesChronologicalOrder() {
+        Organization organization = new Organization("Test Org", null, null);
+        when(organizationService.getEntityById(ORG_ID)).thenReturn(organization);
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(true);
+        Event published = existingEvent(EventStatus.PUBLISHED, 0L);
+        Event draft = existingEvent(EventStatus.DRAFT, 0L);
+        draft.setTitle("Earlier draft");
+        ReflectionTestUtils.setField(draft, "id", 13L);
+        ReflectionTestUtils.setField(draft, "startAt", START.minus(Duration.ofDays(1)));
+        when(eventRepository.findByOrganizationIdOrderByStartAtAsc(ORG_ID)).thenReturn(List.of(draft, published));
+        when(registrationService.countConfirmedByEventId(13L)).thenReturn(0L);
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(0L);
+
+        List<EventResponse> result = eventService.findByOrganization(ORG_ID, CREATOR_ID);
+
+        assertThat(result).extracting(EventResponse::status).containsExactly(EventStatus.DRAFT, EventStatus.PUBLISHED);
+        assertThat(result).extracting(EventResponse::title).containsExactly("Earlier draft", "Old title");
+    }
+
+    @Test
+    void findByOrganizationHidesDraftsFromNonOrganizers() {
+        when(organizationService.getEntityById(ORG_ID)).thenReturn(new Organization("Test Org", null, null));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(false);
+        when(eventRepository.findByOrganizationIdOrderByStartAtAsc(ORG_ID)).thenReturn(
+                List.of(existingEvent(EventStatus.DRAFT, 0L), existingEvent(EventStatus.PUBLISHED, 0L)));
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(0L);
+
+        List<EventResponse> result = eventService.findByOrganization(ORG_ID, CREATOR_ID);
+
+        assertThat(result).extracting(EventResponse::status).containsExactly(EventStatus.PUBLISHED);
+    }
+
+    @Test
+    void findByOrganizationChecksOrganizationExistsBeforeQueryingEvents() {
+        when(organizationService.getEntityById(99L)).thenThrow(new NotFoundException("Organization 99 not found"));
+
+        assertThatThrownBy(() -> eventService.findByOrganization(99L, CREATOR_ID))
+                .isInstanceOf(NotFoundException.class).hasMessage("Organization 99 not found");
+        verifyNoInteractions(eventRepository);
+    }
+
+    @Test
     void searchMapsPageAndConfirmedCountsAndCapsSize() {
         Event event = existingEvent(EventStatus.PUBLISHED, 0L);
         when(eventRepository.findAll(any(Specification.class), any(Pageable.class)))
