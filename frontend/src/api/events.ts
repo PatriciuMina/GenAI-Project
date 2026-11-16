@@ -1,5 +1,20 @@
 import { apiClient } from './client';
-import type { Event, EventRequest, UpdateEventRequest } from './types';
+import type { Event, EventRequest, PageResponse, UpdateEventRequest } from './types';
+
+export interface EventSearchParams {
+  q?: string;
+  category?: Event['category'];
+  organizationId?: number;
+  from?: string;
+  to?: string;
+  page?: number;
+  size?: number;
+}
+
+export async function searchEvents(params: EventSearchParams = {}): Promise<PageResponse<Event>> {
+  const { data } = await apiClient.get<PageResponse<Event>>('/events', { params });
+  return data;
+}
 
 export async function createEvent(orgId: number, body: EventRequest): Promise<Event> {
   const { data } = await apiClient.post<Event>(`/organizations/${orgId}/events`, body);

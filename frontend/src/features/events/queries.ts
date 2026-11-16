@@ -2,11 +2,23 @@
 import { useQuery } from '@tanstack/react-query';
 import { getAnnouncements } from '../../api/announcements';
 import { errorStatus } from '../../api/errors';
+import { searchEvents, type EventSearchParams } from '../../api/events';
 
 /** Under ['events', id], so invalidating an event also refreshes its announcements. */
 export const announcementKeys = {
   list: (eventId: number) => ['events', eventId, 'announcements'] as const,
 };
+
+export const eventKeys = {
+  search: (params: EventSearchParams) => ['events', 'search', params] as const,
+};
+
+export function useSearchEvents(params: EventSearchParams) {
+  return useQuery({
+    queryKey: eventKeys.search(params),
+    queryFn: () => searchEvents(params),
+  });
+}
 
 /**
  * The announcements of an event, or `null` when the user may not read them (the backend answers 403).
