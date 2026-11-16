@@ -337,6 +337,40 @@ class EventControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void organizationEventsShowDraftsOnlyToOrganizersAndUnknownOrganizationReturns404() throws Exception {
+        long draftId = createEvent();
+        Map<String, Object> laterBody = validBody();
+        laterBody.put("title", "Published event");
+        laterBody.put("startAt", START.plus(Duration.ofDays(1)).toString());
+        laterBody.put("endAt", END.plus(Duration.ofDays(1)).toString());
+        long publishedId = objectMapper.readTree(create(organization.getId(), token(organizer), laterBody)
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString()).get("id").asLong();
+        mockMvc.perform(post("/api/v1/events/{id}/status", publishedId)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(organizer)))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"status\":\"PUBLISHED\"}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/organizations/{orgId}/events", organization.getId())
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(organizer))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(draftId))
+                .andExpect(jsonPath("$[0].status").value("DRAFT"))
+                .andExpect(jsonPath("$[1].id").value(publishedId))
+                .andExpect(jsonPath("$[1].status").value("PUBLISHED"));
+
+        mockMvc.perform(get("/api/v1/organizations/{orgId}/events", organization.getId())
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(member))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(publishedId))
+                .andExpect(jsonPath("$.length()").value(1));
+
+        mockMvc.perform(get("/api/v1/organizations/{orgId}/events", 999999L)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(token(member))))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+    }
+
     private ResultActions create(long orgId, String token, Map<String, Object> body) throws Exception {
         return mockMvc.perform(post(URL, orgId)
                 .header(HttpHeaders.AUTHORIZATION, bearer(token))

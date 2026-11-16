@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.time.Instant;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -59,6 +60,17 @@ public class EventController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         return eventService.search(q, category, organizationId, from, to, page, size);
+    }
+
+    @GetMapping("/organizations/{orgId}/events")
+    @Operation(summary = "List an organization's events",
+            description = "Organizers and presidents see all statuses; other users do not see drafts.")
+    @ApiResponse(responseCode = "200", description = "Events ordered by start time")
+    @ApiResponse(responseCode = "404", description = "Organization not found",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public List<EventResponse> findByOrganization(@PathVariable Long orgId,
+            @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        return eventService.findByOrganization(orgId, me.id());
     }
 
     @PostMapping("/organizations/{orgId}/events")

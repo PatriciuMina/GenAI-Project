@@ -79,6 +79,18 @@ public class EventService {
         return eventMapper.toResponse(saved, 0);
     }
 
+    /** Lists an organization's events; only its organizers and president can see drafts. */
+    @Transactional(readOnly = true)
+    public List<EventResponse> findByOrganization(Long organizationId, Long userId) {
+        organizationService.getEntityById(organizationId);
+        boolean organizer = orgPermissionService.isOrganizer(userId, organizationId);
+        return eventRepository.findByOrganizationIdOrderByStartAtAsc(organizationId).stream()
+                .filter(event -> organizer || event.getStatus() != EventStatus.DRAFT)
+                .map(event -> eventMapper.toResponse(event,
+                        registrationService.countConfirmedByEventId(event.getId())))
+                .toList();
+    }
+
     /** For other features' services (e.g. registration); entities must not leave the service layer. */
     @Transactional(readOnly = true)
     public Event getEntityById(Long eventId) {
