@@ -111,6 +111,12 @@ export interface Announcement {
   createdAt: string;
 }
 
+/** Backend `AnnouncementRequest` (POST /events/{id}/announcements). */
+export interface CreateAnnouncementRequest {
+  title: string;
+  body: string;
+}
+
 /** EventRequest / editable fields of UpdateEventRequest. */
 export interface EventRequest {
   title: string;

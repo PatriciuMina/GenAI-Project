@@ -7,6 +7,7 @@ import { paths } from '../../routes/paths';
 import { formatDateTime, registrationDeadlineText, statusLabel } from '../events/eventFormat';
 import { useEvent } from './eventQueries';
 import { StatusActions } from './StatusActions';
+import { AnnouncementsPanel } from './AnnouncementsPanel';
 
 export function OrganizerEventPage() {
   const { id: idParam } = useParams();
@@ -49,12 +50,13 @@ export function OrganizerEventPage() {
         }
       />
       <Divider />
-      {['Tasks', 'Participants', 'Announcements'].map((section) => (
+      {['Tasks', 'Participants'].map((section) => (
         <Paper key={section} variant="outlined" sx={{ p: 2 }}>
           <Typography component="h2" variant="h6">{section}</Typography>
           <Typography color="text.secondary">{section} will appear here.</Typography>
         </Paper>
       ))}
+      <AnnouncementsPanel eventId={event.id} />
     </Stack>
   );
 }
