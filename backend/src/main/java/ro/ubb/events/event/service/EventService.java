@@ -18,6 +18,7 @@ import ro.ubb.events.common.exception.ConflictException;
 import ro.ubb.events.common.exception.NotFoundException;
 import ro.ubb.events.event.dto.EventRequest;
 import ro.ubb.events.event.dto.EventResponse;
+import ro.ubb.events.event.dto.ChangeStatusRequest;
 import ro.ubb.events.event.dto.UpdateEventRequest;
 import ro.ubb.events.event.entity.Event;
 import ro.ubb.events.event.entity.EventCategory;
@@ -187,5 +188,28 @@ public class EventService {
         }
         long updatedConfirmedCount = registrationService.countConfirmedByEventId(eventId);
         return eventMapper.toResponse(event, updatedConfirmedCount);
+    }
+
+    /** Applies an organizer-requested lifecycle transition and keeps registration history untouched. */
+    @Transactional
+    public EventResponse changeStatus(Long eventId, ChangeStatusRequest request, Long userId) {
+        Event event = eventRepository.findByIdForUpdate(eventId)
+                .orElseThrow(() -> new NotFoundException("Event " + eventId + " not found"));
+        if (!orgPermissionService.isOrganizer(userId, event.getOrganization().getId())) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "Not an organizer of this event's organization");
+        }
+
+        EventStatus from = event.getStatus();
+        EventStatus to = request.status();
+        String reason = EventLifecycle.rejectionReason(from, to, event.getStartAt(), event.getEndAt(),
+                java.time.Instant.now());
+        if (reason != null) {
+            throw new ConflictException("INVALID_STATUS_TRANSITION",
+                    "Cannot transition event from " + from + " to " + to + ": " + reason);
+        }
+
+        event.setStatus(to);
+        eventRepository.flush();
+        return eventMapper.toResponse(event, registrationService.countConfirmedByEventId(eventId));
     }
 }

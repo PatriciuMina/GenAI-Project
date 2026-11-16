@@ -28,6 +28,7 @@ import ro.ubb.events.common.dto.PageResponse;
 import ro.ubb.events.common.exception.ConflictException;
 import ro.ubb.events.common.exception.ValidationException;
 import ro.ubb.events.event.dto.EventRequest;
+import ro.ubb.events.event.dto.ChangeStatusRequest;
 import ro.ubb.events.event.dto.EventResponse;
 import ro.ubb.events.event.dto.UpdateEventRequest;
 import ro.ubb.events.event.entity.Event;
@@ -228,6 +229,43 @@ class EventServiceTest {
                 .isInstanceOf(ro.ubb.events.common.exception.ApiException.class)
                 .hasMessageContaining("Not an organizer");
         verifyNoInteractions(registrationService);
+    }
+
+    @Test
+    void changeStatusPublishesDraftAndReturnsResponse() {
+        Event event = existingEvent(EventStatus.DRAFT, 0L);
+        when(eventRepository.findByIdForUpdate(12L)).thenReturn(Optional.of(event));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(true);
+        when(registrationService.countConfirmedByEventId(12L)).thenReturn(0L);
+
+        EventResponse result = eventService.changeStatus(12L, new ChangeStatusRequest(EventStatus.PUBLISHED), CREATOR_ID);
+
+        assertThat(result.status()).isEqualTo(EventStatus.PUBLISHED);
+        verify(eventRepository).flush();
+    }
+
+    @Test
+    void changeStatusRejectsInvalidTransitionWithLifecycleCode() {
+        Event event = existingEvent(EventStatus.DRAFT, 0L);
+        when(eventRepository.findByIdForUpdate(12L)).thenReturn(Optional.of(event));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(true);
+
+        assertThatThrownBy(() -> eventService.changeStatus(12L,
+                new ChangeStatusRequest(EventStatus.ONGOING), CREATOR_ID))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("DRAFT to ONGOING");
+        verifyNoInteractions(registrationService);
+    }
+
+    @Test
+    void changeStatusRejectsNonOrganizer() {
+        when(eventRepository.findByIdForUpdate(12L)).thenReturn(Optional.of(existingEvent(EventStatus.DRAFT, 0L)));
+        when(orgPermissionService.isOrganizer(CREATOR_ID, ORG_ID)).thenReturn(false);
+
+        assertThatThrownBy(() -> eventService.changeStatus(12L,
+                new ChangeStatusRequest(EventStatus.PUBLISHED), CREATOR_ID))
+                .isInstanceOf(ro.ubb.events.common.exception.ApiException.class)
+                .hasMessageContaining("Not an organizer");
     }
 
     private Event existingEvent(EventStatus status, long version) {
