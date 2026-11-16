@@ -93,6 +93,15 @@ export interface Event {
   version: number;
 }
 
+/** Backend `PageResponse<T>` returned by paged endpoints. */
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 /** Backend `AnnouncementResponse` (GET /events/{id}/announcements). */
 export interface Announcement {
   id: number;
