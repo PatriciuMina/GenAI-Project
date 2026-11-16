@@ -125,22 +125,102 @@ after the list in 4.2 is agreed. If it becomes too big, make one diagram per wor
 **Format**
 Mermaid `flowchart LR`; actors as `((Actor))`, use cases as `([UC-NN Title])`.
 
-> **Example – replace:**
->
-> ```mermaid
-> flowchart LR
->     student((Student))
->     subgraph W4[W4 Registration]
->         uc41([UC-41 Register for an event])
->     end
->     student --> uc41
-> ```
+```mermaid
+flowchart LR
+    visitor((Visitor))
+    student((Student))
+    admin((Administrator))
+    president((President))
+    member((Member))
+    organizer((Organizer))
 
-**Done when**
-- [ ] Every use case from 4.2 and every actor from `03-actors-roles.md` appears.
-- [ ] Renders in the GitHub preview.
+    subgraph AUTH["AUTH — Authentication"]
+        uc01([UC-01 Create an account])
+        uc02([UC-02 Log in])
+        uc03([UC-03 Log out])
+        uc04([UC-04 View my account])
+    end
 
-> TODO (team): overview diagram here.
+    subgraph ADM["ADM — Administration"]
+        uc05([UC-05 Create an organization and appoint its president])
+    end
+
+    subgraph W1["W1 — Organizations"]
+        uc10([UC-10 Browse organizations])
+        uc11([UC-11 View organization memberships and member list])
+        uc12([UC-12 Change a member's role])
+        uc13([UC-13 Leave an organization / remove a member])
+        uc14([UC-14 Edit organization details])
+    end
+
+    subgraph W2["W2 — Event management"]
+        uc20([UC-20 Create a draft event])
+        uc21([UC-21 Edit an event])
+        uc22([UC-22 Publish an event])
+        uc23([UC-23 Close registration / start / complete an event])
+        uc24([UC-24 Cancel an event])
+    end
+
+    subgraph W3["W3 — Event discovery"]
+        uc30([UC-30 Browse upcoming events])
+        uc31([UC-31 Search and filter events])
+        uc32([UC-32 View event details])
+    end
+
+    subgraph W4["W4 — Registration"]
+        uc40([UC-40 View my registrations])
+        uc41([UC-41 Register for an event])
+        uc42([UC-42 Cancel my registration])
+    end
+
+    subgraph W5["W5 — Event organization"]
+        uc50([UC-50 Manage organizer tasks])
+        uc51([UC-51 View the participant list])
+        uc52([UC-52 Check in a participant])
+        uc53([UC-53 Post and read announcements])
+        uc54([UC-54 Read announcements of my events])
+    end
+
+    visitor --> uc01
+    visitor --> uc02
+
+    student --> uc03
+    admin --> uc03
+    student --> uc04
+    admin --> uc04
+    admin --> uc05
+
+    student --> uc10
+    president --> uc11
+    admin --> uc11
+    president --> uc12
+    member --> uc13
+    president --> uc13
+    president --> uc14
+
+    organizer --> uc20
+    organizer --> uc21
+    organizer --> uc22
+    organizer --> uc23
+    organizer --> uc24
+
+    student --> uc30
+    student --> uc31
+    student --> uc32
+
+    student --> uc40
+    student --> uc41
+    student --> uc42
+
+    organizer --> uc50
+    organizer --> uc51
+    organizer --> uc52
+    organizer --> uc53
+    student --> uc53
+    student --> uc54
+    organizer --> uc54
+```
+
 
 ---
 
