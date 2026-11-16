@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+<rect width="1200" height="900" fill="#f5f6fa"/><rect width="1200" height="64" fill="#3949ab"/>
+<text x="36" y="41" fill="white" font-family="Arial" font-size="22" font-weight="bold">UBB Events</text><text x="865" y="40" fill="white" font-family="Arial" font-size="16">Events　 Organizations　 Organizing　 MK</text>
+<text x="64" y="120" fill="#212121" font-family="Arial" font-size="15">‹ All organizations</text>
+<text x="64" y="170" fill="#212121" font-family="Arial" font-size="30" font-weight="bold">UBB Computer Science Society</text>
+<rect x="64" y="198" width="1072" height="146" rx="8" fill="white" stroke="#c5cae9"/>
+<text x="88" y="236" fill="#212121" font-family="Arial" font-size="16" font-weight="bold">About</text>
+<text x="88" y="267" fill="#424242" font-family="Arial" font-size="15">A student community for computing, technology, and collaboration at UBB.</text>
+<text x="88" y="310" fill="#424242" font-family="Arial" font-size="14">Contact: cs.society@ubbcluj.ro</text>
+<text x="64" y="397" fill="#212121" font-family="Arial" font-size="24" font-weight="bold">Members</text><text x="180" y="397" fill="#616161" font-family="Arial" font-size="15">3 members</text>
+<rect x="64" y="420" width="1072" height="174" rx="8" fill="white" stroke="#c5cae9"/>
+<text x="88" y="456" fill="#212121" font-family="Arial" font-size="18" font-weight="bold">Add member</text>
+<text x="88" y="491" fill="#424242" font-family="Arial" font-size="13">Email address</text><rect x="88" y="501" width="560" height="48" rx="4" fill="white" stroke="#757575"/><text x="104" y="531" fill="#757575" font-family="Arial" font-size="15">student@stud.ubbcluj.ro</text>
+<text x="674" y="491" fill="#424242" font-family="Arial" font-size="13">Organization role</text><rect x="674" y="501" width="230" height="48" rx="4" fill="white" stroke="#757575"/><text x="692" y="531" fill="#212121" font-family="Arial" font-size="15">Member　⌄</text>
+<rect x="926" y="501" width="184" height="48" rx="5" fill="#3949ab"/><text x="969" y="531" fill="white" font-family="Arial" font-size="15" font-weight="bold">Add member</text>
+<text x="88" y="576" fill="#616161" font-family="Arial" font-size="13">President and administrators can add existing accounts as members or organizers.</text>
+<rect x="64" y="616" width="1072" height="50" fill="#e8eaf6"/><text x="88" y="648" fill="#303f9f" font-family="Arial" font-size="13" font-weight="bold">MEMBER</text><text x="505" y="648" fill="#303f9f" font-family="Arial" font-size="13" font-weight="bold">ROLE</text><text x="740" y="648" fill="#303f9f" font-family="Arial" font-size="13" font-weight="bold">JOINED</text><text x="1000" y="648" fill="#303f9f" font-family="Arial" font-size="13" font-weight="bold">ACTION</text>
+<rect x="64" y="666" width="1072" height="64" fill="white" stroke="#d9dce8"/><text x="88" y="705" fill="#212121" font-family="Arial" font-size="15" font-weight="bold">Ana Popescu</text><text x="505" y="705" fill="#212121" font-family="Arial" font-size="14">PRESIDENT</text><text x="740" y="705" fill="#424242" font-family="Arial" font-size="14">6 Nov 2026</text><text x="1000" y="705" fill="#616161" font-family="Arial" font-size="14">—</text>
+<rect x="64" y="730" width="1072" height="64" fill="white" stroke="#d9dce8"/><text x="88" y="769" fill="#212121" font-family="Arial" font-size="15" font-weight="bold">Elena Marin</text><text x="505" y="769" fill="#212121" font-family="Arial" font-size="14">ORGANIZER</text><text x="740" y="769" fill="#424242" font-family="Arial" font-size="14">7 Nov 2026</text><text x="1000" y="769" fill="#b71c1c" font-family="Arial" font-size="14">Remove</text>
+<rect x="64" y="794" width="1072" height="64" fill="white" stroke="#d9dce8"/><text x="88" y="833" fill="#212121" font-family="Arial" font-size="15" font-weight="bold">Ioana Rusu</text><text x="505" y="833" fill="#212121" font-family="Arial" font-size="14">MEMBER</text><text x="740" y="833" fill="#424242" font-family="Arial" font-size="14">9 Nov 2026</text><text x="1000" y="833" fill="#b71c1c" font-family="Arial" font-size="14">Remove</text>
+<text x="64" y="884" fill="#616161" font-family="Arial" font-size="13">Loading / no members yet / members could not be loaded — show state here; retry on error. Confirm before removal.</text>
+</svg>

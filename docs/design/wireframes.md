@@ -4,6 +4,37 @@ Low-fidelity screen concepts for the UBB student organization event-management a
 These diagrams describe the intended information hierarchy and interactions; they are not
 final visual specifications.
 
+## Organizations and admin
+
+### 1. Organization details and members
+
+![Organization details and members wireframe](../assets/wireframes/organization-details.svg)
+
+The details page presents the organization’s name, description, and contact email above its
+member list. Members can view the list; presidents and administrators can add an existing
+account by email as a MEMBER or ORGANIZER and remove non-presidents. The president remains
+visible but has no remove action. Loading, empty, and request-error states keep the Members
+section in context; duplicate or unknown email errors appear with the add form. **Use cases:**
+[UC-10](../midterm/04-use-cases.md#uc-10-browse-organizations),
+[UC-11](../midterm/04-use-cases.md#uc-11-view-organization-memberships-and-member-list),
+[UC-12](../midterm/04-use-cases.md#uc-12-change-a-members-role),
+[UC-13](../midterm/04-use-cases.md#uc-13-leave-an-organization--remove-a-member).
+
+### 2. Admin: create an organization
+
+![Admin create organization form wireframe](../assets/wireframes/admin-create-organization.svg)
+
+The admin form collects the organization name, optional description and contact email, plus
+the required email of an existing account to appoint as president. Required fields and
+validation feedback are visible; a duplicate organization name or unknown president email
+produces a form-level error. During submission the action shows progress and is disabled; on
+success the form clears and provides a link to the new organization. **Use case:**
+[UC-05](../midterm/04-use-cases.md#uc-05-create-an-organization-and-appoint-its-president).
+
+**Designed and documented by:** Portik Márk-Krisztián. **Ticket:** T-43 / [issue #51](https://github.com/PatriciuMina/GenAI-Project/issues/51).
+
+---
+
 ## Organizer screens
 
 ### 1. Organizing: events from my organizations
