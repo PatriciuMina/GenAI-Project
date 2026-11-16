@@ -142,6 +142,17 @@ export interface CreateAnnouncementRequest {
   title: string;
   body: string;
 }
+/** Backend `ParticipantResponse` (GET /events/{eventId}/registrations). */
+export interface Participant {
+  registrationId: number;
+  userId: number;
+  fullName: string;
+  email: string;
+  status: 'CONFIRMED' | 'CANCELLED';
+  /** ISO-8601 instants. */
+  registeredAt: string;
+  checkedInAt: string | null;
+}
 
 /** EventRequest / editable fields of UpdateEventRequest. */
 export interface EventRequest {
