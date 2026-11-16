@@ -77,7 +77,7 @@ export function AppLayout() {
             <MenuIcon />
           </IconButton>
           <Box sx={{ mr: 2 }}>
-            <Logo color="common.white" />
+            <Logo variant="onPrimary" />
           </Box>
           <Box component="nav" sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5, flexGrow: 1 }}>
             {items.map((item) => (

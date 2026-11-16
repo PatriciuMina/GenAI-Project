@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 44 44" fill="none" role="img" aria-labelledby="title">
+  <title id="title">UBB Events</title>
+  <g stroke="#3949ab" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="9" width="36" height="32" rx="6"/>
+    <path d="M13 4v11M31 4v11M5 18h34"/>
+    <path d="m12 29 7 7 13-14"/>
+  </g>
+</svg>
