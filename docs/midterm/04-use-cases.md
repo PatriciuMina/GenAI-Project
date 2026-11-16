@@ -82,35 +82,34 @@ Table: `ID | Title | Workflow | Primary actor | Linked FR | Status`.
 - [ ] The team agreed on the list (titles, owners).
 - [ ] Every FR in `02-requirements.md` is linked from at least one use case.
 
-| ID | Title (proposed – adjust) | Workflow | Primary actor | Linked FR | Status |
-|----|---------------------------|----------|---------------|-----------|--------|
-| UC-01 | Create an account | AUTH | | | |
-| UC-02 | Log in | AUTH | | | |
-| UC-03 | Log out | AUTH | | | |
-| UC-04 | Create an organization and appoint its president | ADM | | | |
-| UC-10 | Browse organizations | W1 | | | |
-| UC-11 | Join an organization / add a member | W1 | | | |
-| UC-12 | Change a member's role | W1 | | | |
-| UC-13 | Leave an organization / remove a member | W1 | | | |
-| UC-14 | Edit organization details | W1 | | | |
-| UC-20 | Create a draft event | W2 | | | |
-| UC-21 | Edit an event | W2 | | | |
-| UC-22 | Publish an event | W2 | | | |
-| UC-23 | Close registration / start / complete an event | W2 | | | |
-| UC-24 | Cancel an event | W2 | | | |
-| UC-30 | Browse upcoming events | W3 | | | |
-| UC-31 | Search and filter events | W3 | | | |
-| UC-32 | View event details | W3 | | | |
-| UC-40 | View my registrations | W4 | | | |
-| UC-41 | Register for an event | W4 | | | |
-| UC-42 | Cancel my registration | W4 | | | |
-| UC-50 | Manage organizer tasks | W5 | | | |
-| UC-51 | View the participant list | W5 | | | |
-| UC-52 | Check in a participant | W5 | | | |
-| UC-53 | Post an announcement | W5 | | | |
-| UC-54 | Read announcements of my events | W5 | | | |
-
-> TODO (team): confirm the list and fill the empty columns.
+| ID | Title | Workflow | Primary actor | Linked FR | Status |
+|----|-------|----------|---------------|-----------|--------|
+| UC-01 | Create an account | AUTH | Visitor | FR-AUTH-01, FR-AUTH-02, FR-ADM-01, FR-AUTH-06 | implemented |
+| UC-02 | Log in | AUTH | Visitor | FR-AUTH-03, FR-AUTH-04, FR-AUTH-06, FR-AUTH-07, FR-AUTH-08 | implemented |
+| UC-03 | Log out | AUTH | Student / Administrator | FR-AUTH-07 | implemented |
+| UC-04 | View my account | AUTH | Student / Administrator | FR-AUTH-05 | implemented |
+| UC-05 | Create an organization and appoint its president | ADM | Administrator | FR-ADM-02, FR-ADM-04, FR-W1-03 | implemented |
+| UC-10 | Browse organizations | W1 | Student | FR-W1-01, FR-W1-02 | implemented |
+| UC-11 | View organization memberships and member list | W1 | President / Administrator | FR-ADM-03, FR-W1-04, FR-W1-05, FR-W1-06, FR-W1-07 | partial |
+| UC-12 | Change a member's role | W1 | President | FR-W1-07, FR-W1-08 | planned |
+| UC-13 | Leave an organization / remove a member | W1 | Member / President | FR-W1-06, FR-W1-09 | partial |
+| UC-14 | Edit organization details | W1 | President | FR-W1-10 | planned |
+| UC-20 | Create a draft event | W2 | Organizer | FR-W2-01, FR-W2-02, FR-W2-04 | implemented |
+| UC-21 | Edit an event | W2 | Organizer | FR-W2-03, FR-W2-04 | implemented |
+| UC-22 | Publish an event | W2 | Organizer | FR-W2-05 | planned |
+| UC-23 | Close registration / start / complete an event | W2 | Organizer | FR-W2-06, FR-W2-07, FR-W2-08, FR-W2-10 | planned |
+| UC-24 | Cancel an event | W2 | Organizer | FR-W2-09 | planned |
+| UC-30 | Browse upcoming events | W3 | Student | FR-W3-01, FR-W3-02, FR-W3-03, FR-W3-06, FR-W3-07 | planned |
+| UC-31 | Search and filter events | W3 | Student | FR-W3-02, FR-W3-03, FR-W3-06, FR-W3-07 | planned |
+| UC-32 | View event details | W3 | Student | FR-W2-04, FR-W3-04, FR-W3-05, FR-W3-08 | partial |
+| UC-40 | View my registrations | W4 | Student | FR-W4-07 | partial |
+| UC-41 | Register for an event | W4 | Student | FR-W4-01, FR-W4-02, FR-W4-03, FR-W4-04, FR-W4-08 | partial |
+| UC-42 | Cancel my registration | W4 | Student | FR-W4-05, FR-W4-06 | planned |
+| UC-50 | Manage organizer tasks | W5 | Organizer | FR-W5-02, FR-W5-03, FR-W5-04, FR-W5-05 | partial |
+| UC-51 | View the participant list | W5 | Organizer | FR-W5-01 | partial |
+| UC-52 | Check in a participant | W5 | Organizer | FR-W5-07 | planned |
+| UC-53 | Post and read announcements | W5 | Organizer / Student | FR-W5-08, FR-W5-09, FR-W5-10 | partial |
+| UC-54 | Read announcements of my events | W5 | Student / Organizer | FR-W5-09 | partial |
 
 ---
 
