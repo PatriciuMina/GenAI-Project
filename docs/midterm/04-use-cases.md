@@ -520,7 +520,77 @@ Extra sources: `registration/` package, data-model.md registrations + service ru
 - [ ] One section per W4 use case in the list.
 - [ ] All five alternative flows above appear.
 
-> TODO (team): UC-40 … here.
+### UC-40: View my registrations
+
+| Field | Value |
+|-------|-------|
+| Workflow | W4 |
+| Primary actor | Student |
+| Linked FR | FR-W4-07 |
+| Preconditions | Student is logged in; zero or more registrations exist for the account |
+| Postconditions (success) | Student sees only their own `CONFIRMED` and `CANCELLED` registrations, ordered newest first |
+
+**Main flow**
+1. Student opens the "My registrations" page.
+2. System reads the registrations attached to the authenticated user.
+3. System keeps only `CONFIRMED` and `CANCELLED` rows, sorts them newest first, and shows the event title, start time, location and status for each row.
+4. If the student has no registrations, the list is empty and the page shows an empty state.
+
+**Alternative / error flows**
+- 3a. There are no registrations yet: the system shows an empty list instead of throwing an error.
+- 3b. The user is not logged in: the request is rejected before the page loads because the route requires an authenticated session.
+
+**Status:** partial
+
+### UC-41: Register for an event
+
+| Field | Value |
+|-------|-------|
+| Workflow | W4 |
+| Primary actor | Student |
+| Linked FR | FR-W4-01, FR-W4-02, FR-W4-03, FR-W4-04, FR-W4-08 |
+| Preconditions | Student is logged in; the event exists and is visible; the event status is `PUBLISHED`; the registration window is still open |
+| Postconditions (success) | A new `CONFIRMED` registration exists for the user and the event's free places drop by one |
+
+**Main flow**
+1. Student opens a visible event page and presses "Register".
+2. System locks the event row and checks the event status and registration window.
+3. System verifies the user has no existing `CONFIRMED` registration for that event.
+4. System compares the current confirmed count with the event's capacity.
+5. System creates a new `CONFIRMED` registration and shows the success state (`You are registered`).
+
+**Alternative / error flows**
+- 3a. The event is not `PUBLISHED` or the registration deadline has passed (or the start time has passed when there is no deadline): the API rejects the request with 409 `REGISTRATION_CLOSED`.
+- 3b. The event is full: the API rejects the request with 409 `EVENT_FULL` and the UI shows the event as full.
+- 3c. The student already has a `CONFIRMED` registration for the same event: the API rejects the request with 409 `ALREADY_REGISTERED`.
+- 3d. The event does not exist or is a draft: it is treated as 404, so no registration is created.
+- 3e. The student previously cancelled a registration for this event and registers again while the event still accepts registrations: the system creates a new `CONFIRMED` row and keeps the earlier `CANCELLED` row as history.
+
+**Status:** partial
+
+### UC-42: Cancel my registration
+
+| Field | Value |
+|-------|-------|
+| Workflow | W4 |
+| Primary actor | Student |
+| Linked FR | FR-W4-05, FR-W4-06 |
+| Preconditions | Student is logged in; they already hold a `CONFIRMED` registration; the event is still before the start time and is `PUBLISHED` or `REGISTRATION_CLOSED` |
+| Postconditions (success) | The registration becomes `CANCELLED` in history, the place is freed again, and a later valid registration can be created |
+
+**Main flow**
+1. Student opens the registration they want to cancel from "My registrations" or the event page.
+2. System checks that the registration belongs to the logged-in user and is still `CONFIRMED`.
+3. System verifies that the event is `PUBLISHED` or `REGISTRATION_CLOSED` and has not started yet.
+4. System marks the registration as `CANCELLED` without deleting the row and frees the place again.
+
+**Alternative / error flows**
+- 3a. The event already started, or the event is `ONGOING`, `COMPLETED` or `CANCELLED`: cancellation is not allowed and the request is rejected.
+- 3b. There is no confirmed registration for the event: the service responds with 404 `NOT_REGISTERED`.
+- 3c. The registration was already checked in: cancellation is rejected with 409 `CANCEL_NOT_ALLOWED`.
+- 3d. After a cancellation, the student may register again while the event is still open and the duplicate/capacity rules allow it; the new registration is stored as a new `CONFIRMED` row and the earlier `CANCELLED` row remains in history.
+
+**Status:** planned
 
 ---
 
