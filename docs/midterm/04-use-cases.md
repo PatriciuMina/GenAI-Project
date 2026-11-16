@@ -307,7 +307,203 @@ Extra sources: `event/` package, `EventStatus`, data-model.md lifecycle and W3 i
 - [ ] Pre/postconditions state the event status.
 - [ ] Visibility rules (who sees DRAFT events) are in the W3 flows.
 
-> TODO (team): UC-20 … and UC-30 … here.
+### UC-20: Create a draft event
+
+| Field | Value |
+|-------|-------|
+| Workflow | W2 |
+| Primary actor | Organizer |
+| Linked FR | FR-W2-01, FR-W2-02, FR-W2-04 |
+| Preconditions | Organizer is allowed to manage an existing organization; the event form is complete enough to pass validation |
+| Postconditions (success) | A new event row exists with status `DRAFT`; the organizer can open it, while non-organizers cannot see it |
+
+**Main flow**
+1. Organizer opens the organization’s event creation form and submits the event details.
+2. System checks that the caller is an organizer of the selected organization.
+3. System validates the event fields: title, location, category, start/end dates, capacity, optional registration deadline, and any cross-field rules.
+4. System inserts the event with status `DRAFT` and returns the created event details.
+5. System shows the organizer the new event, and the event remains hidden from other users until it is published.
+
+**Alternative / error flows**
+- 3a. Caller is not an organizer for that organization: the service denies access with 403 and the event is not created.
+- 3b. One or more fields fail validation: the API responds with 400 `VALIDATION_FAILED` and names the invalid field(s).
+- 3c. The organizer tries to create a draft for a non-existent organization: the request resolves to 404 because the organization must exist.
+
+**Status:** implemented
+
+### UC-21: Edit an event
+
+| Field | Value |
+|-------|-------|
+| Workflow | W2 |
+| Primary actor | Organizer |
+| Linked FR | FR-W2-03, FR-W2-04 |
+| Preconditions | Event exists; caller is the organizer of the event’s organization; event status is `DRAFT` or `PUBLISHED` |
+| Postconditions (success) | The event keeps the same identity but its editable fields are updated; the event status remains `DRAFT` or `PUBLISHED` |
+
+**Main flow**
+1. Organizer opens an event they manage and selects “Edit”.
+2. System verifies the organizer still owns the event’s organization and that the event is editable.
+3. Organizer changes the allowed fields and submits the update together with the version they last read.
+4. System checks that the new capacity is not below the number of confirmed registrations and validates the same field rules as creation.
+5. System saves the event and returns the updated event payload.
+
+**Alternative / error flows**
+- 3a. Event status is `REGISTRATION_CLOSED`, `ONGOING`, `COMPLETED` or `CANCELLED`: the service rejects the edit with 409 `EVENT_NOT_EDITABLE`.
+- 3b. Another organizer changed the event since the current page was loaded: the service rejects the update with 409 `CONCURRENT_UPDATE`.
+- 3c. The new capacity is lower than the confirmed registrations: the service returns a validation error instead of reducing capacity below the booking count.
+
+**Status:** implemented
+
+### UC-22: Publish an event
+
+| Field | Value |
+|-------|-------|
+| Workflow | W2 |
+| Primary actor | Organizer |
+| Linked FR | FR-W2-05 |
+| Preconditions | Event exists; event status is `DRAFT`; caller is an organizer of the organization; `startAt` is in the future |
+| Postconditions (success) | The event status changes from `DRAFT` to `PUBLISHED`; the event becomes visible to logged-in users and can enter its registration window |
+
+**Main flow**
+1. Organizer opens a draft event and chooses “Publish”.
+2. System loads the event and confirms the user is an organizer of the organizing organization.
+3. System checks the allowed transition from `DRAFT` to `PUBLISHED` and verifies that `startAt` is in the future.
+4. System updates the event status to `PUBLISHED` and returns the updated event response.
+5. The frontend shows the new published status and the event is now discoverable by users who are allowed to view public event information.
+
+**Alternative / error flows**
+- 3a. The event has already started or is not in the future: `EventLifecycle.rejectionReason` rejects the change with 409 `INVALID_STATUS_TRANSITION` and the reason `startAt must be in the future`.
+- 3b. The caller is not the organizer: the API denies access with 403.
+- 3c. The event is not currently `DRAFT`: the lifecycle rejects the transition because `DRAFT -> PUBLISHED` is the only valid publish path.
+
+**Status:** implemented
+
+### UC-23: Close registration / start / complete an event
+
+| Field | Value |
+|-------|-------|
+| Workflow | W2 |
+| Primary actor | Organizer |
+| Linked FR | FR-W2-06, FR-W2-07, FR-W2-08, FR-W2-10 |
+| Preconditions | Event exists; caller is organizer of the event’s organization; current status is one of the allowed predecessor states for the requested transition |
+| Postconditions (success) | The event changes to the next status in the W2 lifecycle: `PUBLISHED -> REGISTRATION_CLOSED -> ONGOING -> COMPLETED` |
+
+**Main flow**
+1. Organizer opens the event details page for an event they manage.
+2. Organizer selects a manual lifecycle action such as “Close registration”, “Start event”, or “Complete event”.
+3. System reads the event row and validates that the caller is an organizer of the organization that owns the event.
+4. System applies the transition using the lifecycle rules from `EventLifecycle`: `PUBLISHED -> REGISTRATION_CLOSED` is allowed immediately, `PUBLISHED or REGISTRATION_CLOSED -> ONGOING` is allowed only within one hour before `startAt`, and `ONGOING -> COMPLETED` is allowed only after `endAt`.
+5. System persists the new status and shows the updated status in the organizer UI.
+
+**Alternative / error flows**
+- 3a. The requested transition is not allowed by the lifecycle: the service throws 409 `INVALID_STATUS_TRANSITION`.
+- 3b. The event is still `DRAFT`: the organizer cannot skip directly to `ONGOING` or `COMPLETED`; the transition must follow the allowed path.
+- 3c. The event is already `COMPLETED` or `CANCELLED`: no later lifecycle action is accepted because terminal states are not valid transition destinations.
+- 3d. The organizer tries to start too early: the check rejects the action unless `now >= startAt - 1h`.
+- 3e. The organizer tries to complete before the event end: the service blocks the action until `endAt` has been reached.
+
+**Status:** implemented
+
+### UC-24: Cancel an event
+
+| Field | Value |
+|-------|-------|
+| Workflow | W2 |
+| Primary actor | Organizer |
+| Linked FR | FR-W2-09 |
+| Preconditions | Event exists; caller is an organizer of the organization; current event status is not `COMPLETED` and not already `CANCELLED` |
+| Postconditions (success) | The event status changes from its current non-terminal value to `CANCELLED`; registrations remain as historical data rather than being deleted |
+
+**Main flow**
+1. Organizer opens the event they manage and chooses “Cancel”.
+2. System verifies the caller is an organizer of the event’s organization and that the event is cancellable.
+3. System checks the lifecycle rule: `CANCELLED` is allowed from any non-terminal status except `COMPLETED`, and an event with registrations remains in the database as a cancelled event instead of being deleted.
+4. System updates the status to `CANCELLED` and keeps the registration history intact.
+5. System shows the cancelled status to the organizer and to participants who can still access the event details.
+
+**Alternative / error flows**
+- 3a. Event is already `COMPLETED`: lifecycle rule rejects the action because a completed event cannot be cancelled.
+- 3b. Event is already `CANCELLED`: the same-status transition is rejected with 409 `INVALID_STATUS_TRANSITION`.
+- 3c. The organizer is not allowed to manage this event: the request is denied with 403.
+- 3d. The event has registrations: the service keeps them as history, but it never hard-deletes the event row or the registration records.
+
+**Status:** implemented
+
+### UC-30: Browse upcoming events
+
+| Field | Value |
+|-------|-------|
+| Workflow | W3 |
+| Primary actor | Student |
+| Linked FR | FR-W3-01, FR-W3-07 |
+| Preconditions | User is logged in; the page opens with the default search parameters and the list is loaded from the event search endpoint |
+| Postconditions (success) | The user sees a page of upcoming events sorted from the earliest start time; only visible statuses appear, and each event card shows the minimum decision-making information |
+
+**Main flow**
+1. Logged-in student opens the Events page and the frontend calls the search endpoint without custom filters.
+2. System reads every event whose status is `PUBLISHED`, `REGISTRATION_CLOSED` or `ONGOING`, whose `endAt` is not in the past, and whose title matches the current query if one exists.
+3. System sorts the results by `startAt` ascending and paginates them, capping the page size at 50.
+4. System shows event cards with the event title, organization, date/time, location, category and the current place information.
+5. Student can choose an event to open its details page or refine the list with filters.
+
+**Alternative / error flows**
+- 3a. The list contains only visible statuses: `DRAFT` events are excluded, and `COMPLETED` or `CANCELLED` events are not returned by the default search.
+- 3b. The user passes invalid paging or date parameters: the service rejects the request with 400 `INVALID_PARAMETER` and the UI shows the backend error.
+- 3c. No event matches the current query or filters: the page shows the empty-state “No events match your filters” message instead of an error.
+
+**Status:** planned
+
+### UC-31: Search and filter events
+
+| Field | Value |
+|-------|-------|
+| Workflow | W3 |
+| Primary actor | Student |
+| Linked FR | FR-W3-02, FR-W3-03, FR-W3-07 |
+| Preconditions | User is logged in; the events list is loaded or the user is applying filters in the page query string |
+| Postconditions (success) | The results list matches the combined criteria (search text, category, organization, date window) and the page preserves the filters in the URL |
+
+**Main flow**
+1. Student enters text in the search box or chooses filters for category, organization, from-date or to-date.
+2. Frontend calls `GET /api/v1/events` with the selected values.
+3. System validates the filters: dates must be in order, `category` must be one of the enum values, and paging parameters must be valid.
+4. System narrows the visible events to those that match the text search by title (case-insensitive) and the other filters.
+5. System returns the filtered results sorted by start time and updates the page with the matching cards.
+
+**Alternative / error flows**
+- 3a. Search text is blank: the query is treated as an unconstrained search and all valid visible events remain eligible.
+- 3b. The category is not one of the allowed event categories: the backend rejects the request with 400 `INVALID_PARAMETER`.
+- 3c. `from` is after `to`: the backend rejects the request with 400 `INVALID_PARAMETER` before running the search.
+- 3d. The user filters to an organization with no visible results: the system shows an empty state rather than a server failure.
+
+**Status:** planned
+
+### UC-32: View event details
+
+| Field | Value |
+|-------|-------|
+| Workflow | W3 |
+| Primary actor | Student |
+| Linked FR | FR-W2-04, FR-W3-04, FR-W3-05, FR-W3-08 |
+| Preconditions | User is logged in; the event exists; the user is allowed to see its status and details |
+| Postconditions (success) | User sees the event details record and the key decision-making fields needed to decide whether to participate |
+
+**Main flow**
+1. Student opens an event from the list or navigates directly to its details route by id.
+2. System looks up the event and checks whether the user is allowed to see it.
+3. For a `DRAFT` event, only organizers of that event’s organization may open it; for everyone else the event behaves as if it does not exist and returns 404.
+4. For `PUBLISHED`, `REGISTRATION_CLOSED` and `ONGOING` events, any logged-in user can open the details page and see the event metadata plus confirmed registrations and free places.
+5. For `COMPLETED` and `CANCELLED` events, any logged-in user can open the event and see its status, but the event is not returned in the default search list.
+6. System displays the event’s title, organization, category, times, location, description, capacity, registration deadline, confirmed count, free places and current status.
+
+**Alternative / error flows**
+- 3a. Requested event id does not exist: `GET /api/v1/events/{id}` returns 404.
+- 3b. Caller is not an organizer and the event is `DRAFT`: the service hides the existence of the event and returns 404, even though the row exists in the database.
+- 3c. Event is not visible in list results but can still be opened as a completed/cancelled record: the details page may display the status while the search list filters it out.
+- 3d. The user is not logged in: the event route is protected by the authenticated-user requirement, so the request is rejected before the details page loads.
+
+**Status:** partial
 
 ---
 
