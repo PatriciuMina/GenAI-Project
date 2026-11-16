@@ -290,9 +290,11 @@ values in components.
 
 ## 10. Placeholder pages
 
-`My registrations`, `Organizing` and `Admin` still show "Coming soon". Event discovery and event
-details are implemented under `features/events` for W3; event creation and lifecycle are handled
-in the organizing feature. Each remaining placeholder has a `TODO(Wn)` comment naming its
-workflow. To find them all, run `grep -rn "TODO(W" frontend/src`.
+`My registrations` and `Admin` still show "Coming soon". The Organizing page lists events from
+organizations where the current user is an ORGANIZER or PRESIDENT, including drafts. Event
+discovery and event details are implemented under `features/events` for W3; event creation and
+lifecycle are handled in the organizing feature. Each remaining placeholder has a `TODO(Wn)`
+comment naming its workflow. To find them all, run `grep -rn "TODO(W" frontend/src`.
 
 W3 event discovery guide update, 2026-11-16 — Portik Márk-Krisztián.
+T-14 Organizing page guide update, 2026-11-16 — Portik Márk-Krisztián.
