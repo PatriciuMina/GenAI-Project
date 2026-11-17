@@ -81,22 +81,20 @@ documentation into its final form.
 
 ---
 
-## Jakab Gergo
+## Jakab Gergő
 
-**Ticket:** `docs: individual contribution – Jakab Gergo` · **Points:** 1
+**Ticket:** `docs: individual contribution – Jakab Gergő` · **Points:** 1
 
 | Field | Contribution |
 |-------|--------------|
-| Owned artifact(s) | |
-| Owned workflow | |
-| Implemented functionality | |
-| Documentation produced | |
-| Tests written | |
-| Architectural / design decisions contributed | |
-| GenAI-related work | |
-| Others | |
-
-> TODO (team): Jakab Gergo fills this section.
+| Owned artifact(s) | W2 lifecycle workflow documentation in `docs/midterm/05-workflows.md` §5.2 (PR #182); W1 workflow documentation in §5.1 (PR #180); use cases in `docs/midterm/04-use-cases.md` §§4.2, 4.4–4.8 and the overview diagram (PRs #167–#172, #178); permission matrix in `docs/midterm/03-actors-roles.md` (PR #165); palette and logo artifacts in `docs/design/palette.md`, `docs/design/logo.md`, `docs/assets/logo/`, and `frontend/` (PRs #159, #161). |
+| Owned workflow | **W2 Event creation and lifecycle — documentation ownership.** I owned documenting and checking the end-to-end workflow against the code. The flow in `docs/midterm/05-workflows.md` §5.2 (PR #182) traces organizer actions in the UI (`/organizing/events/new`, `/organizing/events/{id}/edit`, and status actions) through the create/update/status API requests to event rows in the database, including the lifecycle rules. |
+| Implemented functionality | Friendly business-error messages in `frontend/src/api/errorMessages.ts`, applied through `frontend/src/api/errors.ts` to forms and alerts; unknown error codes retain the backend message (PR #183). |
+| Documentation produced | `docs/midterm/03-actors-roles.md` permission matrix (#165); `docs/midterm/04-use-cases.md` use-case list, AUTH/ADM and W1–W5 cases, and overview diagram (#167–#172, #178); `docs/midterm/05-workflows.md` W1 and W2 (#180, #182); palette and logo guidance (`docs/design/palette.md`, `docs/design/logo.md`, #159, #161). |
+| Tests written | `frontend/src/api/errorMessages.test.ts` (16 business-code mappings and unknown-code fallback); updated friendly-message expectations in `CreateOrganizationForm.test.tsx`, `RegistrationButton.test.tsx`, and `MembersSection.test.tsx` (PR #183). |
+| Architectural / design decisions contributed | Retain primary indigo `#3949ab`, use status colors with text labels and documented WCAG AA contrast ratios (`docs/design/palette.md`, PR #159); use an original calendar/checkmark logo in the existing primary color (`docs/design/logo.md`, PR #161); document role boundaries in the permission matrix (#165) and manual W2 state transitions/date guards checked against `EventLifecycle` and `EventService` (`05-workflows.md` §5.2, #182). No ADR authored (`docs/architecture/ADR-*`). |
+| GenAI-related work | GenAI use and verification are recorded in `docs/genai/usage-log.md` rows (T-39/T-40 design proposals, actors/use-case/W1/W2 documentation, and friendly error messages); |
+| Others | GitHub's merged-PR search for `JakabGergo` returned 13 PRs: #159, #161, #165, #167–#172, #178, #180, #182, and #183. |
 
 ---
 
