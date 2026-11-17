@@ -35,24 +35,27 @@ usage log. Say briefly why that tool was chosen for that purpose.
 **Format**
 Table: `Tool / model | Used by | Purpose(s) | Why this tool`. One row per tool/model.
 
-Built from `docs/genai/usage-log.md` on `main` as of 2026-11-15 (35 rows, 4 distinct tool/model values, 4 people). Names are exactly as written in the log.
+Built from `docs/genai/usage-log.md` on `main` as of 2026-11-17 (93 rows, 8 distinct tool/model values, all 5 team members). Names are exactly as written in the log; rows for the same tool used by different people are kept separate.
 
 | Tool / model | Used by | Purpose(s) | Why this tool |
 |--------------|---------|------------|---------------|
-| Claude Code (Claude Opus 5.5) | Patriciu Mina | Project foundations, backend skeleton, data model, authentication and organization permissions, frontend scaffold, Docker and CI, mid-term documentation drafts, ticket planning and the script that creates the issues and board, review and merge rules | Works directly in the repository and is given the project rules in `CLAUDE.md` (for example, session `P10-team-rules.txt` starts by reading it) |
-| Claude Code (Claude Opus 5.5) | Andrei Gota | Onboarding (read-only), W1 and W2 backend endpoints (my memberships, organization members list, add and remove member, create organization, create event) and the Admin page for creating an organization | Same workflow as above; the reason for choosing it is not recorded in the log (to be added by Andrei Gota) |
-| Claude Code (Claude Sonnet 5.5) | Vlad-Ștefan Uleia | W4 and W5 backend endpoints (participant list, register with capacity limit, my registrations, announcements, organizer tasks) and sections of the mid-term requirements document | Same Claude Code workflow in the repository; the reason for choosing this model is not recorded in the log (to be added by Vlad-Ștefan Uleia) |
-| Codex (GPT-6) | Portik Márk-Krisztián | Frontend features (Organizing menu by role, members list and add/remove members, create and edit event form), backend event editing with optimistic locking and the event details endpoint | The reason for choosing it is not recorded in the log (to be added by Portik Márk-Krisztián) |
-| Claude Opus 5.5 (claude.ai chat) | Patriciu Mina | One small task: a summary of the course project statement and mid-term deliverables (`docs/course/course-requirements.md`) | A chat tool used for a one-off summary of a document; the reason is not recorded in the log |
+| Claude Code (Claude Opus 5.5) | Patriciu Mina | Project foundations, backend skeleton, data model, authentication and organization permissions, frontend scaffold, Docker and CI, mid-term documentation drafts, ticket planning and the issue/board script, review and merge rules; later the status analysis and finish plan, the state machine review (T-49), the registration rules test (T-36), workflows W3–W5 (T-85–T-87), the status update of the requirements (T-100) and this update of the report (T-101) | Works directly in the repository and is given the project rules in `CLAUDE.md` (for example, session `P10-team-rules.txt` starts by reading it) |
+| Claude Code (Claude Opus 5.5) | Andrei Gota | Onboarding (read-only), W1 and W2 backend endpoints (my memberships, members list, add and remove member, create organization, create event), the Admin page and the Register / Cancel button (T-24) | Same workflow as above; the reason for choosing it is not recorded in the log (to be added by Andrei Gota) |
+| Claude Code (Claude Sonnet 5.5) | Vlad-Ștefan Uleia | W4 and W5 backend (participant list, register with capacity limit, my registrations, announcements, tasks, task changes, check-in), the concurrency test, the event details page and its announcements, and most mid-term document sections (problem statement, scope, requirements, actors, sequence diagrams, ER review, sections 7.1–7.4 of this report) | Same Claude Code workflow in the repository; the reason for choosing this model is not recorded in the log (to be added by Vlad-Ștefan Uleia) |
+| GitHub Copilot | Vlad-Ștefan Uleia (logged as "Vlad") | Review of the interview guide | The reason is not recorded in the log |
+| Codex (GPT-6) | Portik Márk-Krisztián | Most W2/W3 features and W5 screens: Organizing menu, members UI, edit event, status transitions, event details, search, an organization's events, event form, events list, organizer pages, tasks / participants / announcements panels; transition matrix and permission matrix tests; the three sets of wireframes | The reason for choosing it is not recorded in the log (to be added by Portik Márk-Krisztián) |
+| GitHub Copilot (model not specified) | Jakab Gergő | Actors section, use case list, AUTH/ADM use cases, workflows W1 and W2, friendly error messages in the frontend (T-45) | Used inside VS Code (log row "Actors and roles"); the reason is not otherwise recorded |
+| GitHub Copilot (MAI-Code-1.1-Flash) | Jakab Gergő | Cleaning the use case file and writing the W1, W4 and W5 use cases | Same tool with an explicitly chosen model; the reason is not recorded |
+| ChatGPT (GPT-6) | Jakab Gergő | Colour palette with WCAG contrast check (T-40), logo (T-39), use case overview diagram | A chat tool for design proposals outside the repository; the reason is not recorded |
+| Claude Opus 5.5 (claude.ai chat) | Patriciu Mina | One small task: a summary of the course project statement (`docs/course/course-requirements.md`) | A chat tool used for a one-off summary of a document |
 
 **Done when**
-- [ ] Every distinct Tool/Model value in `usage-log.md` appears.
-- [ ] Every team member who used GenAI is listed.
+- [x] Every distinct Tool/Model value in `usage-log.md` appears.
+- [x] Every team member who used GenAI is listed.
 
 **Open items for the team**
-- The log has entries from four people. If the fifth team member used GenAI, their uses must first be added to `docs/genai/usage-log.md` (CONTRIBUTING §6) and then listed here; if they did not, say so in this section.
-- The "Why this tool" cell is filled only where the repository shows a reason. The people named above should add their own reasons.
-- Update this table before submission: new log rows may add people, tools or purposes.
+- The "Why this tool" cell is filled only where the repository shows a reason. Andrei Gota, Vlad-Ștefan Uleia, Portik Márk-Krisztián and Jakab Gergő should add their own reasons.
+- Update this table before submission if new log rows add people, tools or purposes.
 
 ---
 
@@ -73,7 +76,7 @@ one function" are both fine, but must be distinguished.
 **Format**
 Table: `Area | Artifact (file/package) | Generated / modified / assisted | Usage-log row (date + purpose) | Session file`. 8–20 rows.
 
-Built from the "What was generated" and "Human changes" columns of `docs/genai/usage-log.md` on `main` as of 2026-11-15 (35 rows). In every row below the AI produced the artifact. The log records a person's review for all rows except T-02 (Portik Márk-Krisztián), whose "Human changes" cell still says "Pending human review"; where the log records a human change to the result, it is listed in section 7.4. "Generated" means the AI wrote it from the person's prompt; "modified" means the AI changed an existing file. The log does not say how many lines a person edited by hand, so this table does not claim a percentage. Only the sessions of the first rows were saved in `docs/genai/sessions/`; later work has no saved transcript.
+Built from the "What was generated" and "Human changes" columns of `docs/genai/usage-log.md` on `main`: the first 35 rows as of 2026-11-15, extended on 2026-11-17 to all 93 rows (last block of the table). In every row below the AI produced the artifact. The log records a person's review for all rows except T-02 (Portik Márk-Krisztián), whose "Human changes" cell still says "Pending human review"; where the log records a human change to the result, it is listed in section 7.4. "Generated" means the AI wrote it from the person's prompt; "modified" means the AI changed an existing file. The log does not say how many lines a person edited by hand, so this table does not claim a percentage. Only the sessions of the first rows were saved in `docs/genai/sessions/`; later work has no saved transcript.
 
 | Area | Artifact | Generated / modified / assisted | Usage-log row (date, purpose) | Session |
 |------|----------|---------------------------------|-------------------------------|---------|
@@ -97,14 +100,28 @@ Built from the "What was generated" and "Human changes" columns of `docs/genai/u
 | Backend (W5) | Announcements (list and post) and organizer tasks (list and create), with their tests | Generated | 2026-11-15, T-30, T-26 (Vlad-Ștefan Uleia) | none saved |
 | Documentation | Mid-term requirements sections `FR-AUTH` and `FR-ADM` (2.2), `FR-W1` (2.3) and `FR-W4` (2.6) in `docs/midterm/02-requirements.md` | Generated (tables), checked against the code by a person | 2026-11-15, T-67, T-68 and T-71 (Vlad-Ștefan Uleia) | none saved |
 | (no files) | Onboarding summary shown in the chat; nothing in the repository changed except the log row | Assisted | 2026-11-10, onboarding, read-only (Andrei Gota) | none saved |
+| Documentation | Mid-term sections 1.1–1.4 (problem statement, stakeholders, scope, out of scope), 2.1 (R1–R16 map), 2.4, 2.5, 2.7, 2.8 (FR-W2, FR-W3, FR-W5, NFR), 3.1 (actors), sections 7.1–7.4 of this report | Generated, checked against the code and transcripts; for 1.1 the person supplied the facts | 2026-11-15, T-62–T-66, T-69, T-70, T-72–T-74, T-90–T-93 (Vlad-Ștefan Uleia) | none saved |
+| Documentation | Interview guide review (questions tagged and mapped to assumptions A-01–A-13) | Assisted | 2026-11-14, interview guide review (Vlad-Ștefan Uleia, GitHub Copilot) | none saved |
+| Documentation | W2 and W4 sequence diagrams; ER diagram compared with the migration and entities (no difference found) | Generated / checked by a script | 2026-11-15, T-47, T-48, T-50 (Vlad-Ștefan Uleia) | none saved |
+| Backend (W4, W5) | Change a task's status and assignee, check-in endpoint, concurrency test of the capacity limit | Generated | 2026-11-15/16, T-27, T-29, T-35 (Vlad-Ștefan Uleia) | none saved |
+| Frontend (W3, W5) | Event details page, announcements on the event details page | Generated | 2026-11-15, T-20, T-34 (Vlad-Ștefan Uleia) | none saved |
+| Backend (W2, W3) | Event status transitions (`EventLifecycle`, `POST /events/{id}/status`), paged event search, an organization's events | Generated after the person approved the plan | 2026-11-16, T-12, T-16, T-17 (Portik Márk-Krisztián) | none saved |
+| Frontend (W3, W5) | Events list with filters, Organizing page, organizer event page with status actions, tasks / participants and check-in / announcements panels | Generated after the person approved the plan | 2026-11-16, T-19, T-14, T-15, T-31, T-32, T-33 (Portik Márk-Krisztián) | none saved |
+| Tests | Event status transition matrix, permission matrix integration tests | Generated | 2026-11-16, T-37, T-38 (Portik Márk-Krisztián) | none saved |
+| Design | Student, organizer, organization and admin wireframes (SVG + `docs/design/wireframes.md`) | Generated | 2026-11-16, T-41, T-42, T-43 (Portik Márk-Krisztián) | none saved |
+| Design | Colour palette (`theme.ts`, `docs/design/palette.md`) and logo (`docs/design/logo.md`, SVG) | Assisted: proposals from a chat tool, applied and adapted by the person | 2026-11-16, T-40, T-39 (Jakab Gergő, ChatGPT) | none saved |
+| Documentation | Actors (3.1), use case list (4.2), use case diagram (4.3), all use cases (4.4–4.8), workflows W1 and W2 (5.1, 5.2) | Generated, reviewed by the person | 2026-11-16/17 (Jakab Gergő, GitHub Copilot and ChatGPT) | none saved |
+| Frontend | Friendly messages for backend error codes (`api/errorMessages.ts`) | Generated | 2026-11-17, T-45 (Jakab Gergő) | none saved |
+| Frontend (W4) | Register / Cancel button on the event details page | Generated | 2026-11-17, T-24 (Andrei Gota) | none saved |
+| Planning, documentation, tests | Finish plan (`docs/planning/midterm-finish-plan.md`), state machine review (5.2, `data-model.md`), `RegistrationRulesTest`, workflows W3–W5 (5.3–5.5), status update of 02–04, this update of section 7 | Generated, checked against the code; human decisions in 7.4 | 2026-11-17, plan, T-49, T-36, T-85, T-86, T-87, T-100, T-101 (Patriciu Mina) | none saved |
 
 **Done when**
-- [ ] Every usage-log row is represented by at least one artifact.
-- [ ] Each artifact links to its usage-log row and, where it exists, a session file.
+- [x] Every usage-log row is represented by at least one artifact.
+- [x] Each artifact links to its usage-log row and, where it exists, a session file.
 
 **Open items for the team**
 - The log row for T-02 (Portik Márk-Krisztián) still says "Pending human review"; the person concerned should complete it.
-- The table must be extended when new rows are added to the log (the requirements sections and report sections written after 2026-11-15 are not in it).
+- The table must be extended when new rows are added to the log.
 - If the course expects a share of AI output versus human work for each artifact, the people concerned have to add it: the log records generation, review and changes, not line counts.
 - Save session transcripts of the later work in `docs/genai/sessions/` if they should be cited as evidence.
 
@@ -137,15 +154,21 @@ Short prose (100–200 words) for the process, then a table:
 | Dockerized stack (Dockerfiles, Compose, CI), Patriciu Mina | `docker compose up --build --wait`; login, organizations, health and Swagger checked through ports 3000 and 8080; `down` and `up` again | **Found a problem:** the first image build had a corrupted dependency jar (checksum different from Maven Central), which failed at start-up with `ClassFormatError`. Fixed by rebuilding without cache and adding `--strict-checksums` to the Dockerfile; afterwards all three services were healthy | Usage log 2026-11-07, Dockerized full stack; `P6-docker-ci.txt` |
 | "My memberships" endpoint (T-01), Andrei Gota | `./mvnw verify` (53 tests, 6 new); calls with seed accounts (a president, an organizer, a user with none, no token); the path checked in `/v3/api-docs`; then the person logged in as the president in the browser | Passed; the browser showed the same membership as the API | Usage log 2026-11-10, T-01 |
 | Event create and edit form (T-13), Portik Márk-Krisztián | Backend `./mvnw verify` (149 tests); frontend lint, 33 tests and build; rebuilt Docker Compose; browser flow as an organizer: empty form, create, edit (the log says this full verification and browser flow were performed by Codex, and the person approved the plan and the merge) | Passed: required-field errors shown, create returned 201 with status DRAFT, local time sent as UTC, edit returned 200 and the version went from 0 to 1 | Usage log 2026-11-14, T-13 |
+| Capacity limit under concurrent registrations (T-35), Vlad-Ștefan Uleia | Ran the concurrency test 5 times; then removed the row lock on purpose to see whether the test notices | The test passed 5 of 5 times; without the lock both scenarios failed with overbooking (10 of 10 students registered for 1 place), so the test really guards the rule; the lock was restored | Usage log 2026-11-15, T-35 |
+| Organizer event page with status actions (T-15), Portik Márk-Krisztián | Lint, 63 tests, build; manual browser check as an organizer on `/organizing/events/11` | **Found a problem:** after the manual check the person asked for the error layout of the status actions to be changed, then checked and approved the corrected layout; a test case for the error placement was added | Usage log 2026-11-16, T-15 |
+| ER diagram review (T-50), Vlad-Ștefan Uleia | A script compared the migration, the diagram and the entities (7 tables, 51 columns, 10 foreign keys) | **Found a problem in the check itself:** the first run reported 22 differences that came from the script's own parsing of `VARCHAR(n)` and primary keys; after fixing the parser there was no difference | Usage log 2026-11-15, T-50 |
+| Workflow W1 (5.1), Jakab Gergő | Endpoints and roles checked against the code; GitHub preview of the Mermaid diagram | **Found a problem:** GitHub could not render the diagram (semicolons in labels); the person reported it and the labels were fixed | Usage log 2026-11-17, W1 workflow |
+| Registration rules test (T-36) and workflow W3 (5.3), Patriciu Mina | Run by Claude Code and reported in the PRs: `./mvnw verify` (411 tests); the deadline rule removed on purpose; every statement of 5.3 compared with the code | The removed rule made 2 of the new tests fail, so they guard it. **Found a problem:** the first draft of 5.3 named the wrong error code for an unknown category (`VALIDATION_FAILED` instead of `INVALID_PARAMETER`) and incomplete R codes; both were corrected before the PR | Usage log 2026-11-17, T-36, T-85; PR #186, #187 |
 | "My registrations" endpoint (T-23), Vlad-Ștefan Uleia | `./mvnw verify`; the endpoint called in Swagger with a seed student and with a user without registrations | **Found a problem:** one new integration test failed because Java time values carry nanoseconds while PostgreSQL stores microseconds. The cause was in the test, which was fixed by truncating to seconds like the existing event tests; afterwards all 214 tests passed and the endpoint returned the 5 seed registrations and an empty list | Usage log 2026-11-15, T-23 |
 
 **Done when**
-- [ ] The process covers automated (tests/CI) and manual checks.
-- [ ] At least 3 concrete examples with evidence links.
+- [x] The process covers automated (tests/CI) and manual checks.
+- [x] At least 3 concrete examples with evidence links.
 
 **Open items for the team**
 - Only the first rows have a saved session transcript; the others are evidenced by their usage-log row alone. Save the sessions or screenshots for the later examples under `docs/genai/sessions/` or `docs/genai/evidence/` if they should be cited as proof.
-- The "looked at by a teammate" step is a team rule; the usage log does not record who reviewed each pull request. Add the pull request numbers if the course expects that evidence.
+- The "looked at by a teammate" step is a team rule; the usage log does not record who reviewed each pull request. [`docs/genai/evidence/README.md`](../genai/evidence/README.md) lists pull requests where the oversight is visible.
+- Not every check in the log was done by a person: for some rows the AI tool ran the tests and the browser flow and the person approved the plan and the result (for example T-13, T-09). The log says so in each row.
 
 ---
 
@@ -167,7 +190,7 @@ effect (design, behaviour, security, scope), not wording fixes.
 **Format**
 Table: `# | AI proposal / default | Human decision | Reason | Effect on the result | Evidence`. 3–6 rows.
 
-All five examples below come from the saved sessions and the "Human changes" column of `docs/genai/usage-log.md`; the quoted proposals are taken from the transcripts.
+Examples 1–5 come from the saved sessions and the "Human changes" column of `docs/genai/usage-log.md`; the quoted proposals are taken from the transcripts. Examples 6 and 7 were added on 2026-11-17 from the log rows of other team members.
 
 | # | AI proposal / default | Human decision | Reason | Effect on the result | Evidence |
 |---|-----------------------|----------------|--------|----------------------|----------|
@@ -176,12 +199,36 @@ All five examples below come from the saved sessions and the "Human changes" col
 | 3 | Label `good-first-ticket` on the 1 to 2 point tickets. | The person found that about 75% of them were blocked by other tickets, and set a new rule: 1 to 2 points **and** no dependencies. | A ticket that waits for another is not one a newcomer can start right away. | The label was removed from 57 tickets and kept on 29 in the plan, in the creation script and on the existing issues. | Usage log 2026-11-07, fix the good-first-ticket rule; `P9-board-issues.txt` ("Problem found by the human") |
 | 4 | A long combined shell command that copied and read `.env` and used `rm`, to write the Docker files. | The person denied it and instructed: write each file with the normal file edit tool, never read, print, copy or back up `.env`, and do not delete anything the task did not create. | `.env` holds the real secrets, and a command that reads it or deletes files is not something to run unreviewed. | Claude wrote the files with the file tools and said it would not touch `.env`; the secrets stay in the git-ignored `.env`. | Usage log 2026-11-07, Dockerized full stack, CI, README, CONTRIBUTING, templates; `P6-docker-ci.txt` |
 | 5 | Thirteen pre-filled assumptions to validate in the interviews, including one about a 2-hour login without refresh. | Removed the 2-hour login assumption and added three about users: the interface is English only, only organizers and presidents create events, and students find events mainly through social media and word of mouth. | The login lifetime is too technical to ask users, while the added assumptions are about real user behaviour. | The assumptions list for the interviews in `06-ux-research.md` changed; interview results must come from real interviews. | Usage log 2026-11-07, mid-term documentation drafts; `P7-midterm-docs.txt` |
+| 6 | Organizer event page (T-15): the generated layout of the status actions and their error message. | After checking the page in the browser, the person asked for the error layout to be changed, then checked and approved the corrected layout. | The person was not satisfied with how the error appeared in the browser. | The layout was changed and a test case for the status action row and error placement was added before merge. | Usage log 2026-11-16, T-15 (Portik Márk-Krisztián) |
+| 7 | Problem statement (1.1): the AI first wrote the students' problems as assumptions, because the person's first answer was not a confirmation. | The person supplied the facts (answers to five questions and what they had learned from a conversation with someone); the text was rewritten to cite "a conversation with one person" as the source and to keep only what that supports. | No invented facts in the report; the source of every claim must be named. | Section 1.1 cites its source instead of presenting assumptions as facts. | Usage log 2026-11-15, T-62 (Vlad-Ștefan Uleia) |
 
 **Done when**
-- [ ] Each example states the AI proposal and the human decision separately.
-- [ ] Each example has evidence (usage-log row + session file or PR).
-- [ ] Examples come from more than one team member, if possible.
+- [x] Each example states the AI proposal and the human decision separately.
+- [x] Each example has evidence (usage-log row + session file or PR).
+- [x] Examples come from more than one team member, if possible.
 
 **Open items for the team**
-- All five examples are from Patriciu Mina's sessions, the only ones with saved transcripts. The log rows of Andrei Gota, Portik Márk-Krisztián and Vlad-Ștefan Uleia record a review and no change to the generated code, so they give no example of a decision that changed the AI output. If they made such decisions (rejected a proposal, changed the design, caught a bug), they should add them to the log, and then to this table, to meet the last "Done when" box.
+- Examples now come from three team members (Patriciu Mina, Portik Márk-Krisztián, Vlad-Ștefan Uleia). The log rows of Andrei Gota and Jakab Gergő record a review and no change to the generated result; if they made a decision that changed an AI result, they should add it to the log and to this table.
 - Example 2 describes the plan as the transcript shows it; confirm the wording with the person who made the decisions.
+
+---
+
+## 7.5 How the `no-genai` tickets were done
+
+The plan (`docs/planning/midterm-tickets.md`, decision D12 in `P8-ticket-plan.txt`) gave each
+member one ticket to write **without** GenAI, so that each person can explain one feature
+alone (NFR-12). The table is taken from the usage log and the pull requests on 2026-11-17.
+
+| Ticket | Owner | What the log / PR shows |
+|--------|-------|-------------------------|
+| T-06 members list | Portik Márk-Krisztián | Done with Codex (GPT-6), log row 2026-11-14 "T-06" |
+| T-17 an organization's events | Portik Márk-Krisztián | Done with Codex (GPT-6), log row 2026-11-16 "T-17 (#25)" |
+| T-22 cancel my registration (API) | Andrei Gota | No log row; PR #179 leaves "GenAI used?" unticked |
+| T-25 "My registrations" page | Patriciu Mina | Not done yet; to be written without GenAI |
+| T-29 check-in endpoint | Vlad-Ștefan Uleia | Done with Claude Code (Claude Sonnet 5.5); the log row itself notes the `no-genai` label |
+
+So three of the four finished `no-genai` tickets were done with GenAI and were declared in the
+log. The team has to decide how to handle this before submission (for example, each person
+explains the code in their individual statement, section 8, or another ticket becomes their
+`no-genai` work).
+
