@@ -150,13 +150,19 @@ then this diagram.
 
 **Format:** Mermaid `stateDiagram-v2`.
 
-> **Example – replace** (only the first transition shown):
->
-> ```mermaid
-> stateDiagram-v2
->     [*] --> DRAFT: organizer creates event
->     DRAFT --> PUBLISHED: organizer publishes
-> ```
+```mermaid
+stateDiagram-v2
+    [*] --> DRAFT: Organizer or president (manual: submits valid event, system sets DRAFT)
+    DRAFT --> PUBLISHED: Organizer or president (manual: Publish, startAt is in the future)
+    PUBLISHED --> REGISTRATION_CLOSED: Organizer or president (manual: Close registration)
+    PUBLISHED --> ONGOING: Organizer or president (manual: Start, at or after startAt minus 1 hour)
+    REGISTRATION_CLOSED --> ONGOING: Organizer or president (manual: Start, at or after startAt minus 1 hour)
+    ONGOING --> COMPLETED: Organizer or president (manual: Complete, at or after endAt)
+    DRAFT --> CANCELLED: Organizer or president (manual: Cancel)
+    PUBLISHED --> CANCELLED: Organizer or president (manual: Cancel)
+    REGISTRATION_CLOSED --> CANCELLED: Organizer or president (manual: Cancel)
+    ONGOING --> CANCELLED: Organizer or president (manual: Cancel)
+```
 
 **Done when**
 - [ ] W2 steps, diagram, business rules and traceability line are present.
@@ -165,7 +171,7 @@ then this diagram.
 
 ### Sequence diagram: create a draft, publish, rejected transition
 
-Creating a draft exists on `main` (`POST /api/v1/organizations/{orgId}/events`). Changing the status (`POST /api/v1/events/{id}/status`, ticket T-12) is **planned**: the diagram shows the agreed contract, including the rule that anything the lifecycle does not allow is answered with 409 `INVALID_STATUS_TRANSITION`.
+Creating a draft and changing its status are implemented on `main` (`POST /api/v1/organizations/{orgId}/events` and `POST /api/v1/events/{id}/status`). The diagram shows an allowed publish action and a rejected transition; lifecycle violations return 409 `INVALID_STATUS_TRANSITION`.
 
 ```mermaid
 sequenceDiagram
@@ -179,7 +185,7 @@ sequenceDiagram
     API->>DB: insert event with status DRAFT
     API-->>FE: 201 Created (event, status DRAFT)
     O->>FE: Press "Publish"
-    FE->>API: POST /api/v1/events/{id}/status (PUBLISHED), planned
+    FE->>API: POST /api/v1/events/{id}/status (PUBLISHED)
     API->>DB: read the event
     alt event is DRAFT and its start is in the future
         API->>DB: set status PUBLISHED
@@ -190,7 +196,25 @@ sequenceDiagram
     FE-->>O: Show the new status or the error message
 ```
 
-> TODO (team): W2 workflow and state machine here.
+1. **Implemented — open the organizer event list:** An `ORGANIZER` or `PRESIDENT` opens **Organizing** (`/organizing`) and selects an organization. The frontend loads its events with `GET /api/v1/organizations/{orgId}/events`; organizers see drafts as well as events in other statuses.
+2. **Implemented — create a draft:** From `/organizing/events/new`, the organizer submits the event form to `POST /api/v1/organizations/{orgId}/events`. The API requires a title, location, category, start and end times, and positive capacity; description and registration deadline are optional. The start must be in the future, the end after the start, and a supplied registration deadline no later than the start. The API creates the event as `DRAFT` and returns `201 Created`.
+3. **Implemented — view and edit:** The organizer opens `/organizing/events/{id}` and can edit from `/organizing/events/{id}/edit` using `PUT /api/v1/events/{id}`. Only `DRAFT` and `PUBLISHED` events are editable; the request includes the last-read version, applies the creation field rules, and cannot lower capacity below confirmed registrations. A stale version returns `409 CONCURRENT_UPDATE`.
+4. **Implemented — publish:** The organizer selects **Publish**, which sends `POST /api/v1/events/{id}/status` with `PUBLISHED`. Only `DRAFT → PUBLISHED` is allowed, and `startAt` must still be in the future. A successful request returns the event with status `PUBLISHED`.
+5. **Implemented — close registration:** The organizer selects **Close registration** to change `PUBLISHED → REGISTRATION_CLOSED` through the same status endpoint. This transition has no additional date check.
+6. **Implemented — start:** The organizer selects **Start** to change either `PUBLISHED` or `REGISTRATION_CLOSED` to `ONGOING`. The request is accepted only from one hour before `startAt` onward.
+7. **Implemented — complete:** Once `endAt` has passed, the organizer selects **Complete** to change `ONGOING → COMPLETED`. The service rejects completion before the end time.
+8. **Implemented — cancel:** The organizer can select **Cancel** from `DRAFT`, `PUBLISHED`, `REGISTRATION_CLOSED`, or `ONGOING`; the service changes the status to `CANCELLED`. It does not delete the event or change/delete its registration records; registrations remain as history and the event is shown as cancelled.
+9. **Implemented — handle rejected actions:** Every status request checks that the caller is an `ORGANIZER` or `PRESIDENT` of the event's organization. A caller without that role receives `403 FORBIDDEN`; an unknown event returns 404; a disallowed transition or unmet lifecycle date condition returns `409 INVALID_STATUS_TRANSITION`. The frontend displays the result or error on the organizer event page.
+
+**Business rules**
+- An event is created only by an `ORGANIZER` or `PRESIDENT` of its organization and always starts as `DRAFT`; a global `ADMIN` has no event-management rights unless they also have an organizer role in that organization. (`EventController`, `EventService`, `OrgPermissionService`; FR-W2-01)
+- Required fields are title (max 200 characters), location (max 255), category, `startAt`, `endAt`, and positive capacity. `startAt` must be future; `endAt > startAt`; optional `registrationDeadline <= startAt`. Description and registration deadline may be null. Invalid values return 400 `VALIDATION_FAILED`. (FR-W2-02; `EventRequest`, `EventDatesValidator`, D3, events constraints)
+- Only `DRAFT` and `PUBLISHED` events can be edited. Updates carry the last-read version (D11), and capacity cannot be reduced below confirmed registrations. (FR-W2-03; `EventService.update`, D11)
+- A draft is visible only to organizers of its organization; other authenticated users receive 404 when requesting it. Publishing makes it visible beyond the organizing team. (FR-W2-04; `EventService.getById`)
+- The allowed transitions are `DRAFT → PUBLISHED`, `PUBLISHED → REGISTRATION_CLOSED`, `PUBLISHED → ONGOING`, `REGISTRATION_CLOSED → ONGOING`, `ONGOING → COMPLETED`, and `DRAFT | PUBLISHED | REGISTRATION_CLOSED | ONGOING → CANCELLED`. Publishing requires a future start; starting is allowed from one hour before the start; completing requires the end time to have passed. Every transition is manual—an organizer invokes the status action; no scheduler advances statuses. Any other transition, including a same-status request or a transition out of `COMPLETED` or `CANCELLED`, returns 409 `INVALID_STATUS_TRANSITION`. (FR-W2-05–10; `EventLifecycle`, `EventService.changeStatus`, data-model service rule 4)
+- Cancellation retains the event row and leaves all registration records and their statuses unchanged. Events with registrations must not be hard-deleted, preserving registration history. (`EventService.changeStatus`; FR-W2-09; D4, `fk_registrations_event`)
+
+`R: R1, R4 · FR: FR-W2-01, FR-W2-02, FR-W2-03, FR-W2-04, FR-W2-05, FR-W2-06, FR-W2-07, FR-W2-08, FR-W2-09, FR-W2-10 · UC: UC-20, UC-21, UC-22, UC-23, UC-24 · Code: event, organization, registration, frontend organizing · Tests: EventControllerIntegrationTest, EventLifecycleTest, EventRequestValidationTest`
 
 ---
 
