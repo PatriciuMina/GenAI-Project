@@ -1,8 +1,8 @@
 # Mid-term deliverable
 
-This folder holds the mid-term documentation. The files are **drafts with instructions**:
-each section says what to write, where to find the information, which format to use, and
-when the section is done. The team writes the content.
+This folder holds the mid-term documentation of the UBB student event management system:
+one file per part of the deliverable (A–E), linked by IDs so that requirements, use cases,
+workflows, research findings, code and tests can be traced to each other.
 
 Course source: [`docs/course/course-requirements.md`](../course/course-requirements.md)
 (R1–R16 and the A–E mid-term parts).
@@ -36,28 +36,10 @@ Course source: [`docs/course/course-requirements.md`](../course/course-requireme
 Always link by ID (e.g. a use case lists `FR-W4-01`, a requirement lists `R3`). This
 gives the traceability required by R15.
 
-## How to work on a section
+## Status
 
-Every section with a **Done when** checklist is meant to be one ticket.
-
-1. **Pick the ticket** on the project board (or open one with the *Documentation*
-   template, `.github/ISSUE_TEMPLATE/docs.yml`). Use the suggested ticket title and points
-   from the section. Move it to *In progress* and assign yourself.
-2. **Create a branch**: `feature/<issue-number>-short-name` (see
-   [`CONTRIBUTING.md`](../../CONTRIBUTING.md) §2).
-3. **Write in the file.** Replace the `> TODO (team):` marker and the
-   `> **Example – replace:**` block with real content. Keep the heading. Delete the
-   "What to write / Where to find / Format" instructions only when the whole file is final
-   (the team decides that before submission).
-4. **Use GenAI if you want**, but record it in [`docs/genai/usage-log.md`](../genai/usage-log.md)
-   (CONTRIBUTING §6) and check every fact against the repo.
-5. **Open a PR** (`docs: ...` commit messages) and link the issue.
-6. **The reviewer** ticks the section's *Done when* boxes in the PR review. If one box is
-   not met, request changes. Merge only when all boxes are ticked.
-
-### Rules for all sections
-- Do not invent facts. If something is not decided yet, write it as *planned* or as an
-  open question.
-- Interview results come only from real interviews (see `06-ux-research.md`).
-- Check the "Status" of requirements against the code on `main`, not against plans.
-- Mermaid diagrams must render in the GitHub preview before you open the PR.
+Sections 01–07 are final and were checked against `main` on 2026-11-17 (statuses of
+requirements and use cases, workflows W1–W5, user research from interviews I-01 to I-04).
+Section 08 is filled by each student for their own part; its instructions stay in the file
+until all five statements are written. New interviews go into `interviews/` and the
+interview log (6.3), and the findings (6.4) are updated from them.

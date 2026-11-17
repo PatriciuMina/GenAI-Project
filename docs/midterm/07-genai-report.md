@@ -5,35 +5,9 @@ Part **D** of the mid-term deliverable. Index: [README](README.md).
 Course link: R13 (GenAI-assisted development) and R14 (human oversight), see
 `docs/course/course-requirements.md`.
 
-**Build this report from the evidence, not from memory:**
-- [`docs/genai/usage-log.md`](../genai/usage-log.md): one row per GenAI task (tool/model,
-  purpose, prompt summary, what was generated, how verified, human changes). This is the
-  main source; every claim below should point to a row in it.
-- [`docs/genai/sessions/`](../genai/sessions/): full session transcripts (`P1-foundations.txt`
-  … `P6-docker-ci.txt`, plus later ones). Use them for concrete examples and quotes.
-- [`docs/genai/evidence/`](../genai/evidence/): screenshots and other proof (add files here
-  when you cite something that is not in a transcript).
-- Git history (`git log`, merged PRs) to confirm which files a task touched.
-
-If a teammate used GenAI but did not log it, add the row to `usage-log.md` first, then cite it.
-
 ---
 
 ## 7.1 Tools and models used
-
-**Ticket:** `docs: GenAI tools and purposes` · **Points:** 1
-
-**What to write**
-List every GenAI tool and model the team used (including chat tools used for small tasks)
-and, for each, what it was used for and by whom. Use the exact tool/model names from the
-usage log. Say briefly why that tool was chosen for that purpose.
-
-**Where to find the information**
-- `docs/genai/usage-log.md` → "Tool/Model", "Person", "Purpose" columns
-- `CONTRIBUTING.md` §6 "Using GenAI tools" · `CLAUDE.md` (project context file given to the AI)
-
-**Format**
-Table: `Tool / model | Used by | Purpose(s) | Why this tool`. One row per tool/model.
 
 Built from `docs/genai/usage-log.md` on `main` as of 2026-11-17 (93 rows, 8 distinct tool/model values, all 5 team members). Names are exactly as written in the log; rows for the same tool used by different people are kept separate.
 
@@ -49,32 +23,9 @@ Built from `docs/genai/usage-log.md` on `main` as of 2026-11-17 (93 rows, 8 dist
 | ChatGPT (GPT-6) | Jakab Gergő | Colour palette with WCAG contrast check (T-40), logo (T-39), use case overview diagram | A chat tool for design proposals outside the repository; the reason is not recorded |
 | Claude Opus 5.5 (claude.ai chat) | Patriciu Mina | One small task: a summary of the course project statement (`docs/course/course-requirements.md`) | A chat tool used for a one-off summary of a document |
 
-**Done when**
-- [x] Every distinct Tool/Model value in `usage-log.md` appears.
-- [x] Every team member who used GenAI is listed.
-
-**Open items for the team**
-- The "Why this tool" cell is filled only where the repository shows a reason. Andrei Gota, Vlad-Ștefan Uleia, Portik Márk-Krisztián and Jakab Gergő should add their own reasons.
-- Update this table before submission if new log rows add people, tools or purposes.
-
 ---
 
 ## 7.2 Artifacts generated or modified with GenAI
-
-**Ticket:** `docs: GenAI artifacts list` · **Points:** 2
-
-**What to write**
-Which files or parts of the system were generated or changed with GenAI, and how much of
-each was AI output vs. human work. Group by area (docs, backend, database, frontend,
-infrastructure). Be honest: "fully generated, reviewed" and "human-written, AI suggested
-one function" are both fine, but must be distinguished.
-
-**Where to find the information**
-- `docs/genai/usage-log.md` → "What was generated" column
-- `git log --stat` / PR descriptions for the exact files
-
-**Format**
-Table: `Area | Artifact (file/package) | Generated / modified / assisted | Usage-log row (date + purpose) | Session file`. 8–20 rows.
 
 Built from the "What was generated" and "Human changes" columns of `docs/genai/usage-log.md` on `main`: the first 35 rows as of 2026-11-15, extended on 2026-11-17 to all 93 rows (last block of the table). In every row below the AI produced the artifact. The log records a person's review for all rows except T-02 (Portik Márk-Krisztián), whose "Human changes" cell still says "Pending human review"; where the log records a human change to the result, it is listed in section 7.4. "Generated" means the AI wrote it from the person's prompt; "modified" means the AI changed an existing file. The log does not say how many lines a person edited by hand, so this table does not claim a percentage. Only the sessions of the first rows were saved in `docs/genai/sessions/`; later work has no saved transcript.
 
@@ -115,36 +66,9 @@ Built from the "What was generated" and "Human changes" columns of `docs/genai/u
 | Frontend (W4) | Register / Cancel button on the event details page | Generated | 2026-11-17, T-24 (Andrei Gota) | none saved |
 | Planning, documentation, tests | Finish plan (`docs/planning/midterm-finish-plan.md`), state machine review (5.2, `data-model.md`), `RegistrationRulesTest`, workflows W3–W5 (5.3–5.5), status update of 02–04, this update of section 7 | Generated, checked against the code; human decisions in 7.4 | 2026-11-17, plan, T-49, T-36, T-85, T-86, T-87, T-100, T-101 (Patriciu Mina) | none saved |
 
-**Done when**
-- [x] Every usage-log row is represented by at least one artifact.
-- [x] Each artifact links to its usage-log row and, where it exists, a session file.
-
-**Open items for the team**
-- The log row for T-02 (Portik Márk-Krisztián) still says "Pending human review"; the person concerned should complete it.
-- The table must be extended when new rows are added to the log.
-- If the course expects a share of AI output versus human work for each artifact, the people concerned have to add it: the log records generation, review and changes, not line counts.
-- Save session transcripts of the later work in `docs/genai/sessions/` if they should be cited as evidence.
-
 ---
 
 ## 7.3 How we verified AI-generated code and documentation
-
-**Ticket:** `docs: GenAI verification process` · **Points:** 2
-
-**What to write**
-Describe the general verification process (planning first and answering open decisions,
-reviewing diffs, running tests and CI, manual checks in Swagger/UI/psql, PR review by a
-teammate), then give 3–5 concrete examples with the actual check and its result. Mention
-cases where verification found a problem.
-
-**Where to find the information**
-- `docs/genai/usage-log.md` → "How it was verified" column
-- `.github/workflows/ci.yml`, `CONTRIBUTING.md` §4 Definition of Done and §6
-- `docs/genai/sessions/*` (look for test runs and corrections)
-
-**Format**
-Short prose (100–200 words) for the process, then a table:
-`Artifact | Verification done | Result | Evidence`.
 
 **The process.** In the saved sessions, work starts in plan mode: the AI proposes a plan and lists the open decisions, and a person answers them before any code is written (the decisions are recorded in the usage log and in the sessions). After the AI has written the change, the person reads the diff, then checks it in two ways. Automated: backend `./mvnw verify` (unit tests with Mockito and integration tests against PostgreSQL 16 in Testcontainers) and frontend `npm run lint`, `npm test` and `npm run build`; the same checks run in CI on every pull request (`.github/workflows/ci.yml`). Manual: the person calls the endpoints in Swagger UI or with curl, uses the application in the browser, and looks at the database with psql or runs `docker compose up --build`. Features are meant to be looked at by a teammate before merging (`CONTRIBUTING.md` §2 and §4), and the person records what they checked and changed in the "How it was verified" and "Human changes" columns of `docs/genai/usage-log.md`.
 
@@ -161,34 +85,9 @@ Short prose (100–200 words) for the process, then a table:
 | Registration rules test (T-36) and workflow W3 (5.3), Patriciu Mina | Run by Claude Code and reported in the PRs: `./mvnw verify` (411 tests); the deadline rule removed on purpose; every statement of 5.3 compared with the code | The removed rule made 2 of the new tests fail, so they guard it. **Found a problem:** the first draft of 5.3 named the wrong error code for an unknown category (`VALIDATION_FAILED` instead of `INVALID_PARAMETER`) and incomplete R codes; both were corrected before the PR | Usage log 2026-11-17, T-36, T-85; PR #186, #187 |
 | "My registrations" endpoint (T-23), Vlad-Ștefan Uleia | `./mvnw verify`; the endpoint called in Swagger with a seed student and with a user without registrations | **Found a problem:** one new integration test failed because Java time values carry nanoseconds while PostgreSQL stores microseconds. The cause was in the test, which was fixed by truncating to seconds like the existing event tests; afterwards all 214 tests passed and the endpoint returned the 5 seed registrations and an empty list | Usage log 2026-11-15, T-23 |
 
-**Done when**
-- [x] The process covers automated (tests/CI) and manual checks.
-- [x] At least 3 concrete examples with evidence links.
-
-**Open items for the team**
-- Only the first rows have a saved session transcript; the others are evidenced by their usage-log row alone. Save the sessions or screenshots for the later examples under `docs/genai/sessions/` or `docs/genai/evidence/` if they should be cited as proof.
-- The "looked at by a teammate" step is a team rule; the usage log does not record who reviewed each pull request. [`docs/genai/evidence/README.md`](../genai/evidence/README.md) lists pull requests where the oversight is visible.
-- Not every check in the log was done by a person: for some rows the AI tool ran the tests and the browser flow and the person approved the plan and the result (for example T-13, T-09). The log says so in each row.
-
 ---
 
 ## 7.4 Human decisions that materially changed the AI output
-
-**Ticket:** `docs: GenAI human decisions` · **Points:** 2
-
-**What to write**
-The most important part for R14. Give 3–6 examples where a human decision changed,
-corrected or rejected what the AI proposed or would have done: what the AI proposed,
-what the human decided, why, and what changed in the result. Only cases with a material
-effect (design, behaviour, security, scope), not wording fixes.
-
-**Where to find the information**
-- `docs/genai/usage-log.md` → "Human changes" column
-- `docs/genai/sessions/*` (open-decision tables and the human's answers, e.g. D1–D12 in P3, auth decisions in P4)
-- `docs/data-model.md` → "Design decisions" · `docs/architecture/ADR-003…` → "Implementation notes"
-
-**Format**
-Table: `# | AI proposal / default | Human decision | Reason | Effect on the result | Evidence`. 3–6 rows.
 
 Examples 1–5 come from the saved sessions and the "Human changes" column of `docs/genai/usage-log.md`; the quoted proposals are taken from the transcripts. Examples 6 and 7 were added on 2026-11-17 from the log rows of other team members.
 
@@ -201,15 +100,6 @@ Examples 1–5 come from the saved sessions and the "Human changes" column of `d
 | 5 | Thirteen pre-filled assumptions to validate in the interviews, including one about a 2-hour login without refresh. | Removed the 2-hour login assumption and added three about users: the interface is English only, only organizers and presidents create events, and students find events mainly through social media and word of mouth. | The login lifetime is too technical to ask users, while the added assumptions are about real user behaviour. | The assumptions list for the interviews in `06-ux-research.md` changed; interview results must come from real interviews. | Usage log 2026-11-07, mid-term documentation drafts; `P7-midterm-docs.txt` |
 | 6 | Organizer event page (T-15): the generated layout of the status actions and their error message. | After checking the page in the browser, the person asked for the error layout to be changed, then checked and approved the corrected layout. | The person was not satisfied with how the error appeared in the browser. | The layout was changed and a test case for the status action row and error placement was added before merge. | Usage log 2026-11-16, T-15 (Portik Márk-Krisztián) |
 | 7 | Problem statement (1.1): the AI first wrote the students' problems as assumptions, because the person's first answer was not a confirmation. | The person supplied the facts (answers to five questions and what they had learned from a conversation with someone); the text was rewritten to cite "a conversation with one person" as the source and to keep only what that supports. | No invented facts in the report; the source of every claim must be named. | Section 1.1 cites its source instead of presenting assumptions as facts. | Usage log 2026-11-15, T-62 (Vlad-Ștefan Uleia) |
-
-**Done when**
-- [x] Each example states the AI proposal and the human decision separately.
-- [x] Each example has evidence (usage-log row + session file or PR).
-- [x] Examples come from more than one team member, if possible.
-
-**Open items for the team**
-- Examples now come from three team members (Patriciu Mina, Portik Márk-Krisztián, Vlad-Ștefan Uleia). The log rows of Andrei Gota and Jakab Gergő record a review and no change to the generated result; if they made a decision that changed an AI result, they should add it to the log and to this table.
-- Example 2 describes the plan as the transcript shows it; confirm the wording with the person who made the decisions.
 
 ---
 
