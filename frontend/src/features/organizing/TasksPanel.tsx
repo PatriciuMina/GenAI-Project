@@ -1,7 +1,9 @@
-import { Alert, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { MenuItem, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import type { Event } from '../../api/types';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
+import { EmptyState } from '../../components/EmptyState';
 import { formatDateTime } from '../events/eventFormat';
 import { useCreateEventTask, useEventTasks, useTaskAssignees, useUpdateEventTask } from './queries';
 import { NewTaskForm } from './NewTaskForm';
@@ -33,7 +35,9 @@ export function TasksPanel({ event }: { event: Pick<Event, 'id' | 'organizationI
       {createTask.isError && <ErrorAlert error={createTask.error} />}
       {tasks.isPending && <LoadingState label="Loading tasks…" />}
       {tasks.isError && <ErrorAlert error={tasks.error} onRetry={() => void tasks.refetch()} />}
-      {tasks.data?.length === 0 && <Alert severity="info">No tasks yet</Alert>}
+      {tasks.data?.length === 0 && (
+        <EmptyState message="No tasks yet" icon={<AssignmentOutlinedIcon />} compact />
+      )}
       {tasks.data && tasks.data.length > 0 && (
         <Table aria-label="Event tasks">
           <TableHead><TableRow><TableCell>Title</TableCell><TableCell>Assignee</TableCell><TableCell>Due date</TableCell><TableCell>Status</TableCell></TableRow></TableHead>

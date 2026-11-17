@@ -13,9 +13,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import type { EventStatus, Participant } from '../../api/types';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
+import { EmptyState } from '../../components/EmptyState';
 import { useCheckInParticipant, useParticipants } from './registrationQueries';
 
 const CHECK_IN_UNAVAILABLE = 'Check-in is available after registration closes or when the event is ongoing.';
@@ -109,8 +111,17 @@ export function ParticipantsPanel({
             })}
             {filteredParticipants.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center">
-                  {participants.length === 0 ? 'No participants yet.' : 'No participants match your search.'}
+                <TableCell colSpan={5}>
+                  <EmptyState
+                    message={
+                      participants.length === 0
+                        ? 'No participants yet.'
+                        : 'No participants match your search.'
+                    }
+                    icon={<GroupOutlinedIcon />}
+                    compact
+                    plain
+                  />
                 </TableCell>
               </TableRow>
             )}

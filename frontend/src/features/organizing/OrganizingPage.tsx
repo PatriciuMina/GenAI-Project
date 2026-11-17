@@ -12,9 +12,11 @@ import {
   Typography,
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import type { Event, EventStatus } from '../../api/types';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
+import { EmptyState } from '../../components/EmptyState';
 import { paths } from '../../routes/paths';
 import { useMyMemberships } from '../organizations/queries';
 import { formatDateTime, statusLabel } from '../events/eventFormat';
@@ -59,9 +61,11 @@ export function OrganizingPage() {
         <ErrorAlert error={membershipsQuery.error} onRetry={() => void membershipsQuery.refetch()} />
       )}
       {membershipsQuery.data && organizerMemberships.length === 0 && (
-        <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
-          <Typography>You are not an organizer in any organization</Typography>
-        </Paper>
+        <EmptyState
+          message="You are not an organizer in any organization"
+          icon={<EventNoteIcon />}
+          action={{ label: 'Browse events', to: paths.events }}
+        />
       )}
       {organizerMemberships.length > 0 &&
         eventQueries.some((query) => query.isPending) && (
@@ -79,9 +83,7 @@ export function OrganizingPage() {
       )}
       {organizerMemberships.length > 0 && !eventQueries.some((query) => query.isPending) &&
         !hasEventError && events.length === 0 && (
-          <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
-            <Typography color="text.secondary">No events in your organizations yet.</Typography>
-          </Paper>
+          <EmptyState message="No events in your organizations yet." icon={<EventNoteIcon />} />
         )}
       {events.length > 0 && (
         <TableContainer component={Paper} variant="outlined">

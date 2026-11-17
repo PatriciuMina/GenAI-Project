@@ -1,5 +1,7 @@
 import { Paper, Stack, Typography } from '@mui/material';
+import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
 import { ErrorAlert } from '../../components/ErrorAlert';
+import { EmptyState } from '../../components/EmptyState';
 import { formatDateTime } from './eventFormat';
 import { useAnnouncements } from './queries';
 
@@ -21,7 +23,7 @@ export function EventAnnouncements({ eventId }: { eventId: number }) {
         Announcements
       </Typography>
       {data.length === 0 ? (
-        <Typography color="text.secondary">No announcements yet.</Typography>
+        <EmptyState message="No announcements yet." icon={<CampaignOutlinedIcon />} compact plain />
       ) : (
         <Stack component="ul" spacing={3} sx={{ listStyle: 'none', m: 0, p: 0 }}>
           {data.map((announcement) => (

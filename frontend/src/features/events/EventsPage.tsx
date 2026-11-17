@@ -1,7 +1,9 @@
-import { Grid, Pagination, Paper, Stack, Typography } from '@mui/material';
+import { Grid, Pagination, Stack, Typography } from '@mui/material';
 import { useSearchParams } from 'react-router';
+import SearchOffIcon from '@mui/icons-material/SearchOff';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
+import { EmptyState } from '../../components/EmptyState';
 import type { EventCategory } from '../../api/types';
 import { useOrganizations } from '../organizations/queries';
 import { EventCard } from './EventCard';
@@ -110,9 +112,15 @@ export function EventsPage() {
       {search.isError && <ErrorAlert error={search.error} onRetry={() => void search.refetch()} />}
 
       {search.data && search.data.content.length === 0 && (
-        <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
-          <Typography color="text.secondary">No events match your filters</Typography>
-        </Paper>
+        <EmptyState
+          message="No events match your filters"
+          icon={<SearchOffIcon />}
+          action={
+            searchParams.toString() === ''
+              ? undefined
+              : { label: 'Clear filters', onClick: () => setSearchParams(new URLSearchParams()) }
+          }
+        />
       )}
 
       {search.data && search.data.content.length > 0 && (

@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { Alert, Button, Chip, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
 import { parseApiError } from '../../api/errors';
 import type { OrganizationRole } from '../../api/types';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
+import { EmptyState } from '../../components/EmptyState';
 import { useAddMember, useMembers, useRemoveMember } from './queries';
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' });
@@ -88,7 +90,9 @@ export function MembersSection({ orgId, enabled, canManage }: MembersSectionProp
       )}
       {isPending && <LoadingState label="Loading members…" />}
       {isError && <ErrorAlert error={error} onRetry={() => void refetch()} />}
-      {members?.length === 0 && <Typography>No members yet</Typography>}
+      {members?.length === 0 && (
+        <EmptyState message="No members yet" icon={<GroupOutlinedIcon />} compact />
+      )}
       {members && members.length > 0 && (
         <Stack component="ul" spacing={1} sx={{ listStyle: 'none', m: 0, p: 0 }}>
           {members.map((member) => (
