@@ -7,34 +7,9 @@ Part **B.2** of the mid-term deliverable. Index: [README](README.md).
 - `partial`: some layers exist (e.g. entity/repository or read-only endpoint), not the whole requirement;
 - `planned`: nothing usable yet.
 
-Check status against the code on `main` on the day you write it, and update it before submission.
-
 ---
 
 ## 2.1 High-level requirements R1–R16 (course)
-
-**Ticket:** `docs: map course requirements R1–R16` · **Points:** 2
-
-**What to write**
-The list below is copied from `docs/course/course-requirements.md` (a team summary of the
-official project statement; do not reword it). Fill in the two extra columns: which of our
-FR/NFR IDs cover each course requirement, and its overall status. This table is the top of
-the traceability chain (R15): R → FR/NFR → UC → code → tests.
-
-**Where to find the information**
-- `docs/course/course-requirements.md` (source of the list)
-- Sections 2.2–2.8 below (FR/NFR IDs)
-- R7–R9: `docs/data-model.md`, `docs/architecture/ADR-001…005`, Swagger UI `/swagger-ui.html`
-- R11: `backend/src/test/java/...`, `frontend/src/**/*.test.tsx`, `.github/workflows/ci.yml`
-- R12: `docker-compose.yml`, `README.md` §2 · R13–R14: `docs/genai/` · R16: `08-individual-contributions.md`
-
-**Format**
-The table below; "Covered by" lists IDs separated by commas.
-
-**Done when**
-- [ ] Every R has at least one FR or NFR in "Covered by" (or a written reason why not).
-- [ ] Status filled for all 16 rows and checked against `main`.
-- [ ] Title and Summary columns unchanged from the course file.
 
 | ID | Title | Summary | Covered by | Status |
 |----|-------|---------|------------|--------|
@@ -57,49 +32,18 @@ The table below; "Covered by" lists IDs separated by commas.
 
 Status is the overall status of the course requirement, worked out from the status of the FR and NFR rows that cover it in sections 2.2 to 2.8: `implemented` only when all of them are, `partial` when some are implemented and others planned, `planned` when none is implemented. Checked against `main` on 2026-11-17.
 
-**Open items for the team**
-- R15 has no FR or NFR of its own; the row names the documents that carry the links, and its status changes when the use cases (`04-use-cases.md`) and workflows (`05-workflows.md`) are written.
-- R16 depends on `08-individual-contributions.md`, which each student has to write.
-
 ---
 
-## Functional requirements: how to write them (applies to 2.2–2.7)
+## Functional requirements: table format (2.2–2.7)
 
-- **ID:** `FR-<group>-NN` (`FR-AUTH-01`, `FR-W1-01`, …). Never reuse or renumber an ID; if a
-  requirement is dropped, mark it `dropped` in Notes.
-- **Wording:** "The system shall …" / "A <role> can …". One testable behaviour per row.
-  Include the business rule (limits, who may do it) in the same sentence.
-- **R:** the course requirement(s) it serves (e.g. `R3`).
-- **Status:** implemented / partial / planned (see top of file).
-- **Source:** where the rule comes from: interview (`I-02`), `data-model.md` rule, ADR, team decision.
-- Aim for **5–10 rows per workflow**. Use cases in `04-use-cases.md` will link to these IDs.
-
-**Common table format**
-
-| ID | Requirement | Actor(s) | R | Priority (MVP / later) | Status | Source |
-|----|-------------|----------|---|------------------------|--------|--------|
+Every functional requirement has an ID `FR-<group>-NN`, the actors it concerns, the course
+requirement it serves (R), a priority (MVP for the mid-term, later for the final delivery),
+its status on `main` and its source (code and tests, data model, ADR, ticket or interview).
+Use cases (`04-use-cases.md`) and workflows (`05-workflows.md`) link to these IDs.
 
 ---
 
 ## 2.2 Accounts and administration (FR-AUTH, FR-ADM)
-
-**Ticket:** `docs: FR for accounts and admin` · **Points:** 1
-
-**What to write**
-Requirements for registering, logging in, seeing your own profile, and what the platform
-admin can do (e.g. create organizations, assign presidents). Registration and login
-already exist; describe them as they behave today (who can register, which role a new
-account gets, what happens with a wrong password).
-
-**Where to find the information**
-- `backend/.../auth/controller/AuthController.java`, `auth/service/AuthService.java`, `auth/dto/RegisterRequest.java`
-- `backend/.../user/controller/UserController.java` (`GET /api/v1/users/me`)
-- `docs/architecture/ADR-003-jwt-auth-spring-security.md` → "Implementation notes"
-- `backend/src/test/java/ro/ubb/events/auth/*` (the tests show the exact rules)
-- `frontend/src/features/auth/`, `frontend/src/features/admin/AdminPage.tsx`
-
-**Format**
-Common table (above), 3–8 rows.
 
 Status checked against `main` on 2026-11-17.
 
@@ -118,10 +62,6 @@ Status checked against `main` on 2026-11-17.
 | FR-ADM-03 | An ADMIN can see the member list of any organization and add or remove its members, besides the organization's PRESIDENT (see FR-W1-04, FR-W1-05, FR-W1-06). | ADMIN | R2 | MVP | implemented | `OrganizationController` (`@PreAuthorize("hasRole('ADMIN') or ...")`), the organization integration tests |
 | FR-ADM-04 | A global ADMIN has no organizer or president rights by being ADMIN: creating or managing events and organizing work needs an ORGANIZER or PRESIDENT membership of that organization. | ADMIN | R2 | MVP | implemented | `OrgPermissionService`, `OrgPermissionPreAuthorizeIntegrationTest`, ADR-003 |
 
-**Done when**
-- [ ] Status of each row checked against the auth tests.
-- [ ] Admin rows agreed with the team (what an ADMIN may do is not fully decided yet).
-
 **Not in the MVP and not planned yet** (no source in the repository, so they are not requirements): password reset, email verification, editing your own profile or password, and listing or managing user accounts as an ADMIN.
 
 **Open questions for the team**
@@ -131,23 +71,6 @@ Status checked against `main` on 2026-11-17.
 ---
 
 ## 2.3 W1 Organizations and membership (FR-W1)
-
-**Ticket:** `docs: FR for W1 organizations` · **Points:** 2
-
-**What to write**
-Requirements for viewing organizations, creating/editing them, joining or being added as a
-member, changing roles (PRESIDENT / ORGANIZER / MEMBER) and leaving. State who may do each
-action. Listing and viewing organizations already exists (read-only).
-
-**Where to find the information**
-- `backend/.../organization/` (controller, service, `OrgPermissionService`, entities)
-- `docs/data-model.md` → `organization_memberships` constraints (one role per user per org)
-- `docs/dev-guide/how-to-add-a-feature.md` (organizations is the worked example)
-- `frontend/src/features/organizations/`
-- `03-actors-roles.md` (permission matrix)
-
-**Format**
-Common table, 5–10 rows.
 
 Status checked against `main` on 2026-11-17.
 
@@ -164,30 +87,9 @@ Status checked against `main` on 2026-11-17.
 | FR-W1-09 | A member can leave an organization. Open question: how the PRESIDENT leaves or is replaced, since a president cannot be removed today (FR-W1-06). | Member, Organizer | R2 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
 | FR-W1-10 | The PRESIDENT can edit the details of their organization (name, description, contact email). | President | R2 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
 
-**Done when**
-- [ ] Every row names who may perform the action.
-- [ ] Role changes and leaving an organization are covered.
-- [ ] Status checked against `main`.
-
 ---
 
 ## 2.4 W2 Event creation and lifecycle (FR-W2)
-
-**Ticket:** `docs: FR for W2 event lifecycle` · **Points:** 2
-
-**What to write**
-Requirements for creating, editing, publishing, closing registration, starting, completing
-and cancelling an event. Include the field rules (capacity > 0, end after start, optional
-deadline ≤ start), the allowed status transitions, and who may perform them. Mention that
-events with registrations are cancelled, never deleted.
-
-**Where to find the information**
-- `backend/.../event/entity/Event.java`, `EventStatus.java`, `EventCategory.java`
-- `docs/data-model.md` → `events` constraints, "Status lifecycle", "Rules enforced in the service layer" (rule 4), D3, D4, D11
-- `05-workflows.md` → W2 state machine
-
-**Format**
-Common table, 6–10 rows.
 
 Status checked against `main` on 2026-11-17. The whole W2 workflow is implemented: creating and editing events, hiding drafts, and every status transition (`POST /api/v1/events/{id}/status`, T-12) with the organizer's event overview and status buttons (T-14, T-15). "Organizer" means an ORGANIZER or PRESIDENT of the organization that owns the event; a global ADMIN has no organizer rights by being ADMIN. The lifecycle is `DRAFT → PUBLISHED → REGISTRATION_CLOSED → ONGOING → COMPLETED` (also `PUBLISHED → ONGOING` directly), and `CANCELLED` is reachable from every status except `COMPLETED` (transition table in `docs/data-model.md`, diagram in `05-workflows.md` §5.2).
 
@@ -204,35 +106,9 @@ Status checked against `main` on 2026-11-17. The whole W2 workflow is implemente
 | FR-W2-09 | An organizer can cancel an event in any status except COMPLETED (and CANCELLED). A cancelled event keeps its registrations as history and participants see its status. An event with registrations is never deleted, only cancelled. | Organizer | R4 | MVP | implemented | `EventService.changeStatus`, D4 and `fk_registrations_event` (`docs/data-model.md`), `EventControllerIntegrationTest` (T-12); `StatusActions` (T-15) |
 | FR-W2-10 | Every other status change, for example DRAFT → ONGOING, any change out of COMPLETED or CANCELLED, or back to DRAFT, is rejected with 409 `INVALID_STATUS_TRANSITION`. Status changes are made by an organizer pressing a button; no scheduler changes them automatically. | Organizer | R4 | MVP | implemented | `EventLifecycle`, `EventLifecycleTest` (full transition matrix, T-37), `PermissionMatrixIntegrationTest` (T-38) |
 
-**Done when**
-- [ ] Every status transition in `EventStatus` is covered by a requirement.
-- [ ] Field validation rules are listed.
-- [ ] Consistent with the W2 state machine in `05-workflows.md`.
-
-**Open items for the team**
-- `05-workflows.md` has not been written yet, so the consistency check with the W2 state machine has to be done when that section exists (tickets T-84 and T-49).
-- Who can see the list of an organization's events, drafts included, is part of ticket T-17 (#25) and is not written as a requirement here.
-
 ---
 
 ## 2.5 W3 Event discovery and search (FR-W3)
-
-**Ticket:** `docs: FR for W3 discovery` · **Points:** 1
-
-**What to write**
-Requirements for listing upcoming events, filtering (category, organization, date),
-text search, sorting, and what an event details page shows so a student can decide to
-participate (free places, deadline, location). State which events are visible to whom
-(e.g. DRAFT only for organizers).
-
-**Where to find the information**
-- `docs/data-model.md` → W3 indexes on `events` (status/start_at, organization, category)
-- `backend/.../event/repository/EventRepository.java`
-- `frontend/src/features/events/` (`EventsPage`, `EventDetailsPage`)
-- `06-ux-research.md` → how students look for events today
-
-**Format**
-Common table, 4–8 rows.
 
 Status checked against `main` on 2026-11-17. The whole W3 workflow is implemented: the search with filters and paging (T-16), an organization's event list (T-17), the "Events" page (T-19) and the event details page (T-20). All filters below use fields that already exist in the data model (`events.category`, `events.organization_id`, `events.start_at`, `events.title`), so no schema change is needed. "Organizer" means an ORGANIZER or PRESIDENT of the organization that owns the event.
 
@@ -248,33 +124,9 @@ Status checked against `main` on 2026-11-17. The whole W3 workflow is implemente
 | FR-W3-08 | In the web app a user can open an event's page with everything listed in FR-W3-04; a draft the user may not see, or an unknown event, shows "Event not found". | Student | R6, R10 | MVP | implemented | `EventDetailsPage`, `EventDetailsPage.test.tsx` (T-20) |
 | FR-W3-09 | An event states who may attend (for example UBB students only, all students, or everyone), set by the organizer and shown on the card and the event page. | Student, Organizer | R6 | later | planned | User research F-04 and A-14 (`06-ux-research.md`, I-02, I-03); issue #201 |
 
-**Done when**
-- [ ] Visibility of each event status is stated.
-- [ ] Filters match fields that exist in the data model (or a schema change is noted).
-
-**Open items for the team**
-- `06-ux-research.md` has no findings yet, so how students look for events today is not reflected; revisit the filters and the search after the interviews.
-- Sorting is fixed to start time, earliest first; no other sort order is planned.
-
 ---
 
 ## 2.6 W4 Participant registration (FR-W4)
-
-**Ticket:** `docs: FR for W4 registration` · **Points:** 2
-
-**What to write**
-Requirements for registering, cancelling, re-registering and seeing "my registrations".
-Include the business rules: capacity limit without overbooking, registration window
-(PUBLISHED and before deadline/start), at most one confirmed registration per user and
-event, no waitlist. Say what the user sees when a rule blocks them.
-
-**Where to find the information**
-- `backend/.../registration/entity/Registration.java`, `RegistrationStatus.java`
-- `docs/data-model.md` → `registrations` constraints, service rules 1–2, D1 (no waitlist)
-- `frontend/src/features/events/RegistrationButton.tsx`, `frontend/src/features/registrations/MyRegistrationsPage.tsx`
-
-**Format**
-Common table, 5–8 rows.
 
 Status checked against `main` on 2026-11-17. Registering, the capacity limit under concurrent requests, cancelling and registering again are implemented in the backend and on the event details page (T-21, T-22, T-24, T-35), and the "My registrations" page lists upcoming and past registrations with a Cancel action (T-25). The whole W4 workflow is implemented.
 
@@ -290,34 +142,12 @@ Status checked against `main` on 2026-11-17. Registering, the capacity limit und
 | FR-W4-08 | When a rule blocks a registration, the user gets a clear answer: the API returns 409 with the code `EVENT_FULL`, `REGISTRATION_CLOSED` or `ALREADY_REGISTERED` and a readable message in the standard error body. The web app shows that message and, on the event page, the state of the button: Register, "You are registered" with Cancel, Full, or Registration closed. | Student | R3, R10 | MVP | implemented | `RegistrationService.register`, `GlobalExceptionHandler`; UI: `RegistrationButton` (T-24), `errorMessages.ts` (T-45) |
 | FR-W4-09 | When an event is full, a student can join a waitlist; when a confirmed participant cancels, the first student on the waitlist gets the place and is told so. | Student | R3 | later | planned | User research F-02 and A-01 changed (`06-ux-research.md`, I-01, I-04); D1 (`docs/data-model.md`); issue #199 |
 
-**Done when**
-- [ ] Capacity, window, duplicate and cancel/re-register rules each have a row.
-- [ ] The "what the user sees" part is stated for rejected registrations.
-
 **Open questions for the team**
 - The course text says "eligible users" can register (R3). The code lets any logged-in user register, including members, organizers and ADMINs, for any published event. Is that the intended rule, or do we want eligibility rules?
 
 ---
 
 ## 2.7 W5 Event organization (FR-W5)
-
-**Ticket:** `docs: FR for W5 organizing` · **Points:** 2
-
-**What to write**
-Requirements for organizer tasks (create, assign to a member, change status), attendance
-check-in, viewing the registration list, and announcements to participants. State who may
-do each, and rules such as "assignee must be a member of the event's organization" and
-"only confirmed registrations can be checked in".
-
-**Where to find the information**
-- `backend/.../organizing/entity/EventTask.java`, `TaskStatus.java`, `Announcement.java`
-- `backend/.../registration/entity/Registration.java` (`checkedInAt`)
-- `docs/data-model.md` → `event_tasks`, `announcements` constraints, service rules 3 and 5
-- `frontend/src/features/organizing/` (`OrganizingPage`, `OrganizerEventPage`, `TasksPanel`, `ParticipantsPanel`, `AnnouncementsPanel`)
-- `06-ux-research.md` → organizer interviews
-
-**Format**
-Common table, 5–10 rows.
 
 Status checked against `main` on 2026-11-17. "Organizer" always means an ORGANIZER or PRESIDENT of the organization that owns the event; a global ADMIN has no organizer rights by being ADMIN. The participant list, tasks (create, change status and assignee), check-in and announcements are implemented in the backend and on the organizer event page (T-26 to T-34). Editing and deleting tasks and announcements (FR-W5-06, FR-W5-10) are deferred to the final delivery. No interview findings are available yet, so the Source column cites the code, the data model and the tickets.
 
@@ -335,34 +165,9 @@ Status checked against `main` on 2026-11-17. "Organizer" always means an ORGANIZ
 | FR-W5-10 | An organizer can edit and delete announcements. | Organizer | R5 | later | planned | Deferred to the final delivery (`docs/planning/midterm-tickets.md`, "Deferred to final") |
 | FR-W5-11 | Participants can add an event to their calendar (.ics file), and confirmed participants get an e-mail when the event's date, place or status (cancelled) changes. | Student, Organizer | R5 | later | planned | User research F-03 and A-08 changed (`06-ux-research.md`, I-01–I-04); issue #200 |
 
-**Done when**
-- [ ] Tasks, check-in, participant list and announcements are each covered.
-- [ ] Each row is justified by a user need or a data-model rule (Source column).
-
-**Open items for the team**
-- The "user need" justification for the W5 rows should be added from the organizer interviews once they exist (`06-ux-research.md`); until then the rows rest on the data model and the agreed ticket contracts.
-- Notifying participants by email or push is not part of the plan: announcements are shown only inside the app (assumption A-08). Confirm this is what the team wants for the final delivery.
-
 ---
 
 ## 2.8 Non-functional requirements (NFR)
-
-**Ticket:** `docs: write non-functional requirements` · **Points:** 2
-
-**What to write**
-Quality requirements that are measurable or checkable: security (JWT, BCrypt, 401/403),
-API conventions and documentation, data integrity (constraints, migrations), testing and
-CI, deployment with Docker, usability/accessibility, performance targets you can actually
-check, maintainability (feature packages). Each NFR must say how it is verified.
-
-**Where to find the information**
-- `docs/architecture/ADR-001…005`
-- `CLAUDE.md` → "Coding conventions", "REST API"
-- `.github/workflows/ci.yml`, `CONTRIBUTING.md` §4 Definition of Done
-- `backend/src/main/resources/application*.yml`, `docker-compose.yml`
-
-**Format**
-Table: `ID | Category | Requirement | How it is verified | R | Status`. 6–12 rows.
 
 Status checked against `main` on 2026-11-17.
 
@@ -380,13 +185,3 @@ Status checked against `main` on 2026-11-17.
 | NFR-10 | Deployment | `docker compose up --build` starts PostgreSQL 16, the backend and the frontend (served by nginx) with health checks; configuration comes from environment variables in `.env`, so the system runs outside a developer's machine setup. | Run `docker compose up --build`, then open http://localhost:3000 and http://localhost:8080/swagger-ui.html and call `/api/v1/health`; CI does not build the images | R12 | implemented |
 | NFR-11 | Usability | Every form checks its required fields before sending, and shows the backend's validation errors next to the matching field and any other error message on the form. | Component tests `LoginForm.test.tsx`, `CreateOrganizationForm.test.tsx`, `EventForm.test.tsx`; loading, empty and error states for all pages are planned (T-44, T-45) | R10 | partial |
 | NFR-12 | Process | Every GenAI-assisted change has a row in `docs/genai/usage-log.md` and is reviewed by a person who checks the result before merging; no ticket marked `no-genai` is done with GenAI. | Pull request review against the Definition of Done (`CONTRIBUTING.md` §4); `docs/genai/usage-log.md` | R13, R14 | implemented |
-
-**Done when**
-- [ ] Every NFR has a concrete "How it is verified".
-- [ ] R7, R8, R9, R11, R12 are each covered by at least one NFR.
-- [ ] No vague wording ("fast", "user-friendly") without a measure.
-
-**Open items for the team**
-- No performance targets exist yet (for example a response time for the event search under a stated load). None are written here because nothing measures them; decide whether the team wants one and how to test it.
-- Accessibility (keyboard use, contrast, screen readers) has no requirement or check yet.
-- `docker compose up --build` is the documented way to run the whole system (`README.md`); `ADR-005` still describes a Compose file with PostgreSQL only, so the ADR should be updated to match.

@@ -5,27 +5,9 @@ Part **C** of the mid-term deliverable. Index: [README](README.md).
 Course link: R10 ("important workflows validated with users") and R5 ("justified by
 identified user needs"), see `docs/course/course-requirements.md`.
 
-**Rule: no invented results.** Every finding must point to a real interview (`I-NN`) whose
-anonymised notes are in [`interviews/`](interviews/). If an interview has not happened,
-its row stays empty.
-
 ---
 
 ## 6.1 Method and consent
-
-**Ticket:** `docs: research method + consent` · **Points:** 1
-
-**What to write**
-Who you interviewed (types of people, how many, how you found them), when, how long, in
-person or online, and who took notes. Adapt the consent note below if needed and confirm
-that every participant agreed to it before the interview.
-
-**Where to find the information**
-- This file's interview guide (6.2) · `interviews/README.md` (note template)
-- Your own interview schedule
-
-**Format**
-Prose, 100–200 words + the consent note.
 
 **Consent note (read to each participant before starting):**
 > "We are students at UBB building an event management app for student organizations as a
@@ -37,10 +19,6 @@ Prose, 100–200 words + the consent note.
 > repository. Anyone with access to that repository may read them, and we may use
 > anonymised quotations in our report. You can skip any question or stop at any time. Do
 > you agree to participate?"
-
-**Done when**
-- [x] Number and type of participants stated (aim: at least 3 students and 2 organizers).
-- [x] Every interview in the log was done with consent.
 
 **Method (status 2026-11-17).** So far **4 real interviews**, all online, conducted and noted
 by Patriciu Mina (log in 6.3, notes in [`interviews/`](interviews/)). Participants were found
@@ -61,18 +39,6 @@ single interview are marked as such.
 ---
 
 ## 6.2 Interview guide
-
-**Ticket:** `docs: review interview guide` · **Points:** 1
-
-**What to write**
-The questions below are a starting point. Review them as a team, adjust wording, and keep
-them **open** (no yes/no, no leading "Would you like feature X?"). Ask about past behaviour
-("Tell me about the last time …") rather than opinions about the future. Ask follow-ups
-("Why?", "What happened next?").
-
-**Done when**
-- [x] The team agreed on the final questions before the first interview.
-- [x] Every assumption in 6.5 is covered by at least one question.
 
 ### Students (participants)
 1. Think about the most recent student event you attended. How did you first hear about it, and what did you do next? *(covers A-13)*
@@ -106,19 +72,6 @@ them **open** (no yes/no, no leading "Would you like feature X?"). Ask about pas
 
 ## 6.3 Interview log
 
-**Ticket:** `research: conduct interviews` · **Points:** 3 (one ticket per interviewer is fine)
-
-**What to write**
-One row per interview. Write the anonymised notes in `interviews/I-NN.md` using the
-template in `interviews/README.md` within 24 hours of the interview.
-
-**Format**
-Table: `ID | Participant type | Interviewer | Mode | Notes`.
-
-**Done when**
-- [ ] Every row links to an existing notes file.
-- [ ] No names, emails or other identifying data in the table or notes.
-
 | ID | Participant type | Interviewer | Mode | Notes |
 |----|------------------|-------------|------|-------|
 | I-01 | Student, Master's at FSEGA, works full time; former volunteer in a student organization | Patriciu Mina | Online | [I-01](interviews/I-01.md) |
@@ -126,29 +79,9 @@ Table: `ID | Participant type | Interviewer | Mode | Notes`.
 | I-03 | Student at another university (medicine), never at a UBB event; team lead in a student organization | Patriciu Mina | Online | [I-03](interviews/I-03.md) |
 | I-04 | Organizer: study group leader, CS, 2nd year | Patriciu Mina | Online | [I-04](interviews/I-04.md) |
 
-> TODO (team): log the remaining interviews here.
-
 ---
 
 ## 6.4 Findings
-
-**Ticket:** `docs: synthesise interview findings` · **Points:** 2
-
-**What to write**
-Group what you heard into findings: patterns that appear in more than one interview, or a
-single strong observation (say so). Each finding states what users do or need, the evidence
-(interview IDs, short anonymised quotes), and the consequence for the product (new or
-changed FR, UC, workflow step, or "no change").
-
-**Where to find the information**
-- `interviews/I-*.md` · `02-requirements.md`, `04-use-cases.md` (to link consequences)
-
-**Format**
-Table: `ID | Finding | Evidence (interviews) | Consequence for the product`. 5–10 rows.
-
-**Done when**
-- [x] Every finding cites at least one interview ID.
-- [x] Every consequence links to an FR/UC/workflow or says "no change" with a reason.
 
 | ID | Finding | Evidence (interviews) | Consequence for the product |
 |----|---------|-----------------------|-----------------------------|
@@ -165,22 +98,6 @@ Table: `ID | Finding | Evidence (interviews) | Consequence for the product`. 5�
 ---
 
 ## 6.5 Assumptions we checked (and changed)
-
-**Ticket:** `docs: assumptions validated by interviews` · **Points:** 2
-
-**What to write**
-These are design choices the team made **before** talking to users. For each, fill in what
-the interviews showed, decide whether to keep or change it, and (if changed) what was
-changed in the docs/code. A changed assumption is the most valuable evidence for the course
-(part C: "changes to initial assumptions caused by the interviews"). Add new rows if the
-interviews challenged something not listed.
-
-**Format**
-The table below. "Keep / change" = `keep`, `change`, or `open` (not enough evidence).
-
-**Done when**
-- [x] Every row has interview evidence or is marked `open`.
-- [x] Every `change` row names what was changed (file, FR, issue number).
 
 | # | Assumption (current design) | Source in repo | Interview evidence | Keep / change | Change made |
 |---|-----------------------------|----------------|--------------------|---------------|-------------|
@@ -208,24 +125,6 @@ the final delivery; the mid-term MVP was not changed.
 
 ## 6.6 Main product flows
 
-**Ticket:** `docs: main product flows from research` · **Points:** 1
-
-**What to write**
-From the user's perspective (not the system's), list the 3–5 most important flows the
-product must support well, ordered by importance according to the interviews. For each:
-the user's goal, the steps they expect, and the workflow (W1–W5) that implements it. These
-are the flows to validate with users in the UI later (R10).
-
-**Where to find the information**
-- 6.4 findings · `05-workflows.md` · `04-use-cases.md`
-
-**Format**
-Numbered list; per flow 3–6 short steps and a line `Implemented by: W?, UC-…`.
-
-**Done when**
-- [x] Order is justified by findings (F-IDs).
-- [x] Each flow maps to workflows and use cases.
-
 1. **Open a shared event and decide whether to go** (F-01, F-05, F-09: events reach people as links in chats; the decision depends on time, place and details)
    open the link from a chat → log in → event page: date and time, location, description, free places, deadline → decide.
    Implemented by: W3, UC-32
@@ -245,17 +144,6 @@ Numbered list; per flow 3–6 short steps and a line `Implemented by: W?, UC-…
 ---
 
 ## 6.7 Personas
-
-**Ticket:** `research: personas` · **Points:** 2
-
-**What to write**
-2–3 fictional personas built only from the findings: name, short description, goals,
-frustrations, typical scenario, workflows used, and the findings and interviews they are
-based on. They map to the actors in `03-actors-roles.md`.
-
-**Done when**
-- [x] 2–3 personas, each citing F-IDs and I-IDs.
-- [x] Each persona maps to actors in `03-actors-roles.md`.
 
 ### Andra – the working Master's student
 - **Actor:** Student (participant).

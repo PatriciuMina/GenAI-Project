@@ -2,61 +2,20 @@
 
 Part **B.4** of the mid-term deliverable. Index: [README](README.md).
 
-**ID blocks** (so writers do not collide): AUTH/ADM `UC-01–09`, W1 `UC-10–19`,
-W2 `UC-20–29`, W3 `UC-30–39`, W4 `UC-40–49`, W5 `UC-50–59`. Never renumber; mark dropped
-use cases as `dropped` in the list.
-
-**Where to find the information (all use cases)**
-- `02-requirements.md` (FR IDs to link), `03-actors-roles.md` (actors, permissions)
-- `docs/data-model.md` → constraints and "Rules enforced in the service layer" (these are your alternative flows)
-- Backend feature packages under `backend/src/main/java/ro/ubb/events/` and their tests
-- `frontend/src/routes/paths.ts` and `frontend/src/features/*` (pages involved)
-- `docs/course/course-requirements.md` (R1–R6, R10, R15)
-- `06-ux-research.md` (real user steps)
-
 ---
 
-## 4.1 Use case template
+## 4.1 Use case format
 
-Copy this block for every use case. Length guideline: 15–30 lines per use case.
-
-```markdown
-### UC-NN: <verb + object>
-
-| Field | Value |
-|-------|-------|
-| Workflow | W? |
-| Primary actor | |
-| Linked FR | FR-W?-NN, … |
-| Preconditions | |
-| Postconditions (success) | |
-
-**Main flow**
-1. …
-
-**Alternative / error flows**
-- 3a. <condition>: <what happens>
-
-**Status:** implemented / partial / planned
-```
+Every use case (sections 4.4–4.8) has the same structure: workflow, primary actor, linked
+functional requirements (`FR-…` in `02-requirements.md`), preconditions and postconditions,
+the main flow as numbered steps, the alternative and error flows (numbered after the step
+where they branch, e.g. `3a`), and its status on `main` (implemented / partial / planned).
+IDs are grouped by workflow: AUTH/ADM `UC-01–09`, W1 `UC-10–19`, W2 `UC-20–29`,
+W3 `UC-30–39`, W4 `UC-40–49`, W5 `UC-50–59`.
 
 ---
 
 ## 4.2 Use case list
-
-**Ticket:** `docs: agree use case list` · **Points:** 1
-
-**What to write**
-The titles below are a **proposal** derived from the data model and workflows. As a team,
-add, remove or merge titles before writing them, fill the Actor column and keep this list
-in sync with the detailed sections. Each detailed section (4.3–4.8) is its own ticket.
-
-**Format**
-Table: `ID | Title | Workflow | Primary actor | Linked FR | Status`.
-
-**Done when**
-- [ ] The team agreed on the list (titles, owners).
-- [ ] Every FR in `02-requirements.md` is linked from at least one use case.
 
 | ID | Title | Workflow | Primary actor | Linked FR | Status |
 |----|-------|----------|---------------|-----------|--------|
@@ -90,16 +49,6 @@ Table: `ID | Title | Workflow | Primary actor | Linked FR | Status`.
 ---
 
 ## 4.3 Use case overview diagram
-
-**Ticket:** `docs: use case overview diagram` · **Points:** 1
-
-**What to write**
-One diagram showing actors on the left and use cases grouped by workflow. Mermaid has no
-UML use-case diagram, so use a `flowchart LR` with one `subgraph` per workflow. Draw it
-after the list in 4.2 is agreed. If it becomes too big, make one diagram per workflow.
-
-**Format**
-Mermaid `flowchart LR`; actors as `((Actor))`, use cases as `([UC-NN Title])`.
 
 ```mermaid
 flowchart LR
@@ -197,22 +146,9 @@ flowchart LR
     organizer --> uc54
 ```
 
-
 ---
 
 ## 4.4 Accounts and admin use cases (UC-01–09)
-
-**Ticket:** `docs: use cases AUTH/ADM` · **Points:** 1
-
-**What to write**
-Detailed use cases for the AUTH/ADM rows of 4.2, using the template. Login and register
-already exist: describe the real behaviour, including the error flows (wrong password →
-401, email already used → 409).
-Extra sources: `auth/` package, `backend/src/test/java/ro/ubb/events/auth/*`, `frontend/src/features/auth/`.
-
-**Done when**
-- [ ] One section per UC-01–09 in the list, using the template.
-- [ ] Error flows match the API responses in Swagger.
 
 ### UC-01: Create an account
 
@@ -327,17 +263,6 @@ Extra sources: `auth/` package, `backend/src/test/java/ro/ubb/events/auth/*`, `f
 ---
 
 ## 4.5 W1 use cases (UC-10–19)
-
-**Ticket:** `docs: use cases W1` · **Points:** 2
-
-**What to write**
-Detailed use cases for W1 using the template. Alternative flows must cover permission
-denials (403) and the "one membership per user per organization" rule.
-Extra sources: `organization/` package, `OrgPermissionService`, `docs/data-model.md` memberships.
-
-**Done when**
-- [ ] One section per W1 use case in the list.
-- [ ] Every alternative flow names the rule or check that causes it.
 
 ### UC-10: Browse organizations
 
@@ -457,19 +382,6 @@ Extra sources: `organization/` package, `OrgPermissionService`, `docs/data-model
 ---
 
 ## 4.6 W2 and W3 use cases (UC-20–39)
-
-**Ticket:** `docs: use cases W2 + W3` · **Points:** 3
-
-**What to write**
-Detailed use cases for event lifecycle and discovery. Lifecycle use cases must match the
-state machine in `05-workflows.md` (W2) and say which status the event has before and after.
-Extra sources: `event/` package, `EventStatus`, data-model.md lifecycle and W3 indexes.
-(Split into two tickets if two people own W2 and W3.)
-
-**Done when**
-- [ ] One section per W2/W3 use case in the list.
-- [ ] Pre/postconditions state the event status.
-- [ ] Visibility rules (who sees DRAFT events) are in the W3 flows.
 
 ### UC-20: Create a draft event
 
@@ -673,17 +585,6 @@ Extra sources: `event/` package, `EventStatus`, data-model.md lifecycle and W3 i
 
 ## 4.7 W4 use cases (UC-40–49)
 
-**Ticket:** `docs: use cases W4` · **Points:** 2
-
-**What to write**
-Detailed use cases for registration. Alternative flows must cover: full event, deadline
-passed, event not PUBLISHED, already registered, cancel then register again.
-Extra sources: `registration/` package, data-model.md registrations + service rules 1–2.
-
-**Done when**
-- [ ] One section per W4 use case in the list.
-- [ ] All five alternative flows above appear.
-
 ### UC-40: View my registrations
 
 | Field | Value |
@@ -759,18 +660,6 @@ Extra sources: `registration/` package, data-model.md registrations + service ru
 ---
 
 ## 4.8 W5 use cases (UC-50–59)
-
-**Ticket:** `docs: use cases W5` · **Points:** 2
-
-**What to write**
-Detailed use cases for organizer tasks, participant list, check-in and announcements.
-Alternative flows: assignee not in the organization, check-in of a cancelled registration,
-non-organizer tries an organizer action.
-Extra sources: `organizing/` package, `Registration.checkedInAt`, data-model.md rules 3 and 5.
-
-**Done when**
-- [ ] One section per W5 use case in the list.
-- [ ] Every use case is linked to at least one FR-W5 ID.
 
 ### UC-50: Manage organizer tasks
 
