@@ -64,7 +64,7 @@ Built from the "What was generated" and "Human changes" columns of `docs/genai/u
 | Documentation | Actors (3.1), use case list (4.2), use case diagram (4.3), all use cases (4.4–4.8), workflows W1 and W2 (5.1, 5.2) | Generated, reviewed by the person | 2026-11-16/17 (Jakab Gergő, GitHub Copilot and ChatGPT) | none saved |
 | Frontend | Friendly messages for backend error codes (`api/errorMessages.ts`) | Generated | 2026-11-17, T-45 (Jakab Gergő) | none saved |
 | Frontend (W4) | Register / Cancel button on the event details page | Generated | 2026-11-17, T-24 (Andrei Gota) | none saved |
-| Planning, documentation, tests | Finish plan (`docs/planning/midterm-finish-plan.md`), state machine review (5.2, `data-model.md`), `RegistrationRulesTest`, workflows W3–W5 (5.3–5.5), status update of 02–04, this update of section 7 | Generated, checked against the code; human decisions in 7.4 | 2026-11-17, plan, T-49, T-36, T-85, T-86, T-87, T-100, T-101 (Patriciu Mina) | none saved |
+| Planning, documentation, tests | Record of how the mid-term was finished (`docs/planning/midterm-finish-plan.md`), state machine review (5.2, `data-model.md`), `RegistrationRulesTest`, workflows W3–W5 (5.3–5.5), status update of 02–04, this update of section 7 | Generated, checked against the code; human decisions in 7.4 | 2026-11-17, plan, T-49, T-36, T-85, T-86, T-87, T-100, T-101 (Patriciu Mina) | none saved |
 
 ---
 
