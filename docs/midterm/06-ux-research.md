@@ -113,6 +113,8 @@ Table: `ID | Date | Participant type | Interviewer | Duration | Notes`.
 
 | ID | Date | Participant type | Interviewer | Duration | Notes |
 |----|------|------------------|-------------|----------|-------|
+| I-01 | 2026-11-17 | Student, 1st year, economics faculty, new member of a volunteering organization | Andrei Gota | Written answers (no live interview) | [I-01](interviews/I-01.md) |
+| I-02 | 2026-11-17 | Student, 1st year, economics faculty, member of an international student organization | Andrei Gota | Written answers (no live interview) | [I-02](interviews/I-02.md) |
 
 > TODO (team): log interviews here.
 
