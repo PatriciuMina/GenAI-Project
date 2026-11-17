@@ -94,16 +94,16 @@ sequenceDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> DRAFT: Organizer or president (manual: submits valid event, system sets DRAFT)
-    DRAFT --> PUBLISHED: Organizer or president (manual: Publish, startAt is in the future)
-    PUBLISHED --> REGISTRATION_CLOSED: Organizer or president (manual: Close registration)
-    PUBLISHED --> ONGOING: Organizer or president (manual: Start, at or after startAt minus 1 hour)
-    REGISTRATION_CLOSED --> ONGOING: Organizer or president (manual: Start, at or after startAt minus 1 hour)
-    ONGOING --> COMPLETED: Organizer or president (manual: Complete, at or after endAt)
-    DRAFT --> CANCELLED: Organizer or president (manual: Cancel)
-    PUBLISHED --> CANCELLED: Organizer or president (manual: Cancel)
-    REGISTRATION_CLOSED --> CANCELLED: Organizer or president (manual: Cancel)
-    ONGOING --> CANCELLED: Organizer or president (manual: Cancel)
+    [*] --> DRAFT: Organizer or president (manual, submits valid event, system sets DRAFT)
+    DRAFT --> PUBLISHED: Organizer or president (manual, Publish, startAt is in the future)
+    PUBLISHED --> REGISTRATION_CLOSED: Organizer or president (manual, Close registration)
+    PUBLISHED --> ONGOING: Organizer or president (manual, Start, at or after startAt minus 1 hour)
+    REGISTRATION_CLOSED --> ONGOING: Organizer or president (manual, Start, at or after startAt minus 1 hour)
+    ONGOING --> COMPLETED: Organizer or president (manual, Complete, at or after endAt)
+    DRAFT --> CANCELLED: Organizer or president (manual, Cancel)
+    PUBLISHED --> CANCELLED: Organizer or president (manual, Cancel)
+    REGISTRATION_CLOSED --> CANCELLED: Organizer or president (manual, Cancel)
+    ONGOING --> CANCELLED: Organizer or president (manual, Cancel)
 ```
 
 **Checked against the code (T-49, 2026-11-17).** The diagram was compared with
