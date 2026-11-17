@@ -224,11 +224,12 @@ alone (NFR-12). The table is taken from the usage log and the pull requests on 2
 | T-06 members list | Portik Márk-Krisztián | Done with Codex (GPT-6), log row 2026-11-14 "T-06" |
 | T-17 an organization's events | Portik Márk-Krisztián | Done with Codex (GPT-6), log row 2026-11-16 "T-17 (#25)" |
 | T-22 cancel my registration (API) | Andrei Gota | No log row; PR #179 leaves "GenAI used?" unticked |
-| T-25 "My registrations" page | Patriciu Mina | Not done yet; to be written without GenAI |
+| T-25 "My registrations" page | Patriciu Mina | The owner removed the `no-genai` label (comment on issue #33, 2026-11-17) and it was done with Claude Code (Claude Opus 5.5), log row 2026-11-17 "T-25 (#33)" |
 | T-29 check-in endpoint | Vlad-Ștefan Uleia | Done with Claude Code (Claude Sonnet 5.5); the log row itself notes the `no-genai` label |
 
-So three of the four finished `no-genai` tickets were done with GenAI and were declared in the
-log. The team has to decide how to handle this before submission (for example, each person
+So four of the five `no-genai` tickets were done with GenAI and declared in the log; only T-22
+was done without it. For T-25 the label was removed before the work started.
+The team has to decide how to handle this before submission (for example, each person
 explains the code in their individual statement, section 8, or another ticket becomes their
 `no-genai` work).
 
