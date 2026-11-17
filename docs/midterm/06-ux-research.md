@@ -113,8 +113,12 @@ Table: `ID | Date | Participant type | Interviewer | Duration | Notes`.
 
 | ID | Date | Participant type | Interviewer | Duration | Notes |
 |----|------|------------------|-------------|----------|-------|
+| I-01 | _to add_ | Student, Master's at FSEGA, works full time; former volunteer in a student organization | Patriciu Mina | _to add_ | [I-01](interviews/I-01.md) |
+| I-02 | _to add_ | UBB CS graduate, backend developer; never in a student organization | Patriciu Mina | _to add_ | [I-02](interviews/I-02.md) |
+| I-03 | _to add_ | Student at another university (medicine), never at a UBB event; team lead in a student organization | Patriciu Mina | _to add_ | [I-03](interviews/I-03.md) |
+| I-04 | _to add_ | Organizer: study group leader, CS, 2nd year | Patriciu Mina | _to add_ | [I-04](interviews/I-04.md) |
 
-> TODO (team): log interviews here.
+> TODO (team): log the remaining interviews here.
 
 ---
 
