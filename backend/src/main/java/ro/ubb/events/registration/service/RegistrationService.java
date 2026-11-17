@@ -90,6 +90,30 @@ public class RegistrationService {
         }
     }
 
+    /**
+     * Cancels the caller's own registration for the event, so the place becomes free again. The row
+     * stays as history (status CANCELLED); registering again later creates a new row.
+     */
+    @Transactional
+    public void cancelMyRegistration(Long eventId, Long userId) {
+        Registration registration = registrationRepository
+                .findByEventIdAndUserIdAndStatus(eventId, userId, RegistrationStatus.CONFIRMED)
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "NOT_REGISTERED",
+                        "You have no confirmed registration for this event"));
+        Event event = registration.getEvent();
+        boolean openStatus = event.getStatus() == EventStatus.PUBLISHED
+                || event.getStatus() == EventStatus.REGISTRATION_CLOSED;
+        if (!openStatus || !Instant.now().isBefore(event.getStartAt())) {
+            throw new ConflictException("CANCEL_NOT_ALLOWED",
+                    "The event has already started, finished or been cancelled");
+        }
+        if (registration.getCheckedInAt() != null) {
+            throw new ConflictException("CANCEL_NOT_ALLOWED", "A checked-in registration cannot be cancelled");
+        }
+        registration.cancel();
+        registrationRepository.saveAndFlush(registration);
+    }
+
     /** The caller's own registrations (CONFIRMED and CANCELLED), newest first. Empty if there are none. */
     @Transactional(readOnly = true)
     public List<MyRegistrationResponse> listMine(Long userId) {

@@ -98,4 +98,12 @@ public class Registration {
     public void setCheckedInAt(Instant checkedInAt) {
         this.checkedInAt = checkedInAt;
     }
+
+    /**
+     * Cancels the registration: the row is kept as history with status CANCELLED, so the place is
+     * free again and the user can register later. The service checks the rules first.
+     */
+    public void cancel() {
+        this.status = RegistrationStatus.CANCELLED;
+    }
 }

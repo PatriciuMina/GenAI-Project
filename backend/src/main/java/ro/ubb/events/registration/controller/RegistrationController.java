@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,6 +53,24 @@ public class RegistrationController {
             @PathVariable Long eventId,
             @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
         return registrationService.register(eventId, me.id());
+    }
+
+    @DeleteMapping("/events/{eventId}/registrations/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Cancel my registration for an event",
+            description = "Frees the place. Allowed while the event is PUBLISHED or REGISTRATION_CLOSED and has "
+                    + "not started, and only if not checked in. The registration is kept as CANCELLED, so the "
+                    + "caller may register again later.")
+    @ApiResponse(responseCode = "204", description = "Registration cancelled")
+    @ApiResponse(responseCode = "404", description = "NOT_REGISTERED: no CONFIRMED registration of the caller",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    @ApiResponse(responseCode = "409", description = "CANCEL_NOT_ALLOWED: event started, finished or cancelled, "
+            + "or the caller is already checked in",
+            content = @Content(schema = @Schema(implementation = ApiError.class)))
+    public void cancelMine(
+            @PathVariable Long eventId,
+            @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser me) {
+        registrationService.cancelMyRegistration(eventId, me.id());
     }
 
     @PostMapping("/events/{eventId}/registrations/{registrationId}/check-in")
