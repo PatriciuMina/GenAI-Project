@@ -165,9 +165,18 @@ stateDiagram-v2
 ```
 
 **Done when**
-- [ ] W2 steps, diagram, business rules and traceability line are present.
-- [ ] All six `EventStatus` values and all allowed transitions appear, matching data-model.md.
-- [ ] Each transition names its trigger and actor (manual or automatic).
+- [x] W2 steps, diagram, business rules and traceability line are present.
+- [x] All six `EventStatus` values and all allowed transitions appear, matching data-model.md.
+- [x] Each transition names its trigger and actor (manual or automatic).
+
+**Checked against the code (T-49, 2026-11-17).** The diagram was compared with
+`EventStatus` (6 states), `EventLifecycle.rejectionReason` (allowed transitions and date
+rules), `EventService.changeStatus` (organizer/president check, 409 on rejection), the
+transition matrix in `EventLifecycleTest` and the buttons in the frontend `StatusActions`
+(Publish, Close registration, Start, Complete, Cancel). All ten transitions, their
+conditions and actors match; there is no automatic (time-based) transition. The only
+difference was in `docs/data-model.md`, which showed a strict linear chain without
+`PUBLISHED → ONGOING` and without the date conditions; it now has the same transition table.
 
 ### Sequence diagram: create a draft, publish, rejected transition
 
