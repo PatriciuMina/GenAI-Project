@@ -39,19 +39,27 @@ The table in each section; each cell a short list. Total per student ≈ ½ page
 
 **Ticket:** `docs: individual contribution – Mina Patriciu` · **Points:** 1
 
+GitHub: `PatriciuMina`. Merged PRs: #1–#8, #108, #109, #184–#189, #191, #193–#196, #198,
+#202–#205, #210 (`gh pr list --repo PatriciuMina/GenAI-Project --author PatriciuMina --state merged`).
+Author of all 99 mid-term issues (#9–#107) and of the project board.
+
+**Summary.** I set up the project from an empty repository: architecture, data model,
+authentication, the first backend and frontend feature, Docker, CI and the team process. I
+then wrote the guides with worked examples, the documentation skeleton and the 99 tickets
+the team used to build the mid-term version. In the last phase I finished the remaining
+non-interview tickets, interviewed three users and wrote the user research, and turned the
+documentation into its final form.
+
 | Field | Contribution |
 |-------|--------------|
-| Owned artifact(s) | |
-| Owned workflow | |
-| Implemented functionality | |
-| Documentation produced | |
-| Tests written | |
-| Architectural / design decisions contributed | |
-| GenAI-related work | |
-| Others | |
-
-> TODO (team): Mina Patriciu fills this section.
-
+| Owned artifact(s) | **Foundation:** `CLAUDE.md` (project rules and AI context), ADR-001 to ADR-005, `docs/genai/usage-log.md`, first `docker-compose.yml` (commit `7baec2e`). **Backend skeleton:** Maven project, `common` (error body, exceptions, global handler, health), Swagger, security config (PR #1). **Data model:** `V1__initial_schema.sql` (7 tables with all constraints), entities, enums and repositories of every feature, dev seed `R__dev_seed.sql` (8 users, 2 organizations, 7 events in every status, registrations, tasks, announcements), `docs/data-model.md` with ER diagram and decisions D1–D12 (PR #3). **Infrastructure:** Dockerfiles, nginx, full-stack `docker-compose.yml`, `.github/workflows/ci.yml`, `README.md` with run instructions and seed accounts (PR #6). **Team process:** `CONTRIBUTING.md`, the PR template and five issue templates (PR #6, #108, #109). **Planning:** `docs/planning/midterm-tickets.md`, `scripts/create-issues.sh`, `scripts/fix-good-first-labels.sh` (PR #8, #108, #109). **User research:** interviews I-01 to I-03 and `06-ux-research.md` §6.1, 6.3–6.7 (PR #198, #202, #210). **QA:** `docs/qa/midterm-manual-test.md`, `scripts/midterm-api-check.py` (PR #196) |
+| Owned workflow | **W4 Participant registration – "My registrations"**: page `MyRegistrationsPage` + `registrationSplit.ts` (UI, T-25, PR #194) on `GET /api/v1/users/me/registrations` and `DELETE /api/v1/events/{id}/registrations/me` (API by Vlad-Ștefan Uleia and Andrei Gota) and the `registrations` table with its constraints (DB, PR #3); W4 rules test (T-36, PR #186) and workflow §5.4 (T-86, PR #188). **Cross-layer base of W1:** organizations and memberships tables (PR #3), `OrganizationController`, `OrganizationService`, `OrgPermissionService` (PR #4), `OrganizationsListPage`, `OrganizationDetailsPage` (PR #5); member management on top of it was built by Andrei Gota (API) and Portik Márk-Krisztián (UI) |
+| Implemented functionality | Health endpoint, Swagger UI, consistent error body (PR #1); register / login with JWT, `JwtService`, `GET /users/me`, organization permissions (`OrgPermissionService`, `@PreAuthorize`), organizations list and details as the reference feature (PR #4); React app: typed API client, token storage, `AuthContext`, login and register pages, protected and role-based routes, layout and menu, organizations pages (PR #5); Docker full stack with health checks and CI for backend and frontend (PR #6); "My registrations" page with cancel (T-25, PR #194); shared `EmptyState` on all list pages and "Clear filters" on Events (T-44, PR #195) |
+| Documentation produced | **Guides with worked examples for the team:** `docs/dev-guide/how-to-add-a-feature.md`, a 10-step walkthrough of a backend feature using the organizations feature (DTO, mapper, service, controller, security, unit test, integration test, DB changes, Swagger with a token, PR checklist) (PR #4); `docs/dev-guide/frontend-guide.md` (PR #5). **Ticket plan:** 99 tickets / 184 points, each with context, what to do, files to touch, acceptance criteria, how to check and the guide to read; shared conventions (layering, error codes, event visibility), labels, `no-genai` tickets and a "Deferred to final" list (PR #8, #108). **Mid-term documentation:** the skeleton of `docs/midterm/` with instructions and examples per section, the interview guide and 13 assumptions (PR #7); workflows W3–W5 (PR #187–#189); state machine check (PR #185); status update of 02–04 (PR #191); GenAI report update and evidence index (PR #193); **user research**: method, findings, assumptions (3 changed, each with a requirement and a ticket for the final delivery: #199, #200, #201), product flows and personas (PR #202, #210); **final version of 01–07**: drafting instructions removed, problem statement rewritten from the interviews (PR #203, #204) |
+| Tests written | `ApplicationSmokeTest`, `DataModelConstraintsTest` (PR #1, #3); `AuthControllerIntegrationTest`, `AuthServiceTest`, `OrgPermissionServiceTest`, `OrgPermissionPreAuthorizeIntegrationTest`, `OrganizationControllerIntegrationTest`, `OrganizationServiceTest` and the Testcontainers base class `IntegrationTestBase` used by all integration tests (PR #4); `client.test.ts`, `AuthContext.test.tsx`, `LoginForm.test.tsx` (PR #5); `RegistrationRulesTest` (PR #186); `MyRegistrationsPage.test.tsx`, `registrationSplit.test.ts` (PR #194); `EmptyState.test.tsx`, "Clear filters" tests (PR #195); API run of W1–W5, 57 steps, all passed (PR #196) |
+| Architectural / design decisions contributed | Feature packages and layering (ADR-001), REST + OpenAPI (ADR-002), JWT with Spring Security (ADR-003), Flyway (ADR-004), Docker Compose (ADR-005); data model decisions D1–D12, e.g. D1 no waitlist, D4 events with registrations are cancelled and never deleted, D11 optimistic locking on events (`P3-data-model.txt`); frontend decisions D1–D4 (`P5-frontend.txt`); the business error codes and event visibility rules shared by all tickets; the mid-term scope cut and one `no-genai` ticket per member (`P8-ticket-plan.txt`, D12); the `good-first-ticket` rule (`P9-board-issues.txt`); equal review and merge rules (`CONTRIBUTING.md` §2, PR #109); after the interviews: waitlist, calendar/e-mail notifications and "who may attend" moved into the final-delivery scope (`06-ux-research.md` §6.5) |
+| GenAI-related work | Done with Claude Code (Claude Opus 5.5), plus one summary with Claude Opus 5.5 in claude.ai. Set up the GenAI process for the team: the usage log, `CLAUDE.md` as the shared AI context, CONTRIBUTING §6 rules; worked in plan mode and answered the open decisions before code was generated; the first ten sessions are saved as evidence in `docs/genai/sessions/` (`P1` … `P10`); every task has a usage-log row. The interviews were conducted and written by me; the AI only put my notes into the template. **`no-genai` ticket:** T-25 was mine; I removed the label before the work started and the page was generated with Claude Code (comment on issue #33, report §7.5), so I have no work written without GenAI |
+| Others | Created the GitHub labels, milestone, the 99 issues and the project board with a script (PR #108, #109) and fixed the `good-first-ticket` labels on the existing issues; wrote the team rules for picking, reviewing and merging tickets; mid-term status analysis and record of how it was finished (PR #184, #204); ran the API part of the manual test on a fresh stack (PR #196) |
 ---
 
 ## Andrei Gota
