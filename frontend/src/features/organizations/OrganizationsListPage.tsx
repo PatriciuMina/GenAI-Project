@@ -1,7 +1,9 @@
-import { Card, CardActionArea, CardContent, Grid, Paper, Typography } from '@mui/material';
+import { Card, CardActionArea, CardContent, Grid, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router';
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
+import { EmptyState } from '../../components/EmptyState';
 import { paths } from '../../routes/paths';
 import { useOrganizations } from './queries';
 
@@ -18,9 +20,7 @@ export function OrganizationsListPage() {
       {isError && <ErrorAlert error={error} onRetry={() => void refetch()} />}
 
       {organizations && organizations.length === 0 && (
-        <Paper variant="outlined" sx={{ p: 4, textAlign: 'center' }}>
-          <Typography color="text.secondary">No organizations yet.</Typography>
-        </Paper>
+        <EmptyState message="No organizations yet." icon={<GroupsOutlinedIcon />} />
       )}
 
       {organizations && organizations.length > 0 && (

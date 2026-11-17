@@ -53,7 +53,7 @@ frontend/src
 │   ├── types.ts           TypeScript copies of the backend DTOs
 │   ├── queryClient.ts     TanStack Query defaults (no retry on 4xx)
 │   └── auth.ts, users.ts, organizations.ts   one typed function per endpoint
-├── components/            shared UI: AppLayout (top bar + nav), Logo, ComingSoon, ErrorAlert, ...
+├── components/            shared UI: AppLayout (top bar + nav), Logo, ErrorAlert, LoadingState, EmptyState, ...
 ├── routes/                paths.ts (all URLs), router.tsx (route table), ProtectedRoute.tsx
 ├── features/              one folder per feature (same split as the backend)
 │   ├── auth/              AuthContext, useAuth, LoginForm, LoginPage, RegisterPage
@@ -209,8 +209,13 @@ const { data: events, isPending, isError, error, refetch } = useEvents();
 
 {isPending && <LoadingState />}
 {isError && <ErrorAlert error={error} onRetry={() => void refetch()} />}
+{events?.length === 0 && <EmptyState message="No events yet." />}
 {events?.map((e) => <div key={e.id}>{e.title}</div>)}
 ```
+
+An empty list always uses `EmptyState` (`src/components/EmptyState.tsx`): a message, an optional
+icon and an optional action (`{ label, to }` for a link or `{ label, onClick }`). Use `compact`
+inside a panel and `plain` inside a table cell or a card that already has a border.
 
 For a mutation in a form:
 

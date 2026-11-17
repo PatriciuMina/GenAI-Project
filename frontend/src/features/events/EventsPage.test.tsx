@@ -79,6 +79,24 @@ describe('EventsPage', () => {
     );
   });
 
+  it('offers "Clear filters" only when filters are set, and clearing removes them from the URL', async () => {
+    vi.mocked(eventsApi.searchEvents).mockResolvedValue({ ...result, content: [] });
+    const user = userEvent.setup({ delay: null });
+    renderPage('/events?q=nothing&category=SPORTS');
+
+    await user.click(await screen.findByRole('button', { name: 'Clear filters' }));
+
+    await waitFor(() => expect(screen.getByLabelText('Current URL')).toHaveTextContent(/^$/));
+  });
+
+  it('does not offer "Clear filters" without filters', async () => {
+    vi.mocked(eventsApi.searchEvents).mockResolvedValue({ ...result, content: [] });
+    renderPage();
+
+    expect(await screen.findByText('No events match your filters')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Clear filters' })).not.toBeInTheDocument();
+  });
+
   it('applies filters to the request and preserves them in the URL', async () => {
     const user = userEvent.setup();
     renderPage('/events?q=workshop');

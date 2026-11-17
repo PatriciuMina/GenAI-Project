@@ -14,10 +14,12 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
 import { parseApiError } from '../../api/errors';
 import type { MyRegistration } from '../../api/types';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
+import { EmptyState } from '../../components/EmptyState';
 import { paths } from '../../routes/paths';
 import { formatDateTime } from '../events/eventFormat';
 import { isCancellationAllowed } from '../events/registrationRules';
@@ -118,7 +120,7 @@ function Section({
         {title}
       </Typography>
       {registrations.length === 0 ? (
-        <Typography color="text.secondary">{emptyText}</Typography>
+        <EmptyState message={emptyText} compact />
       ) : (
         <Stack spacing={1.5} component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
           {registrations.map((registration) => (
@@ -143,14 +145,11 @@ export function MyRegistrationsPage() {
       ) : isError ? (
         <ErrorAlert error={error} onRetry={() => void refetch()} />
       ) : data.length === 0 ? (
-        <Paper variant="outlined" sx={{ p: 3 }}>
-          <Stack spacing={1.5} sx={{ alignItems: 'flex-start' }}>
-            <Typography>You have not registered for any event yet.</Typography>
-            <Button component={RouterLink} to={paths.events} variant="contained">
-              Browse events
-            </Button>
-          </Stack>
-        </Paper>
+        <EmptyState
+          message="You have not registered for any event yet."
+          icon={<EventBusyIcon />}
+          action={{ label: 'Browse events', to: paths.events }}
+        />
       ) : (
         <RegistrationSections registrations={data} />
       )}

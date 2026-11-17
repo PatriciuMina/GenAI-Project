@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { Button, Paper, Stack, TextField, Typography } from '@mui/material';
+import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { LoadingState } from '../../components/LoadingState';
+import { EmptyState } from '../../components/EmptyState';
 import { formatDateTime } from '../events/eventFormat';
 import { useEventAnnouncements, usePostAnnouncement } from './queries';
 
@@ -64,7 +66,7 @@ export function AnnouncementsPanel({ eventId }: { eventId: number }) {
           <ErrorAlert error={announcements.error} onRetry={() => void announcements.refetch()} />
         )}
         {announcements.isSuccess && announcements.data.length === 0 && (
-          <Typography color="text.secondary">No announcements yet.</Typography>
+          <EmptyState message="No announcements yet." icon={<CampaignOutlinedIcon />} compact />
         )}
         {announcements.isSuccess && announcements.data.length > 0 && (
           <Stack component="ul" spacing={2} sx={{ listStyle: 'none', m: 0, p: 0 }}>
