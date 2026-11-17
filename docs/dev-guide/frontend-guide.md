@@ -58,10 +58,10 @@ frontend/src
 ├── features/              one folder per feature (same split as the backend)
 │   ├── auth/              AuthContext, useAuth, LoginForm, LoginPage, RegisterPage
 │   ├── organizations/     queries.ts (hooks), list + details pages        (W1)
-│   ├── events/            event discovery list + details (W3)
-│   ├── registrations/     Coming soon                                     (W4)
-│   ├── organizing/        Coming soon                                     (W5)
-│   └── admin/             Coming soon, ADMIN only
+│   ├── events/            events list with filters, event details, Register / Cancel button (W3, W4)
+│   ├── registrations/     My registrations page, registration hooks       (W4)
+│   ├── organizing/        Organizing page, event form, organizer event page: status, tasks, participants, announcements (W2, W5)
+│   └── admin/             Admin page: create an organization, ADMIN only  (W1)
 └── test/                  setup.ts + helpers (apiError, fakeJwt, withQueryClient)
 ```
 
@@ -288,18 +288,18 @@ components that use links/routes with `<MemoryRouter>`.
 
 ## 9. Theme and logo
 
-`src/theme.ts` and `src/components/Logo.tsx` (plus `public/logo-placeholder.svg`, the browser
-tab icon) are **placeholders**. Change the palette in `theme.ts` only; components read colors
+The palette is in `src/theme.ts` and the logo in `src/components/Logo.tsx` (browser tab icon:
+`public/logo.svg`); both are described in `docs/design/palette.md` and `docs/design/logo.md`.
+Change the palette in `theme.ts` only; components read colors
 from the theme (`color="primary"`, `sx={{ bgcolor: 'primary.main' }}`), so never hard-code hex
 values in components.
 
-## 10. Placeholder pages
+## 10. Pages and where they live
 
-`My registrations` and `Admin` still show "Coming soon". The Organizing page lists events from
-organizations where the current user is an ORGANIZER or PRESIDENT, including drafts. Event
-discovery and event details are implemented under `features/events` for W3; event creation and
-lifecycle are handled in the organizing feature. Each remaining placeholder has a `TODO(Wn)`
-comment naming its workflow. To find them all, run `grep -rn "TODO(W" frontend/src`.
+All pages of the mid-term are implemented: Organizations (`features/organizations`), Events and
+event details (`features/events`), My registrations (`features/registrations`), Organizing with
+the event form and the organizer event page (`features/organizing`) and Admin
+(`features/admin`). Empty lists use the shared `EmptyState` component (section 6).
 
 W3 event discovery guide update, 2026-11-16 — Portik Márk-Krisztián.
 T-14 Organizing page guide update, 2026-11-16 — Portik Márk-Krisztián.

@@ -131,6 +131,8 @@ cd frontend && npm ci && npm run lint && npm test && npm run build
 
 | Topic | Where |
 |-------|-------|
+| **Mid-term deliverable** (problem, requirements, actors, use cases, workflows, user research, GenAI report, contributions) | [`docs/midterm/README.md`](docs/midterm/README.md) |
+| Manual test of all workflows | [`docs/qa/midterm-manual-test.md`](docs/qa/midterm-manual-test.md) |
 | How we work: board, branches, PRs, Definition of Done | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Backend: how to add a feature (step by step) | [`docs/dev-guide/how-to-add-a-feature.md`](docs/dev-guide/how-to-add-a-feature.md) |
 | Frontend guide | [`docs/dev-guide/frontend-guide.md`](docs/dev-guide/frontend-guide.md) |
