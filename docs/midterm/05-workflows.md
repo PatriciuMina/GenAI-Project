@@ -243,10 +243,50 @@ supports the decision.
 **Format:** see top of file (a `flowchart TD` usually fits best).
 
 **Done when**
-- [ ] Steps, diagram, business rules and traceability line are present.
-- [ ] The hand-off to W4 ("Register" button) is shown.
+- [x] Steps, diagram, business rules and traceability line are present.
+- [x] The hand-off to W4 ("Register" button) is shown.
 
-> TODO (team): W3 workflow here.
+```mermaid
+flowchart TD
+    A[Student logs in and opens Events /events] --> B[GET /api/v1/events?page=0&size=20]
+    B --> C{Any visible upcoming event?}
+    C -- no --> D[No events match your filters]
+    C -- yes --> E[Cards: title, organization, date, location, category, places left / Full / Registration closed]
+    D --> F[Change text, category, organization or date filters]
+    E --> F
+    F -->|filters saved in the address, page reset to 1| B
+    E --> G[Open an event /events/:id]
+    G --> H[GET /api/v1/events/id]
+    H --> I{DRAFT and not an organizer, or unknown id?}
+    I -- yes --> J[404: Event not found]
+    I -- no --> K[Details: description, start and end, location, deadline, free places, status, announcements]
+    K --> L{Registration open and places left?}
+    L -- yes --> M[Register button: hand-off to W4]
+    L -- no --> N[Full / Registration closed: no button]
+```
+
+1. **Implemented — open the events list:** A logged-in user selects **Events** (`/events`). The frontend calls `GET /api/v1/events?page=0&size=20`. All event endpoints require a login (JWT); a visitor is sent to `/login`.
+2. **Implemented — the system chooses what is visible:** The backend returns only events with status `PUBLISHED`, `REGISTRATION_CLOSED` or `ONGOING` that have not ended yet (`endAt` ≥ now), sorted by start time, earliest first. `DRAFT`, `COMPLETED` and `CANCELLED` events never appear in this list.
+3. **Implemented — read the cards:** Each event is a card with title, organization, date and time, location, category and its availability: "x of y places left", "Full", or "Registration closed" for a `REGISTRATION_CLOSED` event. The free places are computed from the confirmed registrations.
+4. **Implemented — search by text:** The user types in **Search events**. The frontend sends `q`; an event matches when its title contains the text, ignoring case (the description is not searched).
+5. **Implemented — filter:** The user narrows the list by **Category** (one of the eight fixed categories), **Organization**, and a **From / To** date range on the start date. Filters can be combined. They are kept in the address (`?q=…&category=…&organizationId=…&from=…&to=…&page=…`), so the same list can be shared as a link; changing a filter goes back to page 1.
+6. **Implemented — page through results and empty result:** With more than 20 results a pagination bar is shown. If nothing matches, the page shows "No events match your filters".
+7. **Implemented — (alternative) events of one organization:** From an organization's page, `GET /api/v1/organizations/{orgId}/events` lists that organization's events by start time. A non-organizer does not see drafts; an organizer of that organization also sees its drafts.
+8. **Implemented — open the details:** The user selects a card and goes to `/events/{id}`. The frontend calls `GET /api/v1/events/{id}`, which returns the description, start and end, location, category, registration deadline, status, capacity, confirmed count and free places, with a link to the organization. Announcements of the event are shown below (W5).
+9. **Implemented — hidden or unknown event:** For a `DRAFT` requested by someone who is not an organizer of its organization, and for an unknown id, the API answers 404 and the page shows "Event not found", so drafts do not leak.
+10. **Implemented — decide and hand off to W4:** If the event is `PUBLISHED`, its deadline (or start, without a deadline) has not passed and places are left, the details page shows **Register**; this starts W4 (§5.4). A student who is already registered sees **Cancel registration** instead (also W4). Otherwise the page shows the reason ("Full" or "Registration is closed") instead of the button.
+
+**Business rules**
+- Only logged-in users can list or open events; there is no public event page in the MVP. (`SecurityConfig`; FR-W3-01)
+- The list shows only `PUBLISHED`, `REGISTRATION_CLOSED` and `ONGOING` events that have not ended, sorted by `startAt` ascending. (`EventService.search`; FR-W3-01, FR-W3-05)
+- Text search matches the title only, case-insensitive; `%` and `_` typed by the user are treated as normal characters. (`EventService.search`; FR-W3-03)
+- Filters: `category` must be one of the fixed categories and `from` must not be after `to`, otherwise 400 `INVALID_PARAMETER`; `from`/`to` compare against the start time. (`EventController`, `EventService.search`; FR-W3-02; data-model D3)
+- Paging: `page` starts at 0, the default size is 20 and the size is capped at 50; a negative page or a size below 1 returns 400 `INVALID_PARAMETER`. (`EventService.search`; FR-W3-02)
+- A draft is visible only to organizers of its organization: it is never in the search and `GET /events/{id}` returns 404 to everyone else. (`EventService.getById`, `EventService.findByOrganization`; FR-W2-04, FR-W3-05)
+- Free places = capacity − confirmed registrations; cancelled registrations do not count. (`EventMapper`, `RegistrationService.countConfirmedByEventId`; FR-W3-04)
+- The frontend only decides which button to show (`registrationRules.ts`); the backend checks every rule again when the student registers (W4). (FR-W3-08, FR-W4-02)
+
+`R: R1, R3, R4, R6, R10 · FR: FR-W2-04, FR-W3-01, FR-W3-02, FR-W3-03, FR-W3-04, FR-W3-05, FR-W3-06, FR-W3-07, FR-W3-08 · UC: UC-30, UC-31, UC-32 · Code: event (EventController, EventService, EventRepository), registration (confirmed count), frontend features/events · Tests: EventSearchControllerIntegrationTest, EventControllerIntegrationTest, PermissionMatrixIntegrationTest, EventsPage.test.tsx, EventDetailsPage.test.tsx, EventCard.test.tsx, eventFormat.test.ts, registrationRules.test.ts`
 
 ---
 
