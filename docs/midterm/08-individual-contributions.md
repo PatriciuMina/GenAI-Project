@@ -39,18 +39,19 @@ The table in each section; each cell a short list. Total per student ≈ ½ page
 
 **Ticket:** `docs: individual contribution – Mina Patriciu` · **Points:** 1
 
+GitHub: `PatriciuMina`. Merged PRs: #1–#8, #108, #109, #184–#189, #191, #193–#196
+(`gh pr list --repo PatriciuMina/GenAI-Project --author PatriciuMina --state merged`).
+
 | Field | Contribution |
 |-------|--------------|
-| Owned artifact(s) | |
-| Owned workflow | |
-| Implemented functionality | |
-| Documentation produced | |
-| Tests written | |
-| Architectural / design decisions contributed | |
-| GenAI-related work | |
-| Others | |
-
-> TODO (team): Mina Patriciu fills this section.
+| Owned artifact(s) | Project foundation: `CLAUDE.md`, ADR-001 to ADR-005 (commit `7baec2e`); Flyway `V1__initial_schema.sql`, dev seed `R__dev_seed.sql`, `docs/data-model.md` (PR #3); `docker-compose.yml`, Dockerfiles, `.github/workflows/ci.yml`, `README.md`, `CONTRIBUTING.md`, issue and PR templates (PR #6); `docs/dev-guide/how-to-add-a-feature.md` (PR #4), `frontend-guide.md` (PR #5); mid-term doc structure `docs/midterm/` (PR #7); ticket plan `docs/planning/midterm-tickets.md` and `scripts/create-issues.sh` (PR #8, #108, #109); finish plan `docs/planning/midterm-finish-plan.md` (PR #184); `docs/qa/midterm-manual-test.md`, `scripts/midterm-api-check.py` (PR #196) |
+| Owned workflow | **W4 Participant registration – "My registrations"**: page `MyRegistrationsPage` + `registrationSplit.ts` (UI, T-25, PR #194) on `GET /api/v1/users/me/registrations` and `DELETE /api/v1/events/{id}/registrations/me` (API by Vlad-Ștefan Uleia and Andrei Gota) and the `registrations` table (DB, PR #3); W4 rules test (T-36, PR #186) and workflow §5.4 (T-86, PR #188). Cross-layer base of **W1**: organizations table and memberships (PR #3), `OrganizationController`/`OrganizationService`/`OrgPermissionService` (PR #4), `OrganizationsListPage`/`OrganizationDetailsPage` (PR #5); member management on top of it was built by Andrei Gota (API) and Portik Márk-Krisztián (UI) |
+| Implemented functionality | Backend skeleton: health, Swagger, global error handler (PR #1); JWT login/register, `JwtService`, `OrgPermissionService`, organizations list/details endpoints (PR #4); React app: API client, token storage, `AuthContext`, login/register, protected routes, layout, organizations pages (PR #5); Docker full stack and CI (PR #6); "My registrations" page (PR #194); shared `EmptyState` on all list pages, "Clear filters" on Events (T-44, PR #195) |
+| Documentation produced | Mid-term doc drafts with instructions and the interview guide, course requirements summary (PR #7); status update of 02–04 (T-100, PR #191); workflows W3, W4, W5 (T-85–T-87, PR #187–#189); state machine check and `data-model.md` lifecycle table (T-49, PR #185); GenAI report update 7.1–7.5 and `docs/genai/evidence/README.md` (T-101, PR #193); dev guides (PR #4, #5) |
+| Tests written | `ApplicationSmokeTest`, `DataModelConstraintsTest` (PR #1, #3); `AuthControllerIntegrationTest`, `AuthServiceTest`, `OrgPermissionServiceTest`, `OrgPermissionPreAuthorizeIntegrationTest`, `OrganizationControllerIntegrationTest`, `OrganizationServiceTest` (PR #4); `client.test.ts`, `AuthContext.test.tsx`, `LoginForm.test.tsx` (PR #5); `RegistrationRulesTest` (12 runs, PR #186); `MyRegistrationsPage.test.tsx`, `registrationSplit.test.ts` (16, PR #194); `EmptyState.test.tsx`, "Clear filters" tests in `EventsPage.test.tsx` (PR #195); API run of W1–W5, 57 steps (PR #196) |
+| Architectural / design decisions contributed | Answered the open decisions of the foundation sessions: feature packages and layering (ADR-001), REST + OpenAPI (ADR-002), JWT with Spring Security (ADR-003), Flyway (ADR-004), Docker Compose (ADR-005); data model decisions D1–D12, e.g. D1 no waitlist, D4 events with registrations are cancelled, never deleted (`P3-data-model.txt`); frontend decisions D1–D4 (`P5-frontend.txt`); the mid-term scope cut and one `no-genai` ticket per member (`P8-ticket-plan.txt`, D12); the `good-first-ticket` rule (`P9-board-issues.txt`); equal review and merge rules (`CONTRIBUTING.md` §2, PR #109) |
+| GenAI-related work | All of the above was done with Claude Code (Claude Opus 5.5), plus one summary with Claude Opus 5.5 in claude.ai; every task has a row in `docs/genai/usage-log.md` and the first ten sessions are saved in `docs/genai/sessions/` (`P1` … `P10`). Set up the GenAI process: usage log, `CLAUDE.md` as the AI's project context, CONTRIBUTING §6. **`no-genai` ticket:** T-25 was mine; I removed the label before the work started and the page was generated with Claude Code (comment on issue #33, report §7.5), so I have no work written without GenAI |
+| Others | Created the GitHub board, labels and the 99 mid-term issues (PR #108, #109); mid-term status analysis and finish plan (PR #184); ran the API part of the manual test on a fresh stack (PR #196) |
 
 ---
 
