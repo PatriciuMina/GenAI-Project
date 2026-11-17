@@ -388,8 +388,47 @@ the door. Show how this connects to the event status (e.g. check-in while ONGOIN
 **Format:** see top of file. Optionally a small `stateDiagram-v2` for `TaskStatus`.
 
 **Done when**
-- [ ] Steps, diagram, business rules and traceability line are present.
-- [ ] Tasks, announcements and check-in all appear.
-- [ ] At least one step is justified by an interview finding (R5).
+- [x] Steps, diagram, business rules and traceability line are present.
+- [x] Tasks, announcements and check-in all appear.
+- [ ] At least one step is justified by an interview finding (R5). *Open: added after the interview findings (T-58, §6.4) exist.*
 
-> TODO (team): W5 workflow here.
+```mermaid
+flowchart TD
+    A[Organizer opens Organizing and an event /organizing/events/:id] --> B[Event page: details, status actions, Tasks, Participants, Announcements]
+    B --> T1[Tasks: GET /events/id/tasks]
+    T1 --> T2[Create task: title, description, due date, assignee - POST, status TODO]
+    T2 --> T3[Change status TODO / IN_PROGRESS / DONE or assignee - PATCH]
+    B --> P1[Participants: GET /events/id/registrations]
+    P1 --> P2{Event REGISTRATION_CLOSED or ONGOING?}
+    P2 -- no --> P3[List only, no Check in button]
+    P2 -- yes --> P4[Check in a CONFIRMED participant - POST .../check-in]
+    P4 --> P5{Already checked in?}
+    P5 -- yes --> P6[409 ALREADY_CHECKED_IN]
+    P5 -- no --> P7[checkedInAt saved, counter updated]
+    B --> N1{Event DRAFT or COMPLETED?}
+    N1 -- yes --> N2[409 ANNOUNCEMENT_NOT_ALLOWED]
+    N1 -- no --> N3[Post announcement - POST /events/id/announcements]
+    N3 --> N4[Members and registered students read it on /events/:id, newest first]
+```
+
+1. **Implemented — open the organizer event page:** An `ORGANIZER` or `PRESIDENT` selects **Organizing** (shown only to them, T-02), picks one of their organization's events and opens `/organizing/events/{id}`. The page shows the event details, the status actions of W2 (§5.2) and three panels: **Tasks**, **Participants** and **Announcements**.
+2. **Implemented — split the work into tasks:** The **Tasks** panel loads `GET /api/v1/events/{id}/tasks`, sorted by due date with tasks without a due date last. The organizer creates a task with a title (required, max 200 characters) and optionally a description, a due date and an assignee chosen from the organization's members (`POST /api/v1/events/{id}/tasks`). A new task starts as `TODO`.
+3. **Implemented — follow the tasks:** In the table the organizer changes a task's status (`TODO`, `IN_PROGRESS`, `DONE`, in any direction) or its assignee, or removes the assignee, with `PATCH /api/v1/events/{id}/tasks/{taskId}`. Only the fields sent are changed. An assignee who is not a member of the event's organization is rejected with 400 `ASSIGNEE_NOT_IN_ORGANIZATION`.
+4. **Implemented — follow the participant list:** The **Participants** panel loads `GET /api/v1/events/{id}/registrations`: name, email, registration status, registration and check-in times, sorted by name. The panel shows "x / capacity confirmed, y checked in" and a search box that filters the list by name in the browser.
+5. **Implemented — inform participants:** In the **Announcements** panel the organizer writes a title (max 200 characters) and a text and posts it (`POST /api/v1/events/{id}/announcements`); the organizer is stored as the author. Posting is rejected with 409 `ANNOUNCEMENT_NOT_ALLOWED` while the event is `DRAFT` (nobody can see it yet) or once it is `COMPLETED`.
+6. **Implemented — participants read the announcements:** On the public event page (`/events/{id}`, W3) members of the organization and students with a `CONFIRMED` or `CANCELLED` registration see the announcements, newest first (`GET /api/v1/events/{id}/announcements`). Anyone else gets 403 and the section is not shown.
+7. **Implemented — close registration and start the event:** Before the event the organizer uses the W2 actions **Close registration** and/or **Start** (allowed from one hour before the start). Check-in is possible only in `REGISTRATION_CLOSED` or `ONGOING`, so the door list is fixed or the event is running.
+8. **Implemented — check participants in at the door:** For each `CONFIRMED` participant who has not been checked in the panel shows **Check in**, which sends `POST /api/v1/events/{id}/registrations/{registrationId}/check-in`. The check-in time is stored and the counter updates. A second check-in returns 409 `ALREADY_CHECKED_IN`; a `CANCELLED` registration or an event in another status returns 409 `CHECK_IN_NOT_ALLOWED`. There is no undo in the MVP.
+9. **Implemented — finish:** After the end time the organizer selects **Complete** (W2). From then on no announcements can be posted and no one can be checked in; tasks, participants and check-in times stay as the event's history.
+
+**Business rules**
+- Only an `ORGANIZER` or `PRESIDENT` of the event's organization can use tasks, the participant list, check-in and posting announcements; everyone else gets 403 (a global `ADMIN` too, unless they have that role). (`TaskService`, `RegistrationService`, `AnnouncementService`, `OrgPermissionService.isOrganizer`; FR-W5-01, FR-W5-04, FR-W5-07, FR-W5-08; data-model service rule 6)
+- A task has at most one assignee, and the assignee is a **membership** of the event's organization; removing that member from the organization leaves the task unassigned. (`TaskService`; FR-W5-03; data-model `fk_event_tasks_assignee` SET NULL)
+- Task status is `TODO`, `IN_PROGRESS` or `DONE`; any change is allowed, and tasks do not depend on the event status. (`TaskStatus`, `TaskService.update`; FR-W5-05; `ck_event_tasks_status`)
+- Check-in only for a `CONFIRMED` registration of this event, only while the event is `REGISTRATION_CLOSED` or `ONGOING`, and only once. A registration id of another event answers 404. (`RegistrationService.checkIn`; FR-W5-07; data-model service rule 5, `ck_registrations_checkin_confirmed`)
+- A checked-in registration can no longer be cancelled by the student. (`RegistrationService.cancelMyRegistration`; FR-W4-05)
+- Announcements: title 1–200 characters and a non-blank body; not on `DRAFT` or `COMPLETED` events; readable by organization members and by students with a `CONFIRMED` or `CANCELLED` registration, newest first. (`AnnouncementRequest`, `AnnouncementService`; FR-W5-08, FR-W5-09)
+- Announcements are shown only in the app; there are no e-mail or push notifications in the MVP. (data-model, `Announcement`; assumption A-08 in §6.5)
+- Editing or deleting tasks and announcements is deferred to the final delivery. (FR-W5-06, FR-W5-10)
+
+`R: R5, R6 · FR: FR-W5-01, FR-W5-02, FR-W5-03, FR-W5-04, FR-W5-05, FR-W5-07, FR-W5-08, FR-W5-09 (FR-W5-06, FR-W5-10 later) · UC: UC-50, UC-51, UC-52, UC-53, UC-54 · Code: organizing (TaskController, TaskService, AnnouncementController, AnnouncementService), registration (RegistrationService.listParticipants, checkIn), frontend features/organizing (OrganizerEventPage, TasksPanel, ParticipantsPanel, AnnouncementsPanel), features/events (EventAnnouncements) · Tests: TaskControllerIntegrationTest, TaskUpdateControllerIntegrationTest, TaskServiceTest, TaskServiceUpdateTest, AnnouncementControllerIntegrationTest, AnnouncementServiceTest, RegistrationCheckInControllerIntegrationTest, RegistrationServiceCheckInTest, RegistrationListControllerIntegrationTest, TasksPanel.test.tsx, ParticipantsPanel.test.tsx, AnnouncementsPanel.test.tsx, EventAnnouncements.test.tsx`
