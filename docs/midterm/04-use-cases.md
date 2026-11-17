@@ -40,30 +40,6 @@ Copy this block for every use case. Length guideline: 15–30 lines per use case
 **Status:** implemented / partial / planned
 ```
 
-> **Example – replace:**
->
-> ### UC-41: Register for an event
->
-> | Field | Value |
-> |-------|-------|
-> | Workflow | W4 |
-> | Primary actor | Student |
-> | Linked FR | FR-W4-01, FR-W4-02 |
-> | Preconditions | Student is logged in; event "Intro to Spring Boot Workshop" is PUBLISHED and the deadline has not passed |
-> | Postconditions (success) | A CONFIRMED registration exists; free places decrease by one |
->
-> **Main flow**
-> 1. Student opens the event details page.
-> 2. Student presses "Register".
-> 3. System checks the registration window and capacity, then saves the registration.
-> 4. System shows "You are registered".
->
-> **Alternative / error flows**
-> - 3a. Event is full: system rejects the request and shows "No places left".
-> - 3b. Student already has a confirmed registration: system shows "Already registered".
->
-> **Status:** planned
-
 ---
 
 ## 4.2 Use case list
@@ -238,7 +214,115 @@ Extra sources: `auth/` package, `backend/src/test/java/ro/ubb/events/auth/*`, `f
 - [ ] One section per UC-01–09 in the list, using the template.
 - [ ] Error flows match the API responses in Swagger.
 
-> TODO (team): UC-01 … here.
+### UC-01: Create an account
+
+| Field | Value |
+|-------|-------|
+| Workflow | AUTH |
+| Primary actor | Visitor |
+| Linked FR | FR-AUTH-01, FR-AUTH-02, FR-ADM-01, FR-AUTH-06 |
+| Preconditions | Visitor is on the registration page; the email is not already in use |
+| Postconditions (success) | A STUDENT account exists with a hashed password; the web app logs the user in |
+
+**Main flow**
+1. Visitor opens "Create an account".
+2. Visitor enters a full name, email and password.
+3. The web app checks the fields and submits the registration.
+4. System trims the name, normalizes the email to lowercase, hashes the password and creates a STUDENT account.
+5. The web app logs in with those credentials and opens the organizations page.
+
+**Alternative / error flows**
+- 3a. A required field, email or length is invalid: the form shows field errors; the API returns 400 `VALIDATION_FAILED`.
+- 4a. The email is already used, ignoring case: the API returns 409 `EMAIL_ALREADY_USED`; the form shows the error.
+- 4b. A role is included in the request: registration still creates a STUDENT account; ADMIN accounts come from seed data.
+
+**Status:** implemented
+
+### UC-02: Log in
+
+| Field | Value |
+|-------|-------|
+| Workflow | AUTH |
+| Primary actor | Visitor |
+| Linked FR | FR-AUTH-03, FR-AUTH-04, FR-AUTH-06, FR-AUTH-07, FR-AUTH-08 |
+| Preconditions | Visitor has an account and is on the login page |
+| Postconditions (success) | A bearer token valid for two hours is stored; the app loads the user's account |
+
+**Main flow**
+1. Visitor enters an email and password.
+2. Visitor submits the login form.
+3. System verifies the credentials and returns a bearer access token.
+4. The web app stores the token, requests the current user's account and opens the requested page, or the organizations page.
+
+**Alternative / error flows**
+- 2a. Required fields are blank: the form shows field errors; invalid API input returns 400 `VALIDATION_FAILED`.
+- 3a. The password is wrong or the email is unknown: the API returns 401 `INVALID_CREDENTIALS` with the same "Invalid credentials" message.
+
+**Status:** implemented
+
+### UC-03: Log out
+
+| Field | Value |
+|-------|-------|
+| Workflow | AUTH |
+| Primary actor | Student / Administrator |
+| Linked FR | FR-AUTH-07 |
+| Preconditions | User is logged in with a valid token |
+| Postconditions (success) | The token, current user and query cache are cleared; the user is on the login page |
+
+**Main flow**
+1. User selects "Log out" in the application navigation.
+2. The web app clears the local session and cached data.
+3. The web app navigates to the login page; no server-side logout request is made.
+
+**Alternative / error flows**
+- 2a. The token expires or an authenticated request returns 401: the web app clears the session and shows the "Your session has expired" notice on the login page.
+
+**Status:** implemented
+
+### UC-04: View my account
+
+| Field | Value |
+|-------|-------|
+| Workflow | AUTH |
+| Primary actor | Student / Administrator |
+| Linked FR | FR-AUTH-05 |
+| Preconditions | User is logged in with a valid token |
+| Postconditions (success) | The app has the caller's id, email, full name, global role and account creation time |
+
+**Main flow**
+1. The web app requests `GET /api/v1/users/me` with the user's bearer token after login or when restoring a session.
+2. System identifies the caller from the token and returns that user's account details.
+3. The web app uses the response as the current session identity.
+
+**Alternative / error flows**
+- 1a. The token is missing, invalid or expired: the API returns 401; the web app ends the session and shows the session-expired notice.
+
+**Status:** implemented
+
+### UC-05: Create an organization and appoint its president
+
+| Field | Value |
+|-------|-------|
+| Workflow | ADM |
+| Primary actor | Administrator |
+| Linked FR | FR-ADM-02, FR-ADM-04, FR-W1-03 |
+| Preconditions | Administrator is logged in; the proposed president already has an account |
+| Postconditions (success) | The organization exists and the chosen account has a PRESIDENT membership in it |
+
+**Main flow**
+1. Administrator opens the Admin page and enters the organization name, an existing account's email as president, and optional description and contact email.
+2. Administrator submits the form.
+3. System validates the request and creates the organization and its PRESIDENT membership in one transaction.
+4. System returns the created organization; the page confirms success and links to it.
+
+**Alternative / error flows**
+- 2a. Required fields, email formats or name length are invalid: the form shows field errors; the API returns 400 `VALIDATION_FAILED`.
+- 3a. The request has no valid token: the API returns 401; a non-ADMIN caller receives 403 `FORBIDDEN`.
+- 3b. No account matches the president email: the API returns 404 `USER_NOT_FOUND`.
+- 3c. The organization name already exists, ignoring case: the API returns 409 `ORGANIZATION_NAME_TAKEN`.
+
+**Status:** implemented
 
 ---
 
