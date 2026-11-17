@@ -1,14 +1,17 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as announcementsApi from '../../api/announcements';
 import * as eventsApi from '../../api/events';
+import * as registrationsApi from '../../api/registrations';
 import type { Event } from '../../api/types';
 import { apiError, withQueryClient } from '../../test/utils';
 import { EventDetailsPage } from './EventDetailsPage';
 
 vi.mock('../../api/events');
 vi.mock('../../api/announcements');
+vi.mock('../../api/registrations');
 
 const event: Event = {
   id: 2,
@@ -44,6 +47,53 @@ describe('EventDetailsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(announcementsApi.getAnnouncements).mockResolvedValue([]);
+    vi.mocked(registrationsApi.getMyRegistrations).mockResolvedValue([]);
+  });
+
+  it('registering updates the free places on the page without a reload', async () => {
+    // relative dates: registration must still be open whenever the test runs
+    const inDays = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
+    const openEvent = {
+      ...event,
+      startAt: inDays(10),
+      endAt: inDays(10.1),
+      registrationDeadline: inDays(9),
+    };
+    vi.mocked(eventsApi.getEvent)
+      .mockResolvedValueOnce(openEvent)
+      .mockResolvedValueOnce({ ...openEvent, confirmedCount: 3, freePlaces: 27 });
+    vi.mocked(registrationsApi.getMyRegistrations)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          id: 40,
+          eventId: 2,
+          eventTitle: openEvent.title,
+          eventStartAt: openEvent.startAt,
+          eventLocation: openEvent.location,
+          eventStatus: 'PUBLISHED',
+          status: 'CONFIRMED',
+          registeredAt: inDays(0),
+          checkedInAt: null,
+        },
+      ]);
+    vi.mocked(registrationsApi.registerForEvent).mockResolvedValue({
+      id: 40,
+      eventId: 2,
+      eventTitle: openEvent.title,
+      status: 'CONFIRMED',
+      registeredAt: inDays(0),
+      checkedInAt: null,
+    });
+    const user = userEvent.setup({ delay: null });
+
+    renderPage();
+    expect(await screen.findByText('28 of 30 places left')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Register' }));
+
+    expect(await screen.findByText('27 of 30 places left')).toBeInTheDocument();
+    expect(screen.getByText('You are registered for this event.')).toBeInTheDocument();
+    expect(eventsApi.getEvent).toHaveBeenCalledTimes(2);
   });
 
   it('shows the announcements of the event below the details', async () => {
@@ -124,7 +174,9 @@ describe('EventDetailsPage', () => {
   });
 
   it('shows "Event not found" when the backend answers 404 (unknown event or a hidden draft)', async () => {
-    vi.mocked(eventsApi.getEvent).mockRejectedValue(apiError(404, 'NOT_FOUND', 'Event 999 not found'));
+    vi.mocked(eventsApi.getEvent).mockRejectedValue(
+      apiError(404, 'NOT_FOUND', 'Event 999 not found'),
+    );
 
     renderPage('/events/999');
 
@@ -140,7 +192,9 @@ describe('EventDetailsPage', () => {
   });
 
   it('shows the backend error message with a retry button for other errors', async () => {
-    vi.mocked(eventsApi.getEvent).mockRejectedValue(apiError(500, 'INTERNAL_ERROR', 'Something went wrong'));
+    vi.mocked(eventsApi.getEvent).mockRejectedValue(
+      apiError(500, 'INTERNAL_ERROR', 'Something went wrong'),
+    );
 
     renderPage();
 
