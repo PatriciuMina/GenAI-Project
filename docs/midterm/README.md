@@ -17,7 +17,7 @@ Course source: [`docs/course/course-requirements.md`](../course/course-requireme
 | | 3. Actors and roles | [`03-actors-roles.md`](03-actors-roles.md) |
 | | 4. Use cases | [`04-use-cases.md`](04-use-cases.md) |
 | | 5. Main application workflows | [`05-workflows.md`](05-workflows.md) |
-| **C. UX / user research** | Interviews, findings, changed assumptions, main product flows | [`06-ux-research.md`](06-ux-research.md), raw notes in [`interviews/`](interviews/) |
+| **C. UX / user research** | Interviews, findings, changed assumptions, main product flows, personas (6.7) | [`06-ux-research.md`](06-ux-research.md), raw notes in [`interviews/`](interviews/) |
 | **D. GenAI declaration** | Tools/models, purpose, artifacts, verification, human decisions | [`07-genai-report.md`](07-genai-report.md) |
 | **E. Individual contributions** | One declaration per student | [`08-individual-contributions.md`](08-individual-contributions.md) |
 
