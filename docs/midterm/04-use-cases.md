@@ -78,7 +78,7 @@ Table: `ID | Title | Workflow | Primary actor | Linked FR | Status`.
 | UC-30 | Browse upcoming events | W3 | Student | FR-W3-01, FR-W3-02, FR-W3-03, FR-W3-06, FR-W3-07 | implemented |
 | UC-31 | Search and filter events | W3 | Student | FR-W3-02, FR-W3-03, FR-W3-06, FR-W3-07 | implemented |
 | UC-32 | View event details | W3 | Student | FR-W2-04, FR-W3-04, FR-W3-05, FR-W3-08 | implemented |
-| UC-40 | View my registrations | W4 | Student | FR-W4-07 | partial |
+| UC-40 | View my registrations | W4 | Student | FR-W4-07 | implemented |
 | UC-41 | Register for an event | W4 | Student | FR-W4-01, FR-W4-02, FR-W4-03, FR-W4-04, FR-W4-08 | implemented |
 | UC-42 | Cancel my registration | W4 | Student | FR-W4-05, FR-W4-06 | implemented |
 | UC-50 | Manage organizer tasks | W5 | Organizer | FR-W5-02, FR-W5-03, FR-W5-04, FR-W5-05 | implemented |
@@ -704,7 +704,7 @@ Extra sources: `registration/` package, data-model.md registrations + service ru
 - 3a. There are no registrations yet: the system shows an empty list instead of throwing an error.
 - 3b. The user is not logged in: the request is rejected before the page loads because the route requires an authenticated session.
 
-**Status:** partial
+**Status:** implemented
 
 ### UC-41: Register for an event
 
