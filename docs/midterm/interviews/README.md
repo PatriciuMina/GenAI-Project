@@ -20,7 +20,7 @@ Anonymised notes of user interviews for [`../06-ux-research.md`](../06-ux-resear
 |-------|-------|
 | Participant type | e.g. student, 2nd year, member of one organization |
 | Interviewer / note taker | team member names |
-| Mode | online or in person; real or simulated |
+| Mode | online or in person |
 
 ## Notes per question
 - **Q1 (<short question>):** …
