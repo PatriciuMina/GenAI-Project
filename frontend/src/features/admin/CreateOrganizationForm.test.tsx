@@ -144,7 +144,7 @@ describe('CreateOrganizationForm', () => {
     await form.user.click(form.submit);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      "An organization named 'ubb theatre club' already exists",
+      'An organization with this name already exists.',
     );
     expect(form.name).toHaveValue('ubb theatre club');
     expect(form.submit).toBeEnabled();
@@ -163,7 +163,7 @@ describe('CreateOrganizationForm', () => {
     await form.user.click(form.submit);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'No account found with email nobody@stud.ubbcluj.ro',
+      'No account was found with that email.',
     );
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });

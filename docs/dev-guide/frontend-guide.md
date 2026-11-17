@@ -227,8 +227,8 @@ Every backend error has the same JSON (`ApiError`):
 `{ status, code, message, fieldErrors: [{ field, message }] }`.
 `parseApiError(error)` from `src/api/errors.ts` turns it into:
 
-- `message`: the backend message (e.g. "Invalid credentials", "Organization 999 not found").
-  For validation errors it says "Please correct the highlighted fields."
+- `message`: a friendly message for known business error codes, or the backend message for other
+  codes. For validation errors it says "Please correct the highlighted fields."
 - `fieldErrors`: `{ email: 'must be a well-formed email address', ... }`. The keys are the
   backend DTO field names, so give your form fields the same names.
 - `status` and `code` if you need to react differently (e.g. `status === 404` → "not found" view).
