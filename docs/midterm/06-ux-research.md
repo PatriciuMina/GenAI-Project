@@ -20,14 +20,13 @@ identified user needs"), see `docs/course/course-requirements.md`.
 > anonymised quotations in our report. You can skip any question or stop at any time. Do
 > you agree to participate?"
 
-**Method (status 2026-11-17).** So far **4 real interviews**, all online, conducted and noted
-by Patriciu Mina (log in 6.3, notes in [`interviews/`](interviews/)). Participants were found
-through the team's personal network and chosen to cover different kinds of users: three
-students (a Master's student who works full time, a recent UBB Computer Science graduate,
-and a student of another university who has never been to a UBB event) and one organizer
-(a study group leader who organizes events for their study group). Students were asked
-the student questions of the guide (6.2), the organizer the organizer questions; follow-ups
-("Why?", "What happened next?") were added where useful. Before each interview the consent
+**Method (status 2026-11-17).** **3 real interviews**, all online, conducted and noted by
+Patriciu Mina (log in 6.3, notes in [`interviews/`](interviews/)). Participants were found
+through the team's personal network and chosen to cover different kinds of students: a
+Master's student who works full time, a recent UBB Computer Science graduate, and a student
+of another university who has never been to a UBB event. They were asked the student
+questions of the guide (6.2); follow-ups ("Why?", "What happened next?") were added where
+useful. Before each interview the consent
 note above was read and every participant agreed. Notes are anonymised: no names, contact
 details or employers.
 
@@ -35,13 +34,12 @@ details or employers.
 personal contact: two 1st-year students of the economics faculty who are members of student
 organizations (a volunteering organization, an international student organization). They
 answered the 12 student questions **in writing** after agreeing to the consent note above, so
-there were no follow-up questions. This brings the total to **6 interviews (5 students, 1
-organizer)**. The findings, assumptions, flows and personas below are based on I-01 to I-04;
-I-05 and I-06 are not included in them yet.
+there were no follow-up questions. This brings the total to **5 interviews, all with students**. The findings, assumptions, flows
+and personas below are based on I-01 to I-03; I-05 and I-06 are not included in them yet.
 
-**Limitations.** The aim of at least two organizers is not met yet (one so far, and not from a
-registered student organization); the interviews of the other team members (T-53 to T-56)
-will be added to the log, and the findings below will be updated. Findings supported by a
+**Limitations.** No organizer has been interviewed yet, so the organizer side (W2, W5) is
+supported only by what students observed at events; organizer interviews will be added to
+the log and the findings below updated. Findings supported by a
 single interview are marked as such.
 
 ---
@@ -85,7 +83,6 @@ single interview are marked as such.
 | I-01 | Student, Master's at FSEGA, works full time; former volunteer in a student organization | Patriciu Mina | Online | [I-01](interviews/I-01.md) |
 | I-02 | UBB CS graduate, backend developer; never in a student organization | Patriciu Mina | Online | [I-02](interviews/I-02.md) |
 | I-03 | Student at another university (medicine), never at a UBB event; team lead in a student organization | Patriciu Mina | Online | [I-03](interviews/I-03.md) |
-| I-04 | Organizer: study group leader, CS, 2nd year | Patriciu Mina | Online | [I-04](interviews/I-04.md) |
 | I-05 | Student, 1st year, economics faculty; new member of a volunteering organization | Andrei Gota | Written answers | [I-05](interviews/I-05.md) |
 | I-06 | Student, 1st year, economics faculty; member of an international student organization | Andrei Gota | Written answers | [I-06](interviews/I-06.md) |
 
@@ -95,15 +92,14 @@ single interview are marked as such.
 
 | ID | Finding | Evidence (interviews) | Consequence for the product |
 |----|---------|-----------------------|-----------------------------|
-| F-01 | People find events through social media and chat groups, not by searching a university site; the institutional e-mail is not read. | I-01 (LinkedIn, Instagram), I-02 (year's Facebook group: "I just saw posts"), I-03 (a friend on WhatsApp), I-04 ("nobody reads the institutional email") | No change for the MVP: every event has its own page (`/events/{id}`) and the filtered list keeps its filters in the URL, so both can be shared in a chat (FR-W3-07, FR-W3-08). Main product flow 1 in 6.6 starts from a shared link. Confirms A-13. |
-| F-02 | When an event is full, people who miss it are lost; organizers improvise a reserve list and move people up when others drop out. | I-01 (masterclass full, "keep me in mind" and never heard back), I-04 (26 people for 20 places: "I made a reserve list… the first three from the reserve moved up") | **Change:** waitlist for the final delivery, FR-W4-09, issue #199. Changes A-01. |
-| F-03 | Participants follow events in their calendar, e-mail and chats; a change announced in only one channel does not reach everyone. | I-01 ("a calendar invite, and that was perfect"; change by e-mail), I-02 (Discord server), I-03 (group chat, screenshots, calendar), I-04 (cancellation in the chat, "but two people still came") | **Change:** calendar file and e-mail on change or cancellation for the final delivery, FR-W5-11, issue #200. Changes A-08. In-app announcements (FR-W5-08) stay. |
+| F-01 | People find events through social media and chat groups, not by searching a university site. | I-01 (LinkedIn, Instagram), I-02 (year's Facebook group: "I just saw posts"), I-03 (a friend on WhatsApp) | No change for the MVP: every event has its own page (`/events/{id}`) and the filtered list keeps its filters in the URL, so both can be shared in a chat (FR-W3-07, FR-W3-08). Main product flow 1 in 6.6 starts from a shared link. Confirms A-13. |
+| F-02 | When an event is full, people who miss it are lost: nobody contacts them when a place becomes free. *(single interview)* | I-01 (masterclass full, "keep me in mind" and never heard back) | **Change:** waitlist for the final delivery, FR-W4-09, issue #199. Changes A-01. |
+| F-03 | Participants follow events in their calendar, e-mail and chats rather than in one place. | I-01 ("a calendar invite, and that was perfect"; change by e-mail), I-02 (Discord server), I-03 (group chat, screenshots, calendar) | **Change:** calendar file and e-mail on change or cancellation for the final delivery, FR-W5-11, issue #200. Changes A-08. In-app announcements (FR-W5-08) stay. |
 | F-04 | Registration forms that require a student e-mail exclude graduates and students of other universities, and events do not say who may attend. | I-02 (alumni meetup: "the form wanted a student email, and mine is deactivated"), I-03 ("I assumed it was only for UBB students"; "It didn't say if non-UBB students were allowed") | Keep: our accounts accept any e-mail (A-04). **Change:** the event shows who may attend, FR-W3-09, issue #201 (new assumption A-14). |
-| F-05 | Whether to go depends on when and where the event is relative to the person's day (work, hospital, building and room). | I-01 (only evenings or weekends; distance from the office; "It was at 4 PM on a weekday"), I-03 (distance from the hospital), I-04 ("Room code plus building, because people get lost") | No change: cards and details show date, start and end time and the location text (FR-W3-04, FR-W3-07); organizers should write building and room in the location (A-03 kept). Filtering by time of day: open (I-01 only). |
-| F-06 | Without a way to cancel, people simply do not show up; organizers need cancellations to free places. | I-01 ("I just didn't go… There was no option to do it"), I-04 (three drop-outs freed places for the reserve list) | No change: cancelling is implemented and frees the place (FR-W4-05, UC-42, "My registrations"). Confirms A-06. |
-| F-07 | Check-in is a name list or QR scan, often done by volunteers or helpers when there is a queue; small events record nothing. | I-01 (volunteer with a name list), I-02 ("the organizers asked mentors to scan QR codes too"), I-03 (name list), I-04 ("I just counted people") | No change for the MVP: organizers check participants in from the participant list (FR-W5-07, W5 step 8). Letting more helpers check in stays open (A-07). |
-| F-08 | A task shared by two people without one owner causes confusion. *(single interview)* | I-04 ("with two people on the money, it got confusing who had collected from whom") | No change: a task has at most one assignee (FR-W5-03, W5 step 2). Confirms A-09. |
-| F-09 | The event description often misses what people need to decide (who comes, who may attend). | I-02 (career fair "didn't say which companies were coming"), I-03 (eligibility not stated) | Partly covered by F-04 (FR-W3-09). The description stays free text (FR-W2-02); no other change. |
+| F-05 | Whether to go depends on when and where the event is relative to the person's day (work, hospital). | I-01 (only evenings or weekends; distance from the office; "It was at 4 PM on a weekday"), I-03 (distance from the hospital) | No change: cards and details show date, start and end time and the location text (FR-W3-04, FR-W3-07); organizers should write building and room in the location (A-03 kept). Filtering by time of day: open (I-01 only). |
+| F-06 | Without a way to cancel, people simply do not show up. *(single interview)* | I-01 ("I just didn't go… There was no option to do it") | No change: cancelling is implemented and frees the place (FR-W4-05, UC-42, "My registrations"). Confirms A-06. |
+| F-07 | Check-in is a name list or QR scan, often done by volunteers or helpers when there is a queue. | I-01 (volunteer with a name list), I-02 ("the organizers asked mentors to scan QR codes too"), I-03 (name list) | No change for the MVP: organizers check participants in from the participant list (FR-W5-07, W5 step 8). Letting more helpers check in stays open (A-07). |
+| F-08 | The event description often misses what people need to decide (who comes, who may attend). | I-02 (career fair "didn't say which companies were coming"), I-03 (eligibility not stated) | Partly covered by F-04 (FR-W3-09). The description stays free text (FR-W2-02); no other change. |
 
 ---
 
@@ -111,31 +107,31 @@ single interview are marked as such.
 
 | # | Assumption (current design) | Source in repo | Interview evidence | Keep / change | Change made |
 |---|-----------------------------|----------------|--------------------|---------------|-------------|
-| A-01 | No waitlist: when an event is full, new registrations are rejected | `docs/data-model.md` D1, `RegistrationStatus` | I-04 used a reserve list and moved people up; I-01 lost a place and was never contacted (F-02) | change | FR-W4-09 waitlist (priority later), issue #199; D1 in `docs/data-model.md` already allows adding a `WAITLISTED` status by a new migration |
+| A-01 | No waitlist: when an event is full, new registrations are rejected | `docs/data-model.md` D1, `RegistrationStatus` | I-01 lost a place at a full event and was never contacted again (F-02, single interview) | change | FR-W4-09 waitlist (priority later), issue #199; D1 in `docs/data-model.md` already allows adding a `WAITLISTED` status by a new migration |
 | A-02 | A fixed list of event categories is enough (ACADEMIC, CAREER, CULTURAL, SOCIAL, SPORTS, VOLUNTEERING, WORKSHOP, OTHER) | data-model.md D3, `EventCategory` | No interviewee filtered by category; I-01 filters by time (F-05) | open | — |
-| A-03 | Location as free text is enough (no room/building list, no map) | data-model.md D2 | I-01 and I-03 needed the distance from work or hospital and looked the venue up; I-04 writes room code plus building (F-05) | keep | Free text can hold building and room; a map link is not needed for the MVP. Reason: people mostly needed the exact place, which the text gives |
+| A-03 | Location as free text is enough (no room/building list, no map) | data-model.md D2 | I-01 and I-03 needed the distance from work or hospital and looked the venue up (F-05) | keep | Free text can hold building and room; a map link is not needed for the MVP. Reason: people mostly needed the exact place, which the text gives |
 | A-04 | Anyone can create an account with any email (not only UBB addresses) | ADR-003 implementation notes, `RegisterRequest` | I-02 (alumnus) and I-03 (other university) were blocked by forms that required a student e-mail (F-04) | keep | Confirmed by contrast: our accounts accept any e-mail. See A-14 for what changed |
-| A-05 | A registration deadline is optional; without one, registration is open until the event starts | data-model.md `ck_events_deadline_before_start` | I-01 missed a form that closed during the working day; I-04 sets a reply deadline and people answer late | keep | The deadline stays optional and is shown on the event page (FR-W3-04). Reason: both organizers and students use deadlines; none asked for a different rule |
-| A-06 | A student may cancel and later register again for the same event | data-model.md `ux_registrations_confirmed_once` | I-01 did not cancel because there was no way to, and just did not show up; I-04 needed drop-outs to free places (F-06) | keep | Confirmed; implemented as FR-W4-05 / FR-W4-06 |
-| A-07 | Only organizers of the organization check participants in | data-model.md service rule 5 | I-01 and I-03: a volunteer checks a name list; I-02: mentors helped scan QR codes because of a queue; I-04 records nothing (F-07) | open | Challenged by I-02: helpers who are not organizers did check-in. Kept for the MVP (only organizers, FR-W5-07) because check-in data is personal; to discuss with more organizer interviews |
-| A-08 | Announcements are shown only in the app (no email or push notifications) | `Announcement` entity, data-model.md | All four rely on calendar, e-mail, Discord or chats; I-04: a cancellation posted in one place did not reach two people (F-03) | change | FR-W5-11 calendar file and e-mail on change/cancellation (priority later), issue #200; in-app announcements stay |
-| A-09 | Each organizer task has at most one assignee | `EventTask.assignee` (column `assignee_membership_id`), data-model.md | I-04: a task shared by two people caused confusion (F-08, single interview) | keep | Confirmed; one assignee per task (FR-W5-03) |
-| A-10 | Three organization roles (PRESIDENT, ORGANIZER, MEMBER) are enough | `OrganizationRole`, `OrgPermissionService` | I-01: volunteer → coordinator; I-03: volunteer → project team lead; I-04: elected leader, others help | open | Organizations have more levels (coordinator, team lead) than our three roles, but they map to ORGANIZER for what the app does. Not enough evidence to add roles |
+| A-05 | A registration deadline is optional; without one, registration is open until the event starts | data-model.md `ck_events_deadline_before_start` | I-01 missed a form that closed during the working day | keep | The deadline stays optional and is shown on the event page (FR-W3-04). Reason: nobody asked for a different rule; seeing the deadline in advance would have helped I-01 |
+| A-06 | A student may cancel and later register again for the same event | data-model.md `ux_registrations_confirmed_once` | I-01 did not cancel because there was no way to, and just did not show up (F-06) | keep | Confirmed; implemented as FR-W4-05 / FR-W4-06 |
+| A-07 | Only organizers of the organization check participants in | data-model.md service rule 5 | I-01 and I-03: a volunteer checks a name list; I-02: mentors helped scan QR codes because of a queue (F-07) | open | Challenged by I-02: helpers who are not organizers did check-in. Kept for the MVP (only organizers, FR-W5-07) because check-in data is personal; to discuss with more organizer interviews |
+| A-08 | Announcements are shown only in the app (no email or push notifications) | `Announcement` entity, data-model.md | I-01, I-02 and I-03 follow events in their calendar, e-mail, Discord or chats, not in an app (F-03) | change | FR-W5-11 calendar file and e-mail on change/cancellation (priority later), issue #200; in-app announcements stay |
+| A-09 | Each organizer task has at most one assignee | `EventTask.assignee` (column `assignee_membership_id`), data-model.md | No organizer interviewed yet | open | — |
+| A-10 | Three organization roles (PRESIDENT, ORGANIZER, MEMBER) are enough | `OrganizationRole`, `OrgPermissionService` | I-01: volunteer → coordinator; I-03: volunteer → project team lead | open | Organizations have more levels (coordinator, team lead) than our three roles, but they map to ORGANIZER for what the app does. Not enough evidence to add roles |
 | A-11 | An English-only user interface is acceptable | `frontend/src` (all texts in English) | I-01, I-02: English is fine; I-03 prefers Romanian, but says English-line students need English | open | Mixed answers; English stays for the MVP, a Romanian translation is a candidate for the final delivery |
-| A-12 | Only organizers and presidents create events; regular members cannot | `OrgPermissionService` (`isOrganizer`), `03-actors-roles.md` | I-04: the group leader creates and announces events | keep | Confirmed for the organizer interviewed; more organizer interviews needed |
-| A-13 | Students currently find events mainly through social media and word of mouth | team assumption (problem statement) | I-01 LinkedIn/Instagram, I-02 Facebook group, I-03 WhatsApp, I-04 group chat (F-01) | keep | Confirmed; shareable event links (FR-W3-07, FR-W3-08) support it |
+| A-12 | Only organizers and presidents create events; regular members cannot | `OrgPermissionService` (`isOrganizer`), `03-actors-roles.md` | No organizer interviewed yet | open | — |
+| A-13 | Students currently find events mainly through social media and word of mouth | team assumption (problem statement) | I-01 LinkedIn/Instagram, I-02 Facebook group, I-03 WhatsApp (F-01) | keep | Confirmed; shareable event links (FR-W3-07, FR-W3-08) support it |
 | A-14 *(new)* | Every logged-in user may register for any published event, and nothing more needs to be said about who may attend | `RegistrationService.register` | I-03 did not register because the event "didn't say if non-UBB students were allowed"; I-02 was blocked by a student-only form (F-04) | change | FR-W3-09 "who may attend" shown on the event (priority later), issue #201 |
 
 **Summary.** Of 14 assumptions, 3 were changed by the interviews (A-01 waitlist, A-08
-notifications outside the app, A-14 who may attend), 7 were kept with interview support,
-and 4 stay open until more organizer interviews are available. The changes are planned for
+notifications outside the app, A-14 who may attend), 5 were kept with interview support,
+and 6 stay open, mostly because no organizer has been interviewed yet. The changes are planned for
 the final delivery; the mid-term MVP was not changed.
 
 ---
 
 ## 6.6 Main product flows
 
-1. **Open a shared event and decide whether to go** (F-01, F-05, F-09: events reach people as links in chats; the decision depends on time, place and details)
+1. **Open a shared event and decide whether to go** (F-01, F-05, F-08: events reach people as links in chats; the decision depends on time, place and details)
    open the link from a chat → log in → event page: date and time, location, description, free places, deadline → decide.
    Implemented by: W3, UC-32
 2. **Take a place before the event fills up** (F-02, F-05: places run out; people check time first)
@@ -171,14 +167,4 @@ the final delivery; the mid-term MVP was not changed.
 - **Frustrations:** forms that require a UBB student e-mail; events that do not say who may attend.
 - **Typical scenario:** a friend sends a link on WhatsApp; he creates an account with his own e-mail, checks who the event is for and how far it is, then registers or gives up.
 - **Workflows:** W3, W4 (flows 1, 2 in 6.6).
-- **Based on:** F-01, F-04, F-05, F-09 · I-02, I-03.
-
-### Bianca – the student organizer
-- **Actor:** Organizer (or President) of an organization.
-- **Description:** organizes events for her colleagues next to her studies; is the contact person, so most of the work lands on her.
-- **Goals:** know who comes; handle more interested people than places; reach everyone when something changes; give each task a clear owner.
-- **Frustrations:** people who answer after the deadline; a cancellation that did not reach everyone; shared tasks without an owner; counting people by hand.
-- **Typical scenario:** creates and publishes the event, splits the work into tasks with one assignee each, posts an announcement when the room changes, checks people in at the door.
-- **Workflows:** W2, W5 (flows 4, 5 in 6.6).
-- **Based on:** F-02, F-03, F-07, F-08 · I-04 (one organizer so far; to be checked against the other organizer interviews).
-
+- **Based on:** F-01, F-04, F-05, F-08 · I-02, I-03.

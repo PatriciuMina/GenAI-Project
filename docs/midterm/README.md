@@ -39,7 +39,7 @@ gives the traceability required by R15.
 ## Status
 
 Sections 01–07 are final and were checked against `main` on 2026-11-17 (statuses of
-requirements and use cases, workflows W1–W5, user research from interviews I-01 to I-04).
+requirements and use cases, workflows W1–W5, user research from interviews I-01 to I-03).
 Section 08 is filled by each student for their own part; its instructions stay in the file
 until all five statements are written. New interviews go into `interviews/` and the
 interview log (6.3), and the findings (6.4) are updated from them.
