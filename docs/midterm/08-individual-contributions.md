@@ -98,16 +98,14 @@ The table in each section; each cell a short list. Total per student ≈ ½ page
 
 | Field | Contribution |
 |-------|--------------|
-| Owned artifact(s) | |
-| Owned workflow | |
-| Implemented functionality | |
-| Documentation produced | |
-| Tests written | |
-| Architectural / design decisions contributed | |
-| GenAI-related work | |
-| Others | |
-
-> TODO (team): Portik Márk-Krisztián fills this section.
+| Owned artifact(s) | Membership and event frontend features (`frontend/src/components/AppLayout.tsx`, `frontend/src/features/organizations/`, `frontend/src/features/events/`, `frontend/src/features/organizing/`; PRs #118, #119, #121, #123, #156, #160, #162–#166); event lifecycle and search backend/tests (PRs #120, #154–#155, #157, #173–#174); student, organizer, organization and admin wireframes (`docs/design/wireframes.md`, `docs/assets/wireframes/`, PRs #175–#177). |
+| Owned workflow | **W1 Organizations and membership**, UI contribution across the cross-layer flow in `05-workflows.md` §5.1: role-gated Organizing navigation and member list/add-remove screens (#118, #119, #121) call the membership APIs (`/users/me/memberships`, `/organizations/{id}/members`); those APIs read and update organization membership records in the database (T-01, T-03–T-05). The API/database work was shared with teammates. |
+| Implemented functionality | Membership-aware navigation (T-02, PR #118); organization member list (T-06, PR #119); add/remove member UI (T-07, PR #121); event create/edit and lifecycle UI (T-13, #123; T-15, #162); event search and list (T-16, #155; T-19, #156); organizing page (T-14, #160), task/participant/announcement panels (T-31–T-33, #163, #164, #166). |
+| Documentation produced | Frontend guide membership-navigation notes (T-02, PR #118); screen design notes and eight wireframes in `docs/design/wireframes.md` and `docs/assets/wireframes/` (T-41–T-43, PRs #175–#177); GenAI activity recorded in `docs/genai/usage-log.md` (Portik rows dated 2026-11-12–2026-11-16). |
+| Tests written | `AppLayout.test.ts` (T-02, #118); `MembersSection.test.tsx` (T-06, #119); event form/list, organizing page, status actions and panel tests (T-13–T-16, T-19, T-31–T-33; PRs #123, #156, #160, #162–#166); `EventLifecycleTest` (T-37, #173) and `PermissionMatrixIntegrationTest` (T-38, #174). |
+| Architectural / design decisions contributed | Membership navigation stays hidden while memberships load to prevent a role flicker (`AppLayout.test.ts`, T-02, #118); the member list is available to organization members and ADMIN, matching the API permission contract (T-06, #119); event updates use optimistic versioning and reject capacity below confirmed registrations (T-11, #120; D11 in `docs/data-model.md`); wireframes trace screen elements to use cases (T-41–T-43, #175–#177). |
+| GenAI-related work | Codex (GPT-6) use and verification are recorded in `docs/genai/usage-log.md` rows dated 2026-11-12–2026-11-16. **No-genai ticket:** T-06 (PR #119) carried the `no-genai` label; the usage log records Codex assistance for that work, so it was not completed in compliance with that label. |
+| Others | GitHub confirms 20 merged PRs by `MARKUCI14` in this repository; the latest is [#177](https://github.com/PatriciuMina/GenAI-Project/pull/177) (T-43). Commit history was checked per PR, including [T-06 PR #119](https://github.com/PatriciuMina/GenAI-Project/pull/119/commits) (`2f53697`) and [T-43 PR #177](https://github.com/PatriciuMina/GenAI-Project/pull/177/commits) (`3310cc3`). |
 
 ---
 
