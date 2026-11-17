@@ -31,6 +31,14 @@ the student questions of the guide (6.2), the organizer the organizer questions;
 note above was read and every participant agreed. Notes are anonymised: no names, contact
 details or employers.
 
+**Added on 2026-11-17 (I-05, I-06).** Two more students, found by Andrei Gota through a
+personal contact: two 1st-year students of the economics faculty who are members of student
+organizations (a volunteering organization, an international student organization). They
+answered the 12 student questions **in writing** after agreeing to the consent note above, so
+there were no follow-up questions. This brings the total to **6 interviews (5 students, 1
+organizer)**. The findings, assumptions, flows and personas below are based on I-01 to I-04;
+I-05 and I-06 are not included in them yet.
+
 **Limitations.** The aim of at least two organizers is not met yet (one so far, and not from a
 registered student organization); the interviews of the other team members (T-53 to T-56)
 will be added to the log, and the findings below will be updated. Findings supported by a
@@ -78,6 +86,8 @@ single interview are marked as such.
 | I-02 | UBB CS graduate, backend developer; never in a student organization | Patriciu Mina | Online | [I-02](interviews/I-02.md) |
 | I-03 | Student at another university (medicine), never at a UBB event; team lead in a student organization | Patriciu Mina | Online | [I-03](interviews/I-03.md) |
 | I-04 | Organizer: study group leader, CS, 2nd year | Patriciu Mina | Online | [I-04](interviews/I-04.md) |
+| I-05 | Student, 1st year, economics faculty; new member of a volunteering organization | Andrei Gota | Written answers | [I-05](interviews/I-05.md) |
+| I-06 | Student, 1st year, economics faculty; member of an international student organization | Andrei Gota | Written answers | [I-06](interviews/I-06.md) |
 
 ---
 
