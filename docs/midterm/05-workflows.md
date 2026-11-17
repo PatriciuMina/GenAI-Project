@@ -19,27 +19,8 @@ database. Use cases (`04-use-cases.md`) describe single interactions; here you c
 `docs/architecture/ADR-001…`, `docs/course/course-requirements.md`, `02-requirements.md`,
 `04-use-cases.md`, `06-ux-research.md` → "Main product flows".
 
-**Format example (applies to all sections)**
-
-> **Example – replace:**
->
-> 1. The student opens **Events** (`/events`) and selects "Intro to Spring Boot Workshop".
-> 2. The frontend calls `GET /api/v1/events/{id}` (planned) and shows free places (28 of 30).
->
-> ```mermaid
-> sequenceDiagram
->     actor S as Student
->     participant FE as Frontend
->     participant API as Backend API
->     participant DB as PostgreSQL
->     S->>FE: Click "Register"
->     FE->>API: POST /api/v1/events/{id}/registrations
->     API->>DB: lock event row, count CONFIRMED, insert
->     API-->>FE: 201 Created
->     FE-->>S: "You are registered"
-> ```
->
-> `R: R3 · FR: FR-W4-01, FR-W4-02 · UC: UC-41 · Code: registration · Tests: planned`
+**Format example (applies to all sections):** See the completed W1 workflow in
+[§5.1](#51-w1-organizations-and-membership).
 
 ---
 
@@ -61,7 +42,82 @@ and members leaving. Show how an organization role later unlocks W2/W5 actions.
 - [ ] Steps, diagram, business rules and traceability line are present.
 - [ ] Implemented steps (list/view organizations) are distinguished from planned ones.
 
-> TODO (team): W1 workflow here.
+1. **Implemented — create:** An administrator opens **Admin** (`/admin`), enters an organization name and an existing account's email as its president, then submits. The frontend calls `POST /api/v1/organizations`.
+2. **Implemented — appoint president:** The backend creates the organization and its `PRESIDENT` membership together in one transaction; the account must already exist.
+3. **Implemented — list organizations:** A logged-in user opens **Organizations** (`/organizations`). The frontend calls `GET /api/v1/organizations` and displays the organizations sorted by name.
+4. **Implemented — view organization:** The user opens an organization's details (`/organizations/{id}`); the frontend calls `GET /api/v1/organizations/{orgId}`. A logged-in member or an administrator can also see its members through `GET /api/v1/organizations/{orgId}/members`.
+5. **Implemented — add members and assign initial roles:** The organization's president or an administrator submits an existing account's email and role (`MEMBER` or `ORGANIZER`) from the members section on `/organizations/{id}`. The frontend calls `POST /api/v1/organizations/{orgId}/members`; a student cannot join themself in the MVP.
+6. **Implemented — see membership:** The added user sees the organization and their role in the app; the frontend loads `GET /api/v1/users/me/memberships`.
+7. **Implemented — W2 access:** An `ORGANIZER` or `PRESIDENT` can create an event from
+   `/organizing/events/new` with `POST /api/v1/organizations/{orgId}/events`; it starts as
+   `DRAFT`. They can edit a DRAFT or PUBLISHED event from `/organizing/events/{id}/edit`
+   with `PUT /api/v1/events/{id}`.
+8. **Implemented in the backend — W5 access:** An `ORGANIZER` or `PRESIDENT` can list
+   participants (`GET /api/v1/events/{eventId}/registrations`), create/list/update tasks
+   (`POST /api/v1/events/{eventId}/tasks`, `GET /api/v1/events/{eventId}/tasks`,
+   `PATCH /api/v1/events/{eventId}/tasks/{taskId}`), post announcements
+   (`POST /api/v1/events/{eventId}/announcements`) and check in a participant
+   (`POST /api/v1/events/{eventId}/registrations/{registrationId}/check-in`). The W5 web
+   screens are planned; the organizing route is `/organizing/events/{id}`.
+9. **Implemented — remove members; planned — leave or change role:** A president or administrator removes a non-president from `/organizations/{id}` with `DELETE /api/v1/organizations/{orgId}/members/{membershipId}`. A member leaving themself and changing a membership between `MEMBER` and `ORGANIZER` are planned; how a president leaves or is replaced is still open.
+
+```mermaid
+sequenceDiagram
+    actor A as Administrator
+    actor P as President
+    actor M as Member or Organizer
+    participant FE as Frontend
+    participant API as Backend API
+    participant DB as PostgreSQL
+    A->>FE: Enter organization details and an existing president's email
+    FE->>API: POST /api/v1/organizations
+    API->>DB: Create organization and PRESIDENT membership in one transaction
+    DB-->>API: Commit
+    API-->>FE: 201 Created
+    M->>FE: Browse organizations and open one
+    FE->>API: GET /api/v1/organizations, then GET /api/v1/organizations/{id}
+    API->>DB: Read organization list and details
+    DB-->>API: Organization data
+    API-->>FE: 200 OK
+    P->>FE: Add an existing account as MEMBER or ORGANIZER
+    FE->>API: POST /api/v1/organizations/{orgId}/members
+    API->>DB: Insert membership after permission, account and duplicate checks
+    DB-->>API: Membership saved
+    API-->>FE: 201 Created
+    M->>FE: View own organizations and roles
+    FE->>API: GET /api/v1/users/me/memberships
+    API->>DB: Read caller's memberships
+    DB-->>API: Memberships and roles
+    API-->>FE: 200 OK
+    alt Role is ORGANIZER or PRESIDENT
+        M->>FE: Create a W2 event or use a W5 organizer action
+        FE->>API: POST /api/v1/organizations/{orgId}/events or a W5 endpoint
+        API->>API: Check isOrganizer for the event's organization
+        API->>DB: Create event/task or read/update W5 data
+        DB-->>API: Result
+        API-->>FE: Success
+    else Role is MEMBER
+        M->>FE: Try a W2/W5 organizer-only action
+        FE->>API: W2/W5 request
+        API-->>FE: 403 Forbidden
+    end
+    opt President or ADMIN removes a non-president member
+        P->>FE: Remove member
+        FE->>API: DELETE /api/v1/organizations/{orgId}/members/{membershipId}
+        API->>DB: Delete membership and leave assigned tasks unassigned
+        API-->>FE: 204 No Content
+    end
+    Note over M,API: Self-leave and role changes are planned
+```
+
+**Business rules**
+- Only a global `ADMIN` can create an organization. The president is an existing account, and the organization plus its president membership are created together; organization names are unique ignoring case. (`OrganizationController`, `OrganizationService`; `docs/data-model.md`, organizations; FR-W1-03)
+- Only the organization's president or a global `ADMIN` can add or remove members. New memberships can be `MEMBER` or `ORGANIZER`; the president is appointed at creation, not through the add-member endpoint. Students do not self-join in the MVP. (`OrganizationController`, `MembershipService`; FR-W1-05, FR-W1-06)
+- A user has at most one membership per organization. Roles belong to a specific organization and form the hierarchy `PRESIDENT ⊃ ORGANIZER ⊃ MEMBER`; a global `ADMIN` has no automatic organization role or organizer rights. (`uq_memberships_user_organization`; `OrgPermissionService`; `docs/data-model.md`, organization_memberships)
+- `ORGANIZER` and `PRESIDENT` satisfy `isOrganizer` for W2 event creation and W5 organizer endpoints; a plain `MEMBER` does not. W5 APIs exist on `main`, while their web screens are planned. An assigned task's member must belong to the event's organization. (`OrgPermissionService`, `EventController`, `TaskService`, `RegistrationService`, `AnnouncementService`; `docs/data-model.md`, service rules 3 and 5)
+- The president cannot be removed. Removing another member makes tasks assigned to that membership unassigned; member self-leave and role changes are planned. (`MembershipService`; `fk_event_tasks_assignee`; FR-W1-06, FR-W1-08, FR-W1-09)
+
+`R: R1, R2, R5 · FR: FR-ADM-02, FR-ADM-03, FR-W1-01, FR-W1-02, FR-W1-03, FR-W1-04, FR-W1-05, FR-W1-06, FR-W1-07, FR-W1-08, FR-W1-09, FR-W2-01, FR-W2-03, FR-W5-01, FR-W5-02, FR-W5-03, FR-W5-04, FR-W5-05, FR-W5-07, FR-W5-08, FR-W5-09 · UC: UC-05, UC-10, UC-11, UC-12, UC-13, UC-20, UC-21, UC-50, UC-51, UC-52, UC-53, UC-54 · Code: organization, event, organizing, registration · Tests: OrganizationCreateControllerIntegrationTest, OrganizationControllerIntegrationTest, OrganizationAddMemberControllerIntegrationTest, OrganizationRemoveMemberControllerIntegrationTest, MyMembershipsControllerIntegrationTest, OrgPermissionServiceTest, OrgPermissionPreAuthorizeIntegrationTest, EventControllerIntegrationTest, TaskControllerIntegrationTest, TaskUpdateControllerIntegrationTest, RegistrationListControllerIntegrationTest, RegistrationCheckInControllerIntegrationTest, RegistrationServiceCheckInTest, AnnouncementControllerIntegrationTest; FR-W1-08/09 planned`
 
 ---
 
