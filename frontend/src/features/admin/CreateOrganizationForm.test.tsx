@@ -17,7 +17,6 @@ const created: Organization = {
 type Submit = (request: CreateOrganizationRequest) => Promise<Organization>;
 
 function renderForm(onSubmit: Submit) {
-  // delay: null types without a timer between keys, so typing four fields stays fast
   const user = userEvent.setup({ delay: null });
   render(
     <MemoryRouter>
@@ -26,6 +25,14 @@ function renderForm(onSubmit: Submit) {
   );
   return {
     user,
+    /**
+     * Focus the field and paste the text as one input event. Typing key by key re-renders the whole
+     * MUI form per character and pushed the longest test close to Vitest's 5 s timeout.
+     */
+    fill: async (field: HTMLElement, text: string) => {
+      await user.click(field);
+      await user.paste(text);
+    },
     name: screen.getByLabelText(/^name/i),
     description: screen.getByLabelText(/description/i),
     contactEmail: screen.getByLabelText(/contact email/i),
@@ -39,10 +46,10 @@ describe('CreateOrganizationForm', () => {
     const onSubmit = vi.fn<Submit>().mockResolvedValue(created);
     const form = renderForm(onSubmit);
 
-    await form.user.type(form.name, '  UBB Robotics Club ');
-    await form.user.type(form.description, 'Robots and coffee');
-    await form.user.type(form.contactEmail, 'robotics@ubbcluj.ro');
-    await form.user.type(form.presidentEmail, ' andrei.toma@stud.ubbcluj.ro ');
+    await form.fill(form.name, '  UBB Robotics Club ');
+    await form.fill(form.description, 'Robots and coffee');
+    await form.fill(form.contactEmail, 'robotics@ubbcluj.ro');
+    await form.fill(form.presidentEmail, ' andrei.toma@stud.ubbcluj.ro ');
     await form.user.click(form.submit);
 
     expect(onSubmit).toHaveBeenCalledWith({
@@ -65,9 +72,9 @@ describe('CreateOrganizationForm', () => {
       .mockResolvedValue({ ...created, description: null, contactEmail: null });
     const form = renderForm(onSubmit);
 
-    await form.user.type(form.name, 'UBB Robotics Club');
-    await form.user.type(form.description, '   ');
-    await form.user.type(form.presidentEmail, 'andrei.toma@stud.ubbcluj.ro');
+    await form.fill(form.name, 'UBB Robotics Club');
+    await form.fill(form.description, '   ');
+    await form.fill(form.presidentEmail, 'andrei.toma@stud.ubbcluj.ro');
     await form.user.click(form.submit);
 
     expect(onSubmit).toHaveBeenCalledWith({
@@ -93,9 +100,9 @@ describe('CreateOrganizationForm', () => {
     const onSubmit = vi.fn<Submit>();
     const form = renderForm(onSubmit);
 
-    await form.user.type(form.name, 'UBB Robotics Club');
-    await form.user.type(form.contactEmail, 'robotics');
-    await form.user.type(form.presidentEmail, 'andrei.toma');
+    await form.fill(form.name, 'UBB Robotics Club');
+    await form.fill(form.contactEmail, 'robotics');
+    await form.fill(form.presidentEmail, 'andrei.toma');
     await form.user.click(form.submit);
 
     expect(screen.getAllByText('Enter a valid email')).toHaveLength(2);
@@ -111,8 +118,8 @@ describe('CreateOrganizationForm', () => {
     );
     const form = renderForm(onSubmit);
 
-    await form.user.type(form.name, 'UBB Robotics Club');
-    await form.user.type(form.presidentEmail, 'andrei@stud.ubbcluj.ro');
+    await form.fill(form.name, 'UBB Robotics Club');
+    await form.fill(form.presidentEmail, 'andrei@stud.ubbcluj.ro');
     await form.user.click(form.submit);
 
     expect(await screen.findByText('size must be between 0 and 150')).toBeInTheDocument();
@@ -132,8 +139,8 @@ describe('CreateOrganizationForm', () => {
       );
     const form = renderForm(onSubmit);
 
-    await form.user.type(form.name, 'ubb theatre club');
-    await form.user.type(form.presidentEmail, 'andrei.toma@stud.ubbcluj.ro');
+    await form.fill(form.name, 'ubb theatre club');
+    await form.fill(form.presidentEmail, 'andrei.toma@stud.ubbcluj.ro');
     await form.user.click(form.submit);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
@@ -151,8 +158,8 @@ describe('CreateOrganizationForm', () => {
       );
     const form = renderForm(onSubmit);
 
-    await form.user.type(form.name, 'UBB Robotics Club');
-    await form.user.type(form.presidentEmail, 'nobody@stud.ubbcluj.ro');
+    await form.fill(form.name, 'UBB Robotics Club');
+    await form.fill(form.presidentEmail, 'nobody@stud.ubbcluj.ro');
     await form.user.click(form.submit);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(

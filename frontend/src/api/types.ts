@@ -154,6 +154,34 @@ export interface Participant {
   checkedInAt: string | null;
 }
 
+/** Status of a registration (backend `RegistrationStatus`). There is no waitlist. */
+export type RegistrationStatus = 'CONFIRMED' | 'CANCELLED';
+
+/** Backend `RegistrationResponse` (POST /events/{eventId}/registrations). */
+export interface Registration {
+  id: number;
+  eventId: number;
+  eventTitle: string;
+  status: RegistrationStatus;
+  /** ISO-8601 instants. */
+  registeredAt: string;
+  checkedInAt: string | null;
+}
+
+/** Backend `MyRegistrationResponse` (GET /users/me/registrations): CONFIRMED and CANCELLED, newest first. */
+export interface MyRegistration {
+  id: number;
+  eventId: number;
+  eventTitle: string;
+  eventStartAt: string;
+  eventLocation: string;
+  eventStatus: EventStatus;
+  status: RegistrationStatus;
+  /** ISO-8601 instants. */
+  registeredAt: string;
+  checkedInAt: string | null;
+}
+
 /** EventRequest / editable fields of UpdateEventRequest. */
 export interface EventRequest {
   title: string;
