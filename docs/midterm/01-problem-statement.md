@@ -8,25 +8,24 @@ Part **B.1** of the mid-term deliverable. Index: [README](README.md).
 
 Student organizations at Babeș-Bolyai University run workshops, career fairs, hackathons and
 cultural evenings, but each organization, and often each event, is handled on its own.
-Students hear about events from LinkedIn, Instagram, Facebook groups and chat groups, while
-the institutional e-mail is hardly read. Sign-up happens in a different form, poll or
-spreadsheet every time, and attendance, preparation work and changes are managed by hand.
+Students hear about events from LinkedIn, Instagram, Facebook groups and chat groups. Sign-up
+happens in a different form every time, and attendance, preparation work and changes are
+managed by hand.
 
-**Pain points** (sources: interviews I-01 to I-04, section 6; findings F-NN in 6.4)
+**Pain points** (sources: interviews I-01 to I-03, section 6; findings F-NN in 6.4)
 - **Information is scattered.** Events reach people as posts and forwarded links, and
   important details are often missing, such as who may attend or who will be there.
-  *(I-01, I-02, I-03, I-04; F-01, F-09)*
-- **Registration is manual and sometimes excludes people.** Each event has its own form,
-  poll or sheet; some forms accept only a UBB student e-mail, which shuts out graduates
-  and students of other universities. *(I-02, I-03, I-04; F-04)*
-- **Places run out and the people who missed them are lost.** Organizers keep reserve lists
-  by hand; students who could not sign up in time are not contacted again.
-  *(I-01, I-04; F-02)*
-- **Plans change, but there is no easy way to cancel or to hear about changes.** People
-  who cannot come simply do not show up, and a cancellation posted in one place does not
-  reach everyone. *(I-01, I-04; F-03, F-06)*
-- **Attendance and preparation are informal.** Check-in is a paper list or a head count,
-  and shared tasks without a clear owner cause confusion. *(I-01, I-02, I-03, I-04; F-07, F-08)*
+  *(I-01, I-02, I-03; F-01, F-08)*
+- **Registration is manual and sometimes excludes people.** Each event has its own form;
+  some forms accept only a UBB student e-mail, which shuts out graduates and students of
+  other universities. *(I-02, I-03; F-04)*
+- **Places run out and the people who missed them are lost.** Students who could not sign
+  up in time are not contacted again when a place becomes free. *(I-01; F-02)*
+- **Plans change, but there is no easy way to cancel or to follow changes.** People who
+  cannot come simply do not show up, and updates reach them through e-mail, calendars and
+  chats rather than one place. *(I-01, I-02, I-03; F-03, F-06)*
+- **Attendance is informal.** Check-in is a paper list or a QR scan done by volunteers or
+  helpers, often with a queue at the door. *(I-01, I-02, I-03; F-07)*
 
 This matters because students miss events that would interest them, places stay empty
 while others wanted them, and organizers spend their time on lists and messages instead of
@@ -37,7 +36,7 @@ and announcements for student-organization events into one place.
 
 ## 1.2 Stakeholders
 
-The roles below are the ones in the code (global role `STUDENT` or `ADMIN` in `GlobalRole`, organization role `MEMBER`, `ORGANIZER` or `PRESIDENT` in `OrganizationRole`), plus the visitor who is not logged in. Each goal follows from what the course statement expects the system to cover (R2, R3, R5, R6) and from what the role can do in the application today or in the agreed plan. The goals of students and organizers were checked in four interviews (I-01 to I-04); the findings are in `06-ux-research.md` §6.4 and the personas in §6.7.
+The roles below are the ones in the code (global role `STUDENT` or `ADMIN` in `GlobalRole`, organization role `MEMBER`, `ORGANIZER` or `PRESIDENT` in `OrganizationRole`), plus the visitor who is not logged in. Each goal follows from what the course statement expects the system to cover (R2, R3, R5, R6) and from what the role can do in the application today or in the agreed plan. The goals of students and organizers were checked in interviews I-01 to I-03; the findings are in `06-ux-research.md` §6.4 and the personas in §6.7.
 
 | Stakeholder | Uses the system? | Main interest / goal |
 |-------------|------------------|----------------------|

@@ -14,7 +14,7 @@ The remaining work was finished in the steps below, one pull request per ticket.
 | "My registrations" page | T-25 (#33) | Page with upcoming / past registrations and cancel | #194 |
 | Empty and loading states | T-44 (#52) | Shared `EmptyState` on all list pages | #195 |
 | Manual test, API part | T-99 (#107) | 57 of 57 steps passed (`docs/qa/midterm-manual-test.md`) | #196 |
-| User interviews | T-53 (#61) | Four real online interviews, I-01 to I-04 | #198 |
+| User interviews | T-53 (#61) | Three real online interviews, I-01 to I-03 | #198 |
 | User research write-up | T-57–T-61 (#65–#69) | Findings, assumptions (3 changed), product flows, personas | #202 |
 | Final version of sections 01–07 | T-88 (#96), part 1 | Drafting instructions removed, content updated after the interviews | #203 |
 
