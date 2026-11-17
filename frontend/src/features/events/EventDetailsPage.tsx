@@ -15,6 +15,7 @@ import {
   registrationDeadlineText,
   statusLabel,
 } from './eventFormat';
+import { RegistrationButton } from './RegistrationButton';
 
 const statusColors: Record<EventStatus, 'default' | 'success' | 'warning' | 'info' | 'error'> = {
   DRAFT: 'default',
@@ -89,9 +90,11 @@ export function EventDetailsPage() {
             <Detail label="Capacity">{event.capacity}</Detail>
             <Detail label="Registration">{registrationDeadlineText(event.registrationDeadline)}</Detail>
           </Stack>
+          <Box sx={{ mt: 3 }}>
+            <RegistrationButton event={event} />
+          </Box>
         </Paper>
       )}
-      {/* TODO(T-24): the Register / Cancel registration button goes here (ticket "Register / Cancel button"). */}
       {event && <EventAnnouncements eventId={event.id} />}
     </Stack>
   );
