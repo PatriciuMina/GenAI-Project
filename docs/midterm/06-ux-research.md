@@ -99,24 +99,24 @@ One row per interview. Write the anonymised notes in `interviews/I-NN.md` using 
 template in `interviews/README.md` within 24 hours of the interview.
 
 **Format**
-Table: `ID | Date | Participant type | Interviewer | Duration | Notes`.
+Table: `ID | Participant type | Interviewer | Mode | Notes`.
 
 > **Example – replace:** (format only, not a real interview)
 >
-> | ID | Date | Participant type | Interviewer | Duration | Notes |
-> |----|------|------------------|-------------|----------|-------|
-> | I-01 | YYYY-MM-DD | Student, 2nd year, not in an organization | <team member> | 25 min | [I-01](interviews/I-01.md) |
+> | ID | Participant type | Interviewer | Mode | Notes |
+> |----|------------------|-------------|------|-------|
+> | I-01 | Student, 2nd year, not in an organization | <team member> | Online | [I-01](interviews/I-01.md) |
 
 **Done when**
 - [ ] Every row links to an existing notes file.
 - [ ] No names, emails or other identifying data in the table or notes.
 
-| ID | Date | Participant type | Interviewer | Duration | Notes |
-|----|------|------------------|-------------|----------|-------|
-| I-01 | _to add_ | Student, Master's at FSEGA, works full time; former volunteer in a student organization | Patriciu Mina | _to add_ | [I-01](interviews/I-01.md) |
-| I-02 | _to add_ | UBB CS graduate, backend developer; never in a student organization | Patriciu Mina | _to add_ | [I-02](interviews/I-02.md) |
-| I-03 | _to add_ | Student at another university (medicine), never at a UBB event; team lead in a student organization | Patriciu Mina | _to add_ | [I-03](interviews/I-03.md) |
-| I-04 | _to add_ | Organizer: study group leader, CS, 2nd year | Patriciu Mina | _to add_ | [I-04](interviews/I-04.md) |
+| ID | Participant type | Interviewer | Mode | Notes |
+|----|------------------|-------------|------|-------|
+| I-01 | Student, Master's at FSEGA, works full time; former volunteer in a student organization | Patriciu Mina | Online | [I-01](interviews/I-01.md) |
+| I-02 | UBB CS graduate, backend developer; never in a student organization | Patriciu Mina | Online | [I-02](interviews/I-02.md) |
+| I-03 | Student at another university (medicine), never at a UBB event; team lead in a student organization | Patriciu Mina | Online | [I-03](interviews/I-03.md) |
+| I-04 | Organizer: study group leader, CS, 2nd year | Patriciu Mina | Online | [I-04](interviews/I-04.md) |
 
 > TODO (team): log the remaining interviews here.
 
