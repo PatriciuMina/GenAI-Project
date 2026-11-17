@@ -141,8 +141,18 @@ to a clear 409 or 400 error by the constraint name.
 | `fk_events_organization`, `fk_events_created_by` (RESTRICT) | Every event belongs to exactly one organization and records who created it. |
 | `ix_events_status_start_at`, `ix_events_start_at`, `ix_events_organization_id (organization_id, start_at)`, `ix_events_category` | Indexes for the W3 search: upcoming published events, an organization's events in chronological order, and filtering by category. |
 
-Status lifecycle (W2): `DRAFT → PUBLISHED → REGISTRATION_CLOSED → ONGOING → COMPLETED`.
-`CANCELLED` can be reached from any status except `COMPLETED`.
+Status lifecycle (W2), implemented in `EventLifecycle` (all transitions are manual, by an organizer or president):
+
+| From | To | Condition |
+|------|----|-----------|
+| `DRAFT` | `PUBLISHED` | `start_at` is in the future |
+| `PUBLISHED` | `REGISTRATION_CLOSED` | none |
+| `PUBLISHED` or `REGISTRATION_CLOSED` | `ONGOING` | from one hour before `start_at` |
+| `ONGOING` | `COMPLETED` | `end_at` has passed |
+| any status except `COMPLETED` and `CANCELLED` | `CANCELLED` | none |
+
+Any other transition (including to the same status) is rejected with 409 `INVALID_STATUS_TRANSITION`.
+The state diagram is in `docs/midterm/05-workflows.md` §5.2.
 
 ### registrations
 | Constraint | Rule |
