@@ -89,7 +89,7 @@ describe('MembersSection', () => {
     await user.type(await screen.findByRole('textbox', { name: 'Email' }), 'missing@example.com');
     await user.click(screen.getByRole('button', { name: 'Add member' }));
 
-    expect(await screen.findByText('No user with this email exists')).toBeInTheDocument();
+    expect(await screen.findByText('No account was found with that email.')).toBeInTheDocument();
   });
 
   it('shows the duplicate-member backend error next to the add form', async () => {
@@ -103,7 +103,9 @@ describe('MembersSection', () => {
     await user.type(await screen.findByRole('textbox', { name: 'Email' }), 'already@example.com');
     await user.click(screen.getByRole('button', { name: 'Add member' }));
 
-    expect(await screen.findByText('This user is already a member')).toBeInTheDocument();
+    expect(
+      await screen.findByText('This user is already a member of the organization.'),
+    ).toBeInTheDocument();
   });
 
   it('hides management controls when the viewer cannot manage members', async () => {

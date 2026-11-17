@@ -1,6 +1,7 @@
 // Turns any thrown value (usually an AxiosError carrying the backend ApiError JSON) into something
 // a page can show: one readable message plus per-field messages for forms.
 import axios from 'axios';
+import { getErrorMessage } from './errorMessages';
 import type { ApiErrorBody } from './types';
 
 export interface ParsedApiError {
@@ -42,7 +43,7 @@ export function parseApiError(error: unknown): ParsedApiError {
       const message =
         data.code === 'VALIDATION_FAILED' && Object.keys(fieldErrors).length > 0
           ? 'Please correct the highlighted fields.'
-          : data.message;
+          : getErrorMessage(data.code, data.message);
       return { status, code: data.code, message, fieldErrors };
     }
     return { status, message: `Request failed (HTTP ${status}).`, fieldErrors: {} };

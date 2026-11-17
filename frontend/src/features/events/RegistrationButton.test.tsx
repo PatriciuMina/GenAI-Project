@@ -161,10 +161,10 @@ describe('RegistrationButton', () => {
   });
 
   it.each([
-    ['EVENT_FULL', 'All places for this event are taken'],
-    ['REGISTRATION_CLOSED', 'Registration for this event is closed'],
-    ['ALREADY_REGISTERED', 'You are already registered for this event'],
-  ])('shows the readable message of %s', async (code, message) => {
+    ['EVENT_FULL', 'Sorry, this event is full.'],
+    ['REGISTRATION_CLOSED', 'Registration is closed for this event.'],
+    ['ALREADY_REGISTERED', 'You are already registered for this event.'],
+  ])('shows the friendly message of %s', async (code, message) => {
     vi.mocked(registrationsApi.getMyRegistrations).mockResolvedValue([]);
     vi.mocked(registrationsApi.registerForEvent).mockRejectedValue(apiError(409, code, message));
     const user = renderButton(openEvent);
