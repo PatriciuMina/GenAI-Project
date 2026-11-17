@@ -18,11 +18,9 @@ Anonymised notes of user interviews for [`../06-ux-research.md`](../06-ux-resear
 
 | Field | Value |
 |-------|-------|
-| Date | YYYY-MM-DD |
 | Participant type | e.g. student, 2nd year, member of one organization |
 | Interviewer / note taker | team member names |
-| Duration / mode | e.g. 25 min, in person |
-| Consent given | yes |
+| Mode | online or in person; real or simulated |
 
 ## Notes per question
 - **Q1 (<short question>):** …
