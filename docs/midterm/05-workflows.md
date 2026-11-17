@@ -305,12 +305,12 @@ is guaranteed when two students register for the last place at the same time.
 **Format:** see top of file (a `sequenceDiagram` with an `alt` block for "full" fits best).
 
 **Done when**
-- [ ] Steps, diagram, business rules and traceability line are present.
-- [ ] The concurrency/capacity rule and the rejection paths are shown.
+- [x] Steps, diagram, business rules and traceability line are present.
+- [x] The concurrency/capacity rule and the rejection paths are shown.
 
 ### Sequence diagram: register with a capacity check, and cancel
 
-Registering exists on `main` (`POST /api/v1/events/{id}/registrations`). Cancelling (`DELETE /api/v1/events/{id}/registrations/me`, ticket T-22) is **planned**: the diagram shows the agreed contract. The event row is locked first, so two students taking the last place are handled one after the other (`docs/data-model.md`, rules 1 and 2).
+Registering (`POST /api/v1/events/{id}/registrations`, T-21) and cancelling (`DELETE /api/v1/events/{id}/registrations/me`, T-22) are implemented on `main`. The event row is locked first, so two students taking the last place are handled one after the other (`docs/data-model.md`, rules 1 and 2).
 
 ```mermaid
 sequenceDiagram
@@ -334,13 +334,40 @@ sequenceDiagram
         API-->>FE: 201 Created
     end
     FE-->>S: "You are registered" or the error message
-    S->>FE: Click "Cancel registration" (planned)
-    FE->>API: DELETE /api/v1/events/{id}/registrations/me (planned)
-    API->>DB: set the registration status to CANCELLED
-    API-->>FE: 204 No Content
+    S->>FE: Click "Cancel registration" and confirm
+    FE->>API: DELETE /api/v1/events/{id}/registrations/me
+    alt no CONFIRMED registration of the caller
+        API-->>FE: 404 NOT_REGISTERED
+    else event started, not open, or already checked in
+        API-->>FE: 409 CANCEL_NOT_ALLOWED
+    else allowed
+        API->>DB: set the registration status to CANCELLED (row kept)
+        API-->>FE: 204 No Content
+    end
 ```
 
-> TODO (team): W4 workflow here.
+1. **Implemented — start from the event details:** A logged-in student opens an event (`/events/{id}`, end of W3). The **registration area** (`RegistrationButton`) loads the student's registrations (`GET /api/v1/users/me/registrations`) to know whether they are already registered, and shows one of: **Register**, "You are registered" with **Cancel registration**, "Full", or "Registration is closed".
+2. **Implemented — register:** The student selects **Register**. The frontend sends `POST /api/v1/events/{id}/registrations` (no body; the user comes from the JWT).
+3. **Implemented — lock the event:** In one transaction the backend reads the event with a row lock (`SELECT … FOR UPDATE`, `EventRepository.findByIdForUpdate`). A second request for the same event waits at this point until the first one has committed or rolled back.
+4. **Implemented — check the rules in order:** unknown event or `DRAFT` → 404; event not `PUBLISHED`, or now after the registration deadline (or after the start when there is no deadline) → 409 `REGISTRATION_CLOSED`; the student already has a `CONFIRMED` registration → 409 `ALREADY_REGISTERED`; confirmed registrations already equal the capacity → 409 `EVENT_FULL`.
+5. **Implemented — save:** Otherwise a new `CONFIRMED` registration is inserted and the API returns `201 Created`. The page shows "You are registered for this event." and the free places on the page drop by one.
+6. **Implemented — rejected registration:** For any 409 the page shows the friendly message for the error code (T-45, `errorMessages.ts`), for example that the event is full, and the student stays on the page.
+7. **Implemented — the last place, two students at once:** Two students press **Register** for the last place at the same moment. Because of the row lock in step 3, the requests run one after the other: the first sees one free place and is saved; the second then counts the new confirmed row and gets 409 `EVENT_FULL`. The capacity is never exceeded. As a second safety net, the unique index `ux_registrations_confirmed_once` stops the same student from having two confirmed rows (mapped to `ALREADY_REGISTERED`).
+8. **Planned (T-25) — see my registrations:** The API already returns the student's registrations, `CONFIRMED` and `CANCELLED`, newest first, with event title, start, location and status (`GET /api/v1/users/me/registrations`). The **My registrations** page (`/my-registrations`) that lists them as *Upcoming* and *Past and cancelled* is still a placeholder.
+9. **Implemented — cancel:** On the event page the student selects **Cancel registration** and confirms in a dialog. The frontend sends `DELETE /api/v1/events/{id}/registrations/me`. If the event is `PUBLISHED` or `REGISTRATION_CLOSED`, has not started, and the registration is not checked in, the registration becomes `CANCELLED` (`204 No Content`) and the place is free again. Otherwise 409 `CANCEL_NOT_ALLOWED`; without a confirmed registration 404 `NOT_REGISTERED`.
+10. **Implemented — register again:** After cancelling, the **Register** button is shown again while the rules in step 4 allow it. Registering again creates a new `CONFIRMED` row; the old `CANCELLED` row stays as history.
+
+**Business rules**
+- Only a logged-in user can register, and only for themselves. (`RegistrationController`; FR-W4-01)
+- Registration is open only while the event is `PUBLISHED` and before the registration deadline, or before the start if there is no deadline; a `DRAFT` answers 404 so it does not leak. (`RegistrationService.register`; FR-W4-02, FR-W2-04)
+- At most one `CONFIRMED` registration per student and event: checked by the service and enforced by the partial unique index `ux_registrations_confirmed_once`. (FR-W4-03; `docs/data-model.md`, registrations)
+- Confirmed registrations never exceed the capacity, also under concurrent requests, because the event row is locked for the whole transaction. There is no waitlist: a full event rejects with `EVENT_FULL`. (`EventRepository.findByIdForUpdate`, `RegistrationService.register`; FR-W4-04; data-model service rule 1, D1; test `RegistrationConcurrencyTest`)
+- Cancelling is allowed only for the caller's own `CONFIRMED`, not checked-in registration, while the event is `PUBLISHED` or `REGISTRATION_CLOSED` and has not started. The row is kept as `CANCELLED`, never deleted. (`RegistrationService.cancelMyRegistration`; FR-W4-05; data-model D4)
+- Registering again after cancelling creates a new row. (FR-W4-06; `ux_registrations_confirmed_once` applies only to `CONFIRMED` rows)
+- A user sees only their own registrations. (`RegistrationService.listMine`; FR-W4-07)
+- Every rejection uses the standard error body with a stable code (`EVENT_FULL`, `REGISTRATION_CLOSED`, `ALREADY_REGISTERED`, `CANCEL_NOT_ALLOWED`, `NOT_REGISTERED`); the web app turns the code into a friendly message. (`GlobalExceptionHandler`, `frontend/src/api/errorMessages.ts`; FR-W4-08)
+
+`R: R3, R4, R6, R10 · FR: FR-W2-04, FR-W4-01, FR-W4-02, FR-W4-03, FR-W4-04, FR-W4-05, FR-W4-06, FR-W4-07, FR-W4-08 · UC: UC-40, UC-41, UC-42 · Code: registration (RegistrationController, RegistrationService, RegistrationRepository), event (EventRepository.findByIdForUpdate), frontend features/events (RegistrationButton), features/registrations · Tests: RegistrationRulesTest, RegistrationConcurrencyTest, RegistrationRegisterControllerIntegrationTest, RegistrationCancelControllerIntegrationTest, MyRegistrationsControllerIntegrationTest, RegistrationServiceRegisterTest, RegistrationServiceCancelTest, RegistrationButton.test.tsx, registrationRules.test.ts`
 
 ---
 
