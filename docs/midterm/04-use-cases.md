@@ -66,26 +66,26 @@ Table: `ID | Title | Workflow | Primary actor | Linked FR | Status`.
 | UC-04 | View my account | AUTH | Student / Administrator | FR-AUTH-05 | implemented |
 | UC-05 | Create an organization and appoint its president | ADM | Administrator | FR-ADM-02, FR-ADM-04, FR-W1-03 | implemented |
 | UC-10 | Browse organizations | W1 | Student | FR-W1-01, FR-W1-02 | implemented |
-| UC-11 | View organization memberships and member list | W1 | President / Administrator | FR-ADM-03, FR-W1-04, FR-W1-05, FR-W1-06, FR-W1-07 | partial |
+| UC-11 | View organization memberships and member list | W1 | President / Administrator | FR-ADM-03, FR-W1-04, FR-W1-05, FR-W1-06, FR-W1-07 | implemented |
 | UC-12 | Change a member's role | W1 | President | FR-W1-07, FR-W1-08 | planned |
 | UC-13 | Leave an organization / remove a member | W1 | Member / President | FR-W1-06, FR-W1-09 | partial |
 | UC-14 | Edit organization details | W1 | President | FR-W1-10 | planned |
 | UC-20 | Create a draft event | W2 | Organizer | FR-W2-01, FR-W2-02, FR-W2-04 | implemented |
 | UC-21 | Edit an event | W2 | Organizer | FR-W2-03, FR-W2-04 | implemented |
-| UC-22 | Publish an event | W2 | Organizer | FR-W2-05 | planned |
-| UC-23 | Close registration / start / complete an event | W2 | Organizer | FR-W2-06, FR-W2-07, FR-W2-08, FR-W2-10 | planned |
-| UC-24 | Cancel an event | W2 | Organizer | FR-W2-09 | planned |
-| UC-30 | Browse upcoming events | W3 | Student | FR-W3-01, FR-W3-02, FR-W3-03, FR-W3-06, FR-W3-07 | planned |
-| UC-31 | Search and filter events | W3 | Student | FR-W3-02, FR-W3-03, FR-W3-06, FR-W3-07 | planned |
-| UC-32 | View event details | W3 | Student | FR-W2-04, FR-W3-04, FR-W3-05, FR-W3-08 | partial |
+| UC-22 | Publish an event | W2 | Organizer | FR-W2-05 | implemented |
+| UC-23 | Close registration / start / complete an event | W2 | Organizer | FR-W2-06, FR-W2-07, FR-W2-08, FR-W2-10 | implemented |
+| UC-24 | Cancel an event | W2 | Organizer | FR-W2-09 | implemented |
+| UC-30 | Browse upcoming events | W3 | Student | FR-W3-01, FR-W3-02, FR-W3-03, FR-W3-06, FR-W3-07 | implemented |
+| UC-31 | Search and filter events | W3 | Student | FR-W3-02, FR-W3-03, FR-W3-06, FR-W3-07 | implemented |
+| UC-32 | View event details | W3 | Student | FR-W2-04, FR-W3-04, FR-W3-05, FR-W3-08 | implemented |
 | UC-40 | View my registrations | W4 | Student | FR-W4-07 | partial |
-| UC-41 | Register for an event | W4 | Student | FR-W4-01, FR-W4-02, FR-W4-03, FR-W4-04, FR-W4-08 | partial |
-| UC-42 | Cancel my registration | W4 | Student | FR-W4-05, FR-W4-06 | planned |
-| UC-50 | Manage organizer tasks | W5 | Organizer | FR-W5-02, FR-W5-03, FR-W5-04, FR-W5-05 | partial |
-| UC-51 | View the participant list | W5 | Organizer | FR-W5-01 | partial |
-| UC-52 | Check in a participant | W5 | Organizer | FR-W5-07 | planned |
+| UC-41 | Register for an event | W4 | Student | FR-W4-01, FR-W4-02, FR-W4-03, FR-W4-04, FR-W4-08 | implemented |
+| UC-42 | Cancel my registration | W4 | Student | FR-W4-05, FR-W4-06 | implemented |
+| UC-50 | Manage organizer tasks | W5 | Organizer | FR-W5-02, FR-W5-03, FR-W5-04, FR-W5-05 | implemented |
+| UC-51 | View the participant list | W5 | Organizer | FR-W5-01 | implemented |
+| UC-52 | Check in a participant | W5 | Organizer | FR-W5-07 | implemented |
 | UC-53 | Post and read announcements | W5 | Organizer / Student | FR-W5-08, FR-W5-09, FR-W5-10 | partial |
-| UC-54 | Read announcements of my events | W5 | Student / Organizer | FR-W5-09 | partial |
+| UC-54 | Read announcements of my events | W5 | Student / Organizer | FR-W5-09 | implemented |
 
 ---
 
@@ -382,7 +382,7 @@ Extra sources: `organization/` package, `OrgPermissionService`, `docs/data-model
 - 3b. The organization id does not exist: `MembershipService.findByOrganizationId` throws `NotFoundException`; admins see 404, while non-members are blocked earlier by the 403 rule.
 - 3c. A president tries to add a user who already belongs to the organization: the request is rejected with 409 `ALREADY_MEMBER` because `uq_memberships_user_organization` allows at most one membership row per `user_id + organization_id`.
 
-**Status:** partial
+**Status:** implemented
 
 ### UC-12: Change a member's role
 
@@ -429,7 +429,7 @@ Extra sources: `organization/` package, `OrgPermissionService`, `docs/data-model
 - 3c. The target membership does not exist or belongs to another organization: `MembershipService.removeMember` throws 404 because the membership must belong to the requested `orgId`.
 - 3d. Leaving is deferred to the final delivery: the app does not yet expose a member self-service "leave organization" flow, so this action remains `planned` even though the president/admin remove-member API is already implemented.
 
-**Status:** planned
+**Status:** partial
 
 ### UC-14: Edit organization details
 
@@ -616,7 +616,7 @@ Extra sources: `event/` package, `EventStatus`, data-model.md lifecycle and W3 i
 - 3b. The user passes invalid paging or date parameters: the service rejects the request with 400 `INVALID_PARAMETER` and the UI shows the backend error.
 - 3c. No event matches the current query or filters: the page shows the empty-state “No events match your filters” message instead of an error.
 
-**Status:** planned
+**Status:** implemented
 
 ### UC-31: Search and filter events
 
@@ -641,7 +641,7 @@ Extra sources: `event/` package, `EventStatus`, data-model.md lifecycle and W3 i
 - 3c. `from` is after `to`: the backend rejects the request with 400 `INVALID_PARAMETER` before running the search.
 - 3d. The user filters to an organization with no visible results: the system shows an empty state rather than a server failure.
 
-**Status:** planned
+**Status:** implemented
 
 ### UC-32: View event details
 
@@ -667,7 +667,7 @@ Extra sources: `event/` package, `EventStatus`, data-model.md lifecycle and W3 i
 - 3c. Event is not visible in list results but can still be opened as a completed/cancelled record: the details page may display the status while the search list filters it out.
 - 3d. The user is not logged in: the event route is protected by the authenticated-user requirement, so the request is rejected before the details page loads.
 
-**Status:** partial
+**Status:** implemented
 
 ---
 
@@ -730,7 +730,7 @@ Extra sources: `registration/` package, data-model.md registrations + service ru
 - 3d. The event does not exist or is a draft: it is treated as 404, so no registration is created.
 - 3e. The student previously cancelled a registration for this event and registers again while the event still accepts registrations: the system creates a new `CONFIRMED` row and keeps the earlier `CANCELLED` row as history.
 
-**Status:** partial
+**Status:** implemented
 
 ### UC-42: Cancel my registration
 
@@ -754,7 +754,7 @@ Extra sources: `registration/` package, data-model.md registrations + service ru
 - 3c. The registration was already checked in: cancellation is rejected with 409 `CANCEL_NOT_ALLOWED`.
 - 3d. After a cancellation, the student may register again while the event is still open and the duplicate/capacity rules allow it; the new registration is stored as a new `CONFIRMED` row and the earlier `CANCELLED` row remains in history.
 
-**Status:** planned
+**Status:** implemented
 
 ---
 
@@ -795,7 +795,7 @@ Extra sources: `organizing/` package, `Registration.checkedInAt`, data-model.md 
 - 4b. The title is empty or longer than 200 characters: the request is rejected by validation before the task is saved.
 - 5a. The task update flow for status/assignee changes is not fully complete in the web UI on `main` even though the backend update endpoint exists; this is why the use case remains `partial` rather than fully implemented.
 
-**Status:** partial
+**Status:** implemented
 
 ### UC-51: View the participant list
 
@@ -819,7 +819,7 @@ Extra sources: `organizing/` package, `Registration.checkedInAt`, data-model.md 
 - 3a. The event id is unknown: the service throws `NotFoundException`, so no participant list is shown.
 - 5a. No registrations exist yet: the system shows an empty list because the query returns zero rows instead of an error.
 
-**Status:** partial
+**Status:** implemented
 
 ### UC-52: Check in a participant
 
@@ -845,7 +845,7 @@ Extra sources: `organizing/` package, `Registration.checkedInAt`, data-model.md 
 - 4c. The participant is already checked in: the request is rejected with 409 `ALREADY_CHECKED_IN` and no second check-in is recorded.
 - 2a. A non-organizer tries to check in: the service rejects the request with 403 `FORBIDDEN`.
 
-**Status:** planned
+**Status:** implemented
 
 ### UC-53: Post and read announcements
 
@@ -894,6 +894,6 @@ Extra sources: `organizing/` package, `Registration.checkedInAt`, data-model.md 
 - 3a. The event has no announcements yet: the system shows an empty list rather than an error.
 - 3b. The event does not exist: the service returns 404, so no announcement data is displayed.
 
-**Status:** partial
+**Status:** implemented
 
 ---

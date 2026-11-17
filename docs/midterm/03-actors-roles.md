@@ -90,12 +90,6 @@ endpoint does not exist yet). The actions should match the use cases in `04-use-
 Table. Legend: ✅ allowed · ❌ not allowed · 🔸 only own (e.g. own registration). 15–30 rows.
 Columns: `Action | FR | Visitor | Student | Member | Organizer | President | Admin | Enforced by`.
 
-> **Example – replace:**
->
-> | Action | FR | Visitor | Student | Member | Organizer | President | Admin | Enforced by |
-> |--------|----|---------|---------|--------|-----------|-----------|-------|-------------|
-> | List organizations | FR-W1-01 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `SecurityConfig` (authenticated) |
-
 **Done when**
 - [ ] Every row has an FR ID and an "Enforced by" value (code reference or `planned`).
 - [ ] Rows marked implemented were checked against the code/tests.
@@ -126,7 +120,7 @@ Legend: ✅ allowed · ❌ not allowed · 🔸 only own (e.g. own registration).
 | Open event details (non-draft) | FR-W3-04, FR-W3-05 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `EventService.getById(...)` (DRAFT hidden from non-organizers; all other logged-in users can open visible events) |
 | List an organization's events | FR-W3-06 | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | `EventService.findByOrganization(...)` (filters DRAFTs for non-organizers; endpoint exists) |
 | Register for a published event | FR-W4-01–04 | ❌ | 🔸 | 🔸 | 🔸 | 🔸 | 🔸 | `RegistrationService.register(...)` (`PUBLISHED`, open window, no duplicate, capacity check) |
-| Cancel my registration | FR-W4-05 | ❌ | 🔸 | 🔸 | 🔸 | 🔸 | 🔸 | `planned` |
+| Cancel my registration | FR-W4-05 | ❌ | 🔸 | 🔸 | 🔸 | 🔸 | 🔸 | `RegistrationService.cancelMyRegistration(...)`: only the caller's own CONFIRMED registration (`DELETE .../registrations/me`); `RegistrationCancelControllerIntegrationTest.onlyTheCallersOwnRegistrationIsCancelled` |
 | View my registrations | FR-W4-07 | ❌ | 🔸 | 🔸 | 🔸 | 🔸 | 🔸 | `RegistrationController.listMine(...)` using caller identity |
 | View participant list | FR-W5-01 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `RegistrationService.listParticipants(...)`: `orgPermissionService.isOrganizer(callerId, event.getOrganization().getId())` |
 | Create task | FR-W5-02, FR-W5-03 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `TaskService.create(...)`: `loadEventForOrganizer(...)` + `ASSIGNEE_NOT_IN_ORGANIZATION` check; `PermissionMatrixIntegrationTest.createTaskPermissionMatrix` |
