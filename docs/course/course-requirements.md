@@ -1,5 +1,7 @@
 # Course requirements (summary of the official project statement)
 
+Course: Generative AI in Software Engineering (GenAI in SE)
+
 Summary written by the team from the course project statement. For the exact wording,
 see the original course document.
 

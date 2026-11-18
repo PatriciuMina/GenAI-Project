@@ -75,4 +75,4 @@ Legend: ✅ allowed · ❌ not allowed · 🔸 only own (e.g. own registration).
 | Change task status / assignee | FR-W5-05 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `TaskService.update(...)`: `loadEventForOrganizer(...)` |
 | Check in a participant | FR-W5-07 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `RegistrationService.checkIn(...)`: organizer check + `CHECK_IN_NOT_ALLOWED` / `ALREADY_CHECKED_IN` rules; `PermissionMatrixIntegrationTest.checkInPermissionMatrix` |
 | Post announcement | FR-W5-08 | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | `AnnouncementService.create(...)`: `isOrganizer(...)`; rejects DRAFT or COMPLETED; `PermissionMatrixIntegrationTest.postAnnouncementPermissionMatrix` |
-| Read announcements for an event | FR-W5-09 | ❌ | 🔸 | ✅ | ✅ | ✅ | ❌ | `AnnouncementService.list(...)`: `orgPermissionService.isMember(...) || registrationService.hasRegistration(...)` |
+| Read announcements for an event | FR-W5-09 | ❌ | 🔸 | ✅ | ✅ | ✅ | ❌ | `AnnouncementService.list(...)`: `orgPermissionService.isMember(...) \|\| registrationService.hasRegistration(...)` |
