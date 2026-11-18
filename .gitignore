@@ -41,3 +41,6 @@ desktop.ini
 .env
 .env.*
 !.env.example
+
+# ---- Mid-term document build (scripts/build-midterm-docs.sh) ----
+/build/midterm-docs/

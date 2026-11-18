@@ -35,7 +35,7 @@ The table in each section; each cell a short list. Total per student ≈ ½ page
 
 ---
 
-## Mina Patriciu
+## Patriciu Mina
 
 **Ticket:** `docs: individual contribution – Mina Patriciu` · **Points:** 1
 
@@ -60,6 +60,7 @@ documentation into its final form.
 | Architectural / design decisions contributed | Feature packages and layering (ADR-001), REST + OpenAPI (ADR-002), JWT with Spring Security (ADR-003), Flyway (ADR-004), Docker Compose (ADR-005); data model decisions D1–D12, e.g. D1 no waitlist, D4 events with registrations are cancelled and never deleted, D11 optimistic locking on events (`P3-data-model.txt`); frontend decisions D1–D4 (`P5-frontend.txt`); the business error codes and event visibility rules shared by all tickets; the mid-term scope cut and one `no-genai` ticket per member (`P8-ticket-plan.txt`, D12); the `good-first-ticket` rule (`P9-board-issues.txt`); equal review and merge rules (`CONTRIBUTING.md` §2, PR #109); after the interviews: waitlist, calendar/e-mail notifications and "who may attend" moved into the final-delivery scope (`06-ux-research.md` §6.5) |
 | GenAI-related work | Done with Claude Code (Claude Opus 5.5), plus one summary with Claude Opus 5.5 in claude.ai. Set up the GenAI process for the team: the usage log, `CLAUDE.md` as the shared AI context, CONTRIBUTING §6 rules; worked in plan mode and answered the open decisions before code was generated; the first ten sessions are saved as evidence in `docs/genai/sessions/` (`P1` … `P10`); every task has a usage-log row. The interviews were conducted and written by me; the AI only put my notes into the template. **`no-genai` ticket:** T-25 was mine; I removed the label before the work started and the page was generated with Claude Code (comment on issue #33, report §7.5), so I have no work written without GenAI |
 | Others | Created the GitHub labels, milestone, the 99 issues and the project board with a script (PR #108, #109) and fixed the `good-first-ticket` labels on the existing issues; wrote the team rules for picking, reviewing and merging tickets; mid-term status analysis and record of how it was finished (PR #184, #204); ran the API part of the manual test on a fresh stack (PR #196) |
+
 ---
 
 ## Andrei Gota
@@ -102,7 +103,7 @@ event page. For the user research I collected the answers of two students (I-05,
 | Documentation produced | `docs/midterm/03-actors-roles.md` permission matrix (#165); `docs/midterm/04-use-cases.md` use-case list, AUTH/ADM and W1–W5 cases, and overview diagram (#167–#172, #178); `docs/midterm/05-workflows.md` W1 and W2 (#180, #182); palette and logo guidance (`docs/design/palette.md`, `docs/design/logo.md`, #159, #161). |
 | Tests written | `frontend/src/api/errorMessages.test.ts` (16 business-code mappings and unknown-code fallback); updated friendly-message expectations in `CreateOrganizationForm.test.tsx`, `RegistrationButton.test.tsx`, and `MembersSection.test.tsx` (PR #183). |
 | Architectural / design decisions contributed | Retain primary indigo `#3949ab`, use status colors with text labels and documented WCAG AA contrast ratios (`docs/design/palette.md`, PR #159); use an original calendar/checkmark logo in the existing primary color (`docs/design/logo.md`, PR #161); document role boundaries in the permission matrix (#165) and manual W2 state transitions/date guards checked against `EventLifecycle` and `EventService` (`05-workflows.md` §5.2, #182). No ADR authored (`docs/architecture/ADR-*`). |
-| GenAI-related work | GenAI use and verification are recorded in `docs/genai/usage-log.md` rows (T-39/T-40 design proposals, actors/use-case/W1/W2 documentation, and friendly error messages); |
+| GenAI-related work | GenAI use and verification are recorded in `docs/genai/usage-log.md` rows (T-39/T-40 design proposals, actors/use-case/W1/W2 documentation, and friendly error messages) |
 | Others | GitHub's merged-PR search for `JakabGergo` returned 13 PRs: #159, #161, #165, #167–#172, #178, #180, #182, and #183. |
 
 ---
@@ -124,7 +125,7 @@ event page. For the user research I collected the answers of two students (I-05,
 
 ---
 
-## Vlad-Stefan Uleia
+## Vlad-Ștefan Uleia
 
 **Ticket:** `docs: individual contribution – Vlad-Stefan Uleia` · **Points:** 1
 
